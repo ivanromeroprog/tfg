@@ -8,7 +8,7 @@
 			{% endblock %}
 		</title>
 		<link
-		rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🛍️️</text></svg>">
+		rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>👨‍🏫️</text></svg>">
 		{# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
 		{% block stylesheets %}
 			{{ encore_entry_link_tags('app') }}
@@ -47,8 +47,8 @@
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 			<div class="container-fluid">
 				<a class="navbar-brand" href="#">
-					<i class="bi bi-basket2-fill"></i>
-					SisVentas</a>
+					👨‍🏫
+					Edu-track</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -58,6 +58,7 @@
 							<li class="nav-item">
 								<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio') }}">Inicio</a>
 							</li>
+                                                        {#
 							<li class="nav-item">
 								<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_venta' %} active{% endif %}" href="{{ path('app_venta') }}">Ventas</a>
 							</li>
@@ -67,6 +68,7 @@
 							<li class="nav-item">
 								<a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_producto' %} active{% endif %}" href="{{ path('app_producto') }}">Productos</a>
 							</li>
+                                                        #}
 							<li class="nav-item">
 								<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_usuario' %} active{% endif %}" href="{{ path('app_usuario') }}">Usuarios</a>
 							</li>

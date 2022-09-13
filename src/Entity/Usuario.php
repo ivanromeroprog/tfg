@@ -49,10 +49,10 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $Telefono = null;
-
+/*
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Venta::class)]
     private Collection $Ventas;
-
+*/
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $Direccion = null;
 
@@ -69,7 +69,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         $this->Apellido = $Apellido;
         $this->Telefono = $Telefono;
         $this->Direccion = $Direccion;
-        $this->Ventas = new ArrayCollection();
+        //$this->Ventas = new ArrayCollection();
     }
 
     public function getId(): ?int {
@@ -183,9 +183,9 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this;
     }
 
+    
     /**
      * @return Collection<int, Venta>
-     */
     public function getVentas(): Collection {
         return $this->Ventas;
     }
@@ -209,7 +209,8 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
         return $this;
     }
-
+        
+    */
     public function getDireccion(): ?string {
         return $this->Direccion;
     }
