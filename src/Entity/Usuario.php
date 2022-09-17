@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[UniqueEntity('email')]
 #[UniqueEntity('username')]
-#[UniqueEntity('Dni')]
+#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
     #[ORM\Id]
@@ -38,9 +38,6 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     #[Assert\Email]
     private ?string $email = null;
 
-    #[ORM\Column(length: 9, unique: true)]
-    private ?string $Dni = null;
-
     #[ORM\Column(length: 255)]
     private ?string $Nombre = null;
 
@@ -57,14 +54,14 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     private ?string $Direccion = null;
 
     public function __construct(?int $id = null, ?string $username = null, ?string $password = null,
-            ?string $email = null, ?string $Dni = null, ?string $Nombre = null,
+            ?string $email = null, ?string $Nombre = null,
             ?string $Apellido = null, ?string $Telefono = null, ?string $Direccion = null) {
         $this->id = $id;
         $this->username = $username;
         //$this->roles = $roles;
         $this->password = $password;
         $this->email = $email;
-        $this->Dni = $Dni;
+
         $this->Nombre = $Nombre;
         $this->Apellido = $Apellido;
         $this->Telefono = $Telefono;
@@ -142,17 +139,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
         return $this;
     }
-
-    public function getDni(): ?string {
-        return $this->Dni;
-    }
-
-    public function setDni(string $Dni): self {
-        $this->Dni = $Dni;
-
-        return $this;
-    }
-
+    
     public function getNombre(): ?string {
         return $this->Nombre;
     }
@@ -220,5 +207,17 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
         return $this;
     }
+/*
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
 
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+*/
 }

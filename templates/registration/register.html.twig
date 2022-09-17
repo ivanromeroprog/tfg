@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% form_theme registrationForm 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Edu-track - Registro
+{% endblock %}
+{% block bodytitle %}Registro
+{% endblock %}
+
+{% block body %}
+
+    {{ form_start(registrationForm) }}
+    {% for r in registrationForm %}
+        {{ form_row(r) }}
+    {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Registrarse</button>
+    {{ form_end(registrationForm) }}
+{% endblock %}

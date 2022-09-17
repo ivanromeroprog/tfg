@@ -19,11 +19,16 @@
             <label for="password" class="form-label required">Clave:</label>
             <input type="password" id="password" name="_password"class="form-control" required />
         </div>
-        <input type="hidden" name="_target_path" value="/"/>
+        <input type="hidden" name="_target_path" value="{{ path('app_inicio') }}"/>
         <div class="mb-3 text-center">
         <button type="submit" class="btn btn-primary">Ingresar</button>
-        </div>
-        </div>
+
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
+            <hr>
+            <p>¿No tiene una cuenta?</p>
+        <a href="{{ path('app_register') }}" class="btn btn-secondary mt-1">Registrarse</a>
+                </div>
+        </div>
     </form>
+
 {% endblock %}

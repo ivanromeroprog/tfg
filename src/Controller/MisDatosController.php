@@ -2,19 +2,18 @@
 
 namespace App\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('ROLE_USER')]
-class InicioController extends AbstractController
+class MisDatosController extends AbstractController
 {
-    #[Route('/inicio/docente', name: 'app_inicio')]
+    #[Route('/mis/datos', name: 'app_mis_datos')]
     public function index(): Response
     {
-        return $this->render('inicio/index.html.twig', [
-            'controller_name' => 'InicioController',
+        return $this->render('mis_datos/index.html.twig', [
+            'controller_name' => 'MisDatosController',
         ]);
     }
 }
