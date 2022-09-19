@@ -30,6 +30,10 @@ class Curso
     #[ORM\ManyToMany(targetEntity: Alumno::class, mappedBy: 'cursos')]
     private Collection $alumnos;
 
+    #[ORM\ManyToOne(inversedBy: 'cursos')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Usuario $usuario = null;
+
     public function __construct()
     {
         $this->alumnos = new ArrayCollection();
@@ -111,6 +115,18 @@ class Curso
         if ($this->alumnos->removeElement($alumno)) {
             $alumno->removeCurso($this);
         }
+
+        return $this;
+    }
+
+    public function getUsuario(): ?Usuario
+    {
+        return $this->usuario;
+    }
+
+    public function setUsuario(?Usuario $usuario): self
+    {
+        $this->usuario = $usuario;
 
         return $this;
     }
