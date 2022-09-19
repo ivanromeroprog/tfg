@@ -1,5 +1,5 @@
 <?php
-
+#($+$
 namespace App\Entity;
 
 use App\Repository\UsuarioRepository;
@@ -53,6 +53,9 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $Direccion = null;
 
+    #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Curso::class)]
+    private Collection $cursos;
+
     public function __construct(?int $id = null, ?string $username = null, ?string $password = null,
             ?string $email = null, ?string $Nombre = null,
             ?string $Apellido = null, ?string $Telefono = null, ?string $Direccion = null) {
@@ -67,6 +70,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         $this->Telefono = $Telefono;
         $this->Direccion = $Direccion;
         //$this->Ventas = new ArrayCollection();
+        $this->cursos = new ArrayCollection();
     }
 
     public function getId(): ?int {
@@ -213,11 +217,34 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this->isVerified;
     }
 
-    public function setIsVerified(bool $isVerified): self
+    /**
+     * @return Collection<int, Curso>
+     */
+    public function getCursos(): Collection
     {
-        $this->isVerified = $isVerified;
+        return $this->cursos;
+    }
+
+    public function addCurso(Curso $curso): self
+    {
+        if (!$this->cursos->contains($curso)) {
+            $this->cursos->add($curso);
+            $curso->setUsuario($this);
+        }
 
         return $this;
     }
-*/
+
+    public function removeCurso(Curso $curso): self
+    {
+        if ($this->cursos->removeElement($curso)) {
+            // set the owning side to null (unless already changed)
+            if ($curso->getUsuario() === $this) {
+                $curso->setUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
 }
