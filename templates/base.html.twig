@@ -59,14 +59,14 @@
                                 <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_general' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_general') }}">Inicio</a>
                             </li>
                         {% endif %}
-                        {% if is_granted('ROLE_USER') %}
+                        {% if is_granted('ROLE_DOCENTE') %}
                             <li class="nav-item">
-                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio') }}">Inicio Docente</a>
+                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_docente' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_docente') }}">Inicio Docente</a>
                             </li>
-                            {#
+                            
                             <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_venta' %} active{% endif %}" href="{{ path('app_venta') }}">Ventas</a>
-                            </li>
+                                    <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_curso' %} active{% endif %}" href="{{ path('app_curso') }}">Cursos</a>
+                            </li>{#
                             <li class="nav-item">
                                     <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_cliente' %} active{% endif %}" href="{{ path('app_cliente') }}">Clientes</a>
                             </li>
@@ -86,7 +86,7 @@
                     {% if is_granted('ROLE_USER') %}
                         <ul class="nav navbar-nav navbar-right">
                             <li class="nav-item disabled">
-                                    <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_mis_datos' %} active{% endif %}" href="{{ path('app_mis_datos') }}" title="Mis Datos"><i class="bi bi-person-fill "></i> {{ app.user.username }}</a>
+                                    <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_mi_cuenta' %} active{% endif %}" href="{{ path('app_mi_cuenta') }}" title="Mis Cuenta"><i class="bi bi-person-fill "></i> {{ app.user.username }}</a>
                             </li>
                             <li class="nav-item">
 

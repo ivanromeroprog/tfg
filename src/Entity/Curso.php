@@ -34,6 +34,9 @@ class Curso
     #[ORM\JoinColumn(nullable: false)]
     private ?Usuario $usuario = null;
 
+    #[ORM\ManyToOne(inversedBy: 'cursos')]
+    private ?Organizacion $organizacion = null;
+
     public function __construct()
     {
         $this->alumnos = new ArrayCollection();
@@ -127,6 +130,18 @@ class Curso
     public function setUsuario(?Usuario $usuario): self
     {
         $this->usuario = $usuario;
+
+        return $this;
+    }
+
+    public function getOrganizacion(): ?Organizacion
+    {
+        return $this->organizacion;
+    }
+
+    public function setOrganizacion(?Organizacion $organizacion): self
+    {
+        $this->organizacion = $organizacion;
 
         return $this;
     }

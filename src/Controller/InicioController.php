@@ -7,10 +7,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_DOCENTE')]
 class InicioController extends AbstractController
 {
-    #[Route('/inicio/docente', name: 'app_inicio')]
+    #[Route('/inicio/docente', name: 'app_inicio_docente')]
     public function index(): Response
     {
         return $this->render('inicio/index.html.twig', [

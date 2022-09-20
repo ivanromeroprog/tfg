@@ -38,23 +38,26 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Nombre = null;
+    private ?string $nombre = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Apellido = null;
+    private ?string $apellido = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $Telefono = null;
+    private ?string $telefono = null;
 /*
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Venta::class)]
     private Collection $Ventas;
 */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $Direccion = null;
+    private ?string $direccion = null;
 
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Curso::class)]
     private Collection $cursos;
 
+    #[ORM\ManyToMany(targetEntity: Organizacion::class, mappedBy: 'usuarios')]
+    private Collection $organizaciones;
+    
     public function __construct(?int $id = null, ?string $username = null, ?string $password = null,
             ?string $email = null, ?string $Nombre = null,
             ?string $Apellido = null, ?string $Telefono = null, ?string $Direccion = null) {
@@ -63,13 +66,13 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         //$this->roles = $roles;
         $this->password = $password;
         $this->email = $email;
-
-        $this->Nombre = $Nombre;
-        $this->Apellido = $Apellido;
-        $this->Telefono = $Telefono;
-        $this->Direccion = $Direccion;
+        $this->nombre = $Nombre;
+        $this->apellido = $Apellido;
+        $this->telefono = $Telefono;
+        $this->direccion = $Direccion;
         //$this->Ventas = new ArrayCollection();
         $this->cursos = new ArrayCollection();
+        $this->organizaciones = new ArrayCollection();
     }
 
     public function getId(): ?int {
@@ -144,31 +147,31 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     }
     
     public function getNombre(): ?string {
-        return $this->Nombre;
+        return $this->nombre;
     }
 
     public function setNombre(string $Nombre): self {
-        $this->Nombre = $Nombre;
+        $this->nombre = $Nombre;
 
         return $this;
     }
 
     public function getApellido(): ?string {
-        return $this->Apellido;
+        return $this->apellido;
     }
 
     public function setApellido(string $Apellido): self {
-        $this->Apellido = $Apellido;
+        $this->apellido = $Apellido;
 
         return $this;
     }
 
     public function getTelefono(): ?string {
-        return $this->Telefono;
+        return $this->telefono;
     }
 
     public function setTelefono(string $Telefono): self {
-        $this->Telefono = $Telefono;
+        $this->telefono = $Telefono;
 
         return $this;
     }
@@ -202,11 +205,11 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         
     */
     public function getDireccion(): ?string {
-        return $this->Direccion;
+        return $this->direccion;
     }
 
     public function setDireccion(?string $Direccion): self {
-        $this->Direccion = $Direccion;
+        $this->direccion = $Direccion;
 
         return $this;
     }
@@ -241,6 +244,33 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
             if ($curso->getUsuario() === $this) {
                 $curso->setUsuario(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Organizacion>
+     */
+    public function getOrganizaciones(): Collection
+    {
+        return $this->organizaciones;
+    }
+
+    public function addOrganizacion(Organizacion $organizacion): self
+    {
+        if (!$this->organizaciones->contains($organizacion)) {
+            $this->organizaciones->add($organizacion);
+            $organizacion->addUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganizacion(Organizacion $organizacion): self
+    {
+        if ($this->organizaciones->removeElement($organizacion)) {
+            $organizacion->removeUsuario($this);
         }
 
         return $this;
