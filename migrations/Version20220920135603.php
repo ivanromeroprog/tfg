@@ -23,6 +23,8 @@ final class Version20220920135603 extends AbstractMigration
         $this->addSql('CREATE TABLE organizacion_usuario (organizacion_id INT NOT NULL, usuario_id INT NOT NULL, INDEX IDX_97373C6D90B1019E (organizacion_id), INDEX IDX_97373C6DDB38439E (usuario_id), PRIMARY KEY(organizacion_id, usuario_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE organizacion_usuario ADD CONSTRAINT FK_97373C6D90B1019E FOREIGN KEY (organizacion_id) REFERENCES organizacion (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE organizacion_usuario ADD CONSTRAINT FK_97373C6DDB38439E FOREIGN KEY (usuario_id) REFERENCES usuario (id) ON DELETE CASCADE');
+        $this->addSql("INSERT INTO usuario (`username`, `roles`, `password`, `email`, `nombre`, `apellido`) VALUES ('test', '[\"ROLE_USER\",\"ROLE_DOCENTE\"]', '$2y$13$1kjN.NR7LS2v6AsIqpDtce35syNLh7hXJoZnZ5mRFGP6MwbSFPAa.', 'test@test.com', 'test', 'test');");
+        $this->addSql("INSERT INTO usuario (`username`, `roles`, `password`, `email`, `nombre`, `apellido`) VALUES ('responsable', '[\"ROLE_USER\",\"ROLE_RESPONSABLE\"]', '$2y$13\$n5jsFek.mSqvlSkBu5D4GeEvc6mi/vwdcif0/mYd5Dyfsi3O/Crfy', 'responsable@test.com', 'responsable', 'responsable');");
     }
 
     public function down(Schema $schema): void

@@ -28,7 +28,6 @@ final class Version20220920013152 extends AbstractMigration
         $this->addSql('ALTER TABLE alumno_curso ADD CONSTRAINT FK_66FE498EFC28E5EE FOREIGN KEY (alumno_id) REFERENCES alumno (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE alumno_curso ADD CONSTRAINT FK_66FE498E87CB4A1F FOREIGN KEY (curso_id) REFERENCES curso (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE curso ADD CONSTRAINT FK_CA3B40ECDB38439E FOREIGN KEY (usuario_id) REFERENCES usuario (id)');
-        $this->addSql("INSERT INTO usuario (`username`, `roles`, `password`, `email`, `nombre`, `apellido`) VALUES ('test', '[\"ROLE_USER\"]', '$2y$13$1kjN.NR7LS2v6AsIqpDtce35syNLh7hXJoZnZ5mRFGP6MwbSFPAa.', 'test@test.com', 'test', 'test');");
     }
 
     public function down(Schema $schema): void
