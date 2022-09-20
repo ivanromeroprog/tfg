@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}SisVentas - Cursos
+{% block title %}Edu-track - Cursos
 {% endblock %}
 {% block bodytitle %}Cursos
 {% endblock %}
@@ -25,19 +25,19 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Nombre</th>
-                <th>Stock</th>
-                <th class="d-none d-sm-table-cell">Descripción</th>
+                <th>Grado - División</th>
+                <th>Materia</th>
+                <th>Año Lectivo</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             {% for curso in cursos %}
                 <tr>
-                    <td>{{ curso.id }}</td>
-                    <td>{{ curso.Nombre }}</td>
-                    <td>{{ curso.Stock }}</td>
-                    <td class="d-none d-sm-table-cell">{{ curso.Descripcion|u.truncate(15, '...') }}</td>
+                    <td>{{ curso.Id }}</td>
+                    <td>{{ curso.Grado }} {{ curso.division }}</td>
+                    <td>{{ curso.Materia }}</td>
+                    <td>{{ curso.Anio }}</td>
                     <td>
                         <a href="{{ path('app_curso_view',{'id':curso.id}) }}" class="btn btn-primary btn-sm" title="Ver"><i class="bi bi-eye"></i></a>
 

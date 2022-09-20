@@ -27,7 +27,7 @@ class CursoController extends AbstractController {
 
     #[Route('/curso', name: 'app_curso')]
     public function index(): Response {
-        $cursos = $this->cr->findAll();
+        $cursos = $this->cr->findBy(['usuario' => $this->getUser()]);
 
         return $this->render('curso/index.html.twig', [
                     'cursos' => $cursos
@@ -95,7 +95,7 @@ class CursoController extends AbstractController {
         ]);
     }
 
-    #[Route('/curso/delete/{id}', name: 'app_curso_delete', methods: ['GET', 'HEAD'])]
+    #[Route('/curso/eliminar/{id}', name: 'app_curso_delete', methods: ['GET', 'HEAD'])]
     public function delete(int $id): Response {
         if ($id < 1)
             throw new AccessDeniedHttpException();
@@ -113,7 +113,7 @@ class CursoController extends AbstractController {
         ]);
     }
 
-    #[Route('/curso/delete', name: 'app_curso_dodelete', methods: ['DELETE'])]
+    #[Route('/curso/eliminar', name: 'app_curso_dodelete', methods: ['DELETE'])]
     public function doDelete(Request $request): Response {
 
         $submittedToken = $request->request->get('_token');

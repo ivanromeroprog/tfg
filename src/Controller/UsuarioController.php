@@ -131,7 +131,7 @@ class UsuarioController extends AbstractController {
         ]);
     }
     
-    #[Route('/usuario/delete/{id}', name: 'app_usuario_delete', methods: ['GET', 'HEAD'])]
+    #[Route('/usuario/eliminar/{id}', name: 'app_usuario_delete', methods: ['GET', 'HEAD'])]
     public function delete(int $id): Response {
 
         if ($id < 1)
@@ -150,7 +150,7 @@ class UsuarioController extends AbstractController {
         ]);
     }
 
-    #[Route('/usuario/delete', name: 'app_usuario_dodelete', methods: ['DELETE'])]
+    #[Route('/usuario/eliminar', name: 'app_usuario_dodelete', methods: ['DELETE'])]
     public function doDelete(Request $request): Response {
 
         $submittedToken = $request->request->get('_token');
