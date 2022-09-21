@@ -13,21 +13,8 @@ import './bootstrap';
 
 
 //Libs
-
-//import 'jquery'; 
-
 import 'bootstrap';
-
 import 'animate.css';
-
-//import 'datatables.net';
-
-//import 'datatables.net-bs5';
-
-//import 'choices.js';
-
 
 //Locales
 import './confirmbutton.js';
-
-//import './js.js';

@@ -5,6 +5,8 @@ namespace App\Form;
 use App\Entity\Alumno;
 use App\Entity\Curso;
 use App\Entity\Organizacion;
+use App\Entity\Usuario;
+use App\Repository\OrganizacionRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -28,6 +30,12 @@ class CursoType extends AbstractType {
                 [
                     'class' => Organizacion::class,
                     'attr' => ['class' => 'js-choice'],
+                    'query_builder' => function (OrganizacionRepository $er) use ($options) {
+                        return $er->createQueryBuilder('o')
+                                ->innerJoin('o.usuarios','u')
+                                ->where('u = :usuario')
+                                ->setParameter('usuario', $options['usuario']);
+                    },
                     'disabled' => $options['view'] || $options['modify']
         ]);
 
@@ -55,6 +63,7 @@ class CursoType extends AbstractType {
             'data_class' => Curso::class,
             'view' => false,
             'modify' => false,
+            'usuario' => null
         ]);
     }
 

@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+//TODO: Modificar y eliminar
+//TODO: SYnfony UX oara alumnos
+//TODO: Turbo para todo el sistema
 #[IsGranted('ROLE_DOCENTE')]
 class CursoController extends AbstractController {
 
@@ -29,26 +32,45 @@ class CursoController extends AbstractController {
 
     #[Route('/curso', name: 'app_curso')]
     public function index(Request $request): Response {
-        //$cursos = $this->cr->findBy(['usuario' => $this->getUser()]);
 
-        $listqb = $this->cr->listQueryBuilder();
+        $perpage = $request->query->getInt('perpage', 10);
+        $search = $request->query->get('search', '');
+        $page = $request->query->getInt('page', 1);
+        $order = $request->query->getInt('order', -1);
+        
+        if($perpage < 1)
+            $perpage = 10;
 
-        $perpage = $request->query->get('perpage', 5);
+        $listqb = $this->cr->listQueryBuilder(
+                $search !== '' ?
+                [
+                    'grado' => $search,
+                    'materia' => $search,
+                    'division' => $search,
+                    'anio' => $search
+                ] : [],
+                $order,
+                $this->getUser()
+        );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
         $pager->setMaxPerPage($perpage);
-        $pager->setCurrentPage($request->query->get('page', 1));
+        $pager->setCurrentPage($page);
 
         return $this->render('curso/index.html.twig', [
                     'pager' => $pager,
-            'perpage' => $perpage
+                    'order' => $order,
+                    'search' => $search,
+                    'perpageoptions' => [
+                        10, 25, 50, 100
+                    ]
         ]);
     }
 
     #[Route('/curso/nuevo', name: 'app_curso_new')]
     public function new(Request $request): Response {
         $curso = new Curso();
-        $form = $this->createForm(CursoType::class, $curso);
+        $form = $this->createForm(CursoType::class, $curso, ['usuario' => $this->getUser()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -75,7 +97,7 @@ class CursoController extends AbstractController {
         if (is_null($curso))
             throw new AccessDeniedHttpException();
 
-        $form = $this->createForm(CursoType::class, $curso, ['modify' => true]);
+        $form = $this->createForm(CursoType::class, $curso, ['modify' => true, 'usuario' => $this->getUser()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

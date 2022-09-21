@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Curso;
+use App\Entity\Usuario;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,16 +15,21 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Curso|null findOneBy(array $criteria, array $orderBy = null)
  * @method Curso[]    findAll()
  * @method Curso[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @property array $orderFields Lista de campos para ordenar las consultas.
  */
-class CursoRepository extends ServiceEntityRepository
-{
-    public function __construct(ManagerRegistry $registry)
-    {
+class CursoRepository extends ServiceEntityRepository {
+    private array $orderFields = [
+        'id',
+        'grado',
+        'materia',
+        'anio'
+    ];
+
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Curso::class);
     }
 
-    public function add(Curso $entity, bool $flush = false): void
-    {
+    public function add(Curso $entity, bool $flush = false): void {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
@@ -31,8 +37,7 @@ class CursoRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Curso $entity, bool $flush = false): void
-    {
+    public function remove(Curso $entity, bool $flush = false): void {
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
@@ -40,9 +45,52 @@ class CursoRepository extends ServiceEntityRepository
         }
     }
     
-    public function listQueryBuilder(/*$*/): QueryBuilder{
-        return $this->createQueryBuilder('c')
-                ->orderBy('c.id', 'DESC');
+    public function getOrderFields(): array {
+        return $this->orderFields;
+    }
+
+    public function setOrderFields(array $orderFields): void {
+        $this->orderFields = $orderFields;
+    }
+
+    /**
+     * 
+     * @param array $onlikecriteria
+     * @param int $order orden de los registros, números diferentes de 0. Negativo significa DESC, positivo ASC
+     * @param int $usuario_id
+     * @return QueryBuilder
+     */
+    public function listQueryBuilder(array $onlikecriteria = [], int $order = 1, Usuario $usuario = null): QueryBuilder {
+        $builder = $this->createQueryBuilder('c');
+
+        foreach ($onlikecriteria as $field => $value) {
+            $builder->setParameter($field, '%' . $value . '%');
+            $builder->orWhere('c.' . $field . ' LIKE :' . $field);
+        }
+
+        if ($order < 0) {
+            $orderdirection = 'DESC';
+        } else {
+            $orderdirection = 'ASC';
+        }
+        
+        if(!is_null($usuario))
+        {
+            $builder->setParameter('usuario', $usuario);
+            $builder->andWhere('c.usuario = :usuario');
+        }
+        $orderindex = abs($order) - 1;
+        if (isset($this->orderFields[$orderindex])) {
+            $builder->orderBy('c.' . $this->orderFields[$orderindex], $orderdirection);
+        }
+        
+        dump($builder->getQuery()->getResult());
+
+        return $builder;
+    }
+
+    public function list($onlikecriteria = [], $order = 1, $usuario_id = null): QueryBuilder {
+        return $this->listQueryBuilder($onlikecriteria, $andcriteria, $orcriteria, $order)->getQuery()->getResult();
     }
 
 //    /**
@@ -59,7 +107,6 @@ class CursoRepository extends ServiceEntityRepository
 //            ->getResult()
 //        ;
 //    }
-
 //    public function findOneBySomeField($value): ?Curso
 //    {
 //        return $this->createQueryBuilder('c')
