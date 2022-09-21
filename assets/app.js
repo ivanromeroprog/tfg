@@ -11,8 +11,23 @@ import './styles/app.css';
 // start the Stimulus application
 import './bootstrap';
 
-import './table';
 
-import './confirmbutton';
+//Libs
+
+import 'jquery'; 
+
+import 'bootstrap';
+
+
+
+import 'datatables.net';
+
+import 'datatables.net-bs5';
+
+//import 'choices.js';
+
+
+//Locales
+import './confirmbutton.js';
 
 import './js.js';
