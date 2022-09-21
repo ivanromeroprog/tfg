@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Curso;
 use App\Form\CursoType;
+use App\Repository\CursoRepository;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CursoController extends AbstractController {
 
     private EntityManagerInterface $em;
-    private EntityRepository $cr;
+    private CursoRepository $cr;
 
     public function __construct(EntityManagerInterface $em) {
         $this->em = $em;
@@ -26,11 +28,20 @@ class CursoController extends AbstractController {
     }
 
     #[Route('/curso', name: 'app_curso')]
-    public function index(): Response {
-        $cursos = $this->cr->findBy(['usuario' => $this->getUser()]);
+    public function index(Request $request): Response {
+        //$cursos = $this->cr->findBy(['usuario' => $this->getUser()]);
+
+        $listqb = $this->cr->listQueryBuilder();
+
+        $perpage = $request->query->get('perpage', 5);
+
+        $pager = new Pagerfanta(new QueryAdapter($listqb));
+        $pager->setMaxPerPage($perpage);
+        $pager->setCurrentPage($request->query->get('page', 1));
 
         return $this->render('curso/index.html.twig', [
-                    'cursos' => $cursos
+                    'pager' => $pager,
+            'perpage' => $perpage
         ]);
     }
 
@@ -41,6 +52,9 @@ class CursoController extends AbstractController {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $curso->setUsuario($this->getUser());
+
             $this->em->persist($curso);
             $this->em->flush();
 
@@ -61,7 +75,7 @@ class CursoController extends AbstractController {
         if (is_null($curso))
             throw new AccessDeniedHttpException();
 
-        $form = $this->createForm(CursoType::class, $curso);
+        $form = $this->createForm(CursoType::class, $curso, ['modify' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -76,8 +90,7 @@ class CursoController extends AbstractController {
                     'form' => $form->createView()
         ]);
     }
-    
-    
+
     #[Route('/curso/ver/{id}', name: 'app_curso_view')]
     public function view(int $id): Response {
         if ($id < 1)
@@ -139,7 +152,6 @@ class CursoController extends AbstractController {
         try {
             $this->em->flush();
             $this->addFlash('success', 'Se eliminó el curso correctamente.');
-
         } catch (ForeignKeyConstraintViolationException $e) {
             $this->addFlash('error', 'No se puede eliminar el curso. Ya se ha vendido.');
         }

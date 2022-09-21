@@ -5,14 +5,9 @@
 {% block bodytitle %}Usuario{% endblock %}
 
 {% block body %}
+    {{ include('alert.html.twig', with_context = true) }}
+    
     {{ form(form) }}
 
     <a href="{{ path('app_usuario') }}" class="btn btn-secondary">Volver</a>
-
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ message }}
-        </div>
-    {% endfor %}
-
 {% endblock %}

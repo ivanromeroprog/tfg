@@ -20,31 +20,41 @@ class CursoType extends AbstractType {
                 ->add('grado', TextType::class, ['disabled' => $options['view']])
                 ->add('division', TextType::class, ['disabled' => $options['view']])
                 ->add('materia', TextType::class, ['disabled' => $options['view']])
-                ->add('anio', NumberType::class, ['html5' => true, 'scale' => 0, 'attr' => ['min' => '1990', 'max' => '999999999', 'step' => '1'], 'disabled' => $options['view']])
-                ->add('alumnos',
-                        EntityType::class,
-                        [
-                            'class' => Alumno::class,
-                            'expanded' => false,
-                            'multiple' => true,
-                        //'attr' => ['class' => 'js-choice']
-                        ])
-                //->add('usuario')
-                ->add('organizacion',
-                        EntityType::class,
-                        [
-                            'class' => Organizacion::class,
-                            'attr' => ['class' => 'js-choice']
-                        ])
-        ;
-        if (!$options['view'])
+                ->add('anio', NumberType::class, ['label' => 'Año', 'html5' => true, 'scale' => 0, 'attr' => ['min' => '1990', 'max' => '999999999', 'step' => '1'], 'disabled' => $options['view']]);
+        //->add('usuario')
+
+        $builder->add('organizacion',
+                EntityType::class,
+                [
+                    'class' => Organizacion::class,
+                    'attr' => ['class' => 'js-choice'],
+                    'disabled' => $options['view'] || $options['modify']
+        ]);
+
+        if ($options['modify'] || $options['view']) {
+            $builder->add('alumnos',
+                    EntityType::class,
+                    [
+                        'class' => Alumno::class,
+                        'expanded' => false,
+                        'multiple' => true,
+                        'disabled' => $options['view']
+                    //'attr' => ['class' => 'js-choice']
+            ]);
+        }
+
+
+
+        if (!$options['view']) {
             $builder->add('Submit', SubmitType::class, ['label' => 'Guardar', 'attr' => ['style' => "float:right;"]]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void {
         $resolver->setDefaults([
             'data_class' => Curso::class,
             'view' => false,
+            'modify' => false,
         ]);
     }
 

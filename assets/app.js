@@ -14,15 +14,15 @@ import './bootstrap';
 
 //Libs
 
-import 'jquery'; 
+//import 'jquery'; 
 
 import 'bootstrap';
 
+import 'animate.css';
 
+//import 'datatables.net';
 
-import 'datatables.net';
-
-import 'datatables.net-bs5';
+//import 'datatables.net-bs5';
 
 //import 'choices.js';
 
@@ -30,4 +30,4 @@ import 'datatables.net-bs5';
 //Locales
 import './confirmbutton.js';
 
-import './js.js';
+//import './js.js';

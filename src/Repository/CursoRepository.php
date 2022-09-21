@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Curso;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -37,6 +38,11 @@ class CursoRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+    
+    public function listQueryBuilder(/*$*/): QueryBuilder{
+        return $this->createQueryBuilder('c')
+                ->orderBy('c.id', 'DESC');
     }
 
 //    /**
