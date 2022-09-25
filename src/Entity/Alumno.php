@@ -27,9 +27,13 @@ class Alumno
     #[ORM\ManyToMany(targetEntity: Curso::class, inversedBy: 'alumnos')]
     private Collection $cursos;
 
+    #[ORM\OneToMany(mappedBy: 'alumno', targetEntity: Asistencia::class)]
+    private Collection $asistencias;
+
     public function __construct()
     {
         $this->cursos = new ArrayCollection();
+        $this->asistencias = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,5 +103,35 @@ class Alumno
     
     public function __toString() {
         return $this->apellido . ', ' . $this->nombre . '('. $this->cua .')';
+    }
+
+    /**
+     * @return Collection<int, Asistencia>
+     */
+    public function getAsistencias(): Collection
+    {
+        return $this->asistencias;
+    }
+
+    public function addAsistencia(Asistencia $asistencia): self
+    {
+        if (!$this->asistencias->contains($asistencia)) {
+            $this->asistencias->add($asistencia);
+            $asistencia->setAlumno($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsistencia(Asistencia $asistencia): self
+    {
+        if ($this->asistencias->removeElement($asistencia)) {
+            // set the owning side to null (unless already changed)
+            if ($asistencia->getAlumno() === $this) {
+                $asistencia->setAlumno(null);
+            }
+        }
+
+        return $this;
     }
 }

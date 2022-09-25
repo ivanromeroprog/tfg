@@ -37,9 +37,13 @@ class Curso
     #[ORM\ManyToOne(inversedBy: 'cursos')]
     private ?Organizacion $organizacion = null;
 
+    #[ORM\OneToMany(mappedBy: 'curso', targetEntity: TomaDeAsistencia::class)]
+    private Collection $tomasDeAsistencia;
+
     public function __construct()
     {
         $this->alumnos = new ArrayCollection();
+        $this->tomasDeAsistencia = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -142,6 +146,36 @@ class Curso
     public function setOrganizacion(?Organizacion $organizacion): self
     {
         $this->organizacion = $organizacion;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TomaDeAsistencia>
+     */
+    public function getTomasDeAsistencia(): Collection
+    {
+        return $this->tomasDeAsistencia;
+    }
+
+    public function addTomasDeAsistencium(TomaDeAsistencia $tomasDeAsistencium): self
+    {
+        if (!$this->tomasDeAsistencia->contains($tomasDeAsistencium)) {
+            $this->tomasDeAsistencia->add($tomasDeAsistencium);
+            $tomasDeAsistencium->setCurso($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTomasDeAsistencium(TomaDeAsistencia $tomasDeAsistencium): self
+    {
+        if ($this->tomasDeAsistencia->removeElement($tomasDeAsistencium)) {
+            // set the owning side to null (unless already changed)
+            if ($tomasDeAsistencium->getCurso() === $this) {
+                $tomasDeAsistencium->setCurso(null);
+            }
+        }
 
         return $this;
     }

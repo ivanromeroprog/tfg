@@ -57,6 +57,15 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
     #[ORM\ManyToMany(targetEntity: Organizacion::class, mappedBy: 'usuarios')]
     private Collection $organizaciones;
+
+    #[ORM\OneToMany(mappedBy: 'usuarioOrigen', targetEntity: Invitacion::class)]
+    private Collection $invitacionesEnviadas;
+
+    #[ORM\OneToMany(mappedBy: 'usuarioDestino', targetEntity: Invitacion::class)]
+    private Collection $invitacionesRecibidas;
+
+    #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Actividad::class)]
+    private Collection $actividades;
     
     public function __construct(?int $id = null, ?string $username = null, ?string $password = null,
             ?string $email = null, ?string $Nombre = null,
@@ -73,6 +82,9 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         //$this->Ventas = new ArrayCollection();
         $this->cursos = new ArrayCollection();
         $this->organizaciones = new ArrayCollection();
+        $this->invitacionesEnviadas = new ArrayCollection();
+        $this->invitacionesRecibidas = new ArrayCollection();
+        $this->actividades = new ArrayCollection();
     }
 
     public function getId(): ?int {
@@ -218,7 +230,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     {
         return $this->isVerified;
     }
-
+*/
     /**
      * @return Collection<int, Curso>
      */
@@ -271,6 +283,96 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     {
         if ($this->organizaciones->removeElement($organizacion)) {
             $organizacion->removeUsuario($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invitacion>
+     */
+    public function getInvitacionesEnviadas(): Collection
+    {
+        return $this->invitacionesEnviadas;
+    }
+
+    public function addInvitacionEnviada(Invitacion $invitacionesEnviada): self
+    {
+        if (!$this->invitacionesEnviadas->contains($invitacionesEnviada)) {
+            $this->invitacionesEnviadas->add($invitacionesEnviada);
+            $invitacionesEnviada->setUsuarioOrigen($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitacionEnviada(Invitacion $invitacionesEnviada): self
+    {
+        if ($this->invitacionesEnviadas->removeElement($invitacionesEnviada)) {
+            // set the owning side to null (unless already changed)
+            if ($invitacionesEnviada->getUsuarioOrigen() === $this) {
+                $invitacionesEnviada->setUsuarioOrigen(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invitacion>
+     */
+    public function getInvitacionesRecibidas(): Collection
+    {
+        return $this->invitacionesRecibidas;
+    }
+
+    public function addInvitacionRecibida(Invitacion $invitacionesRecibida): self
+    {
+        if (!$this->invitacionesRecibidas->contains($invitacionesRecibida)) {
+            $this->invitacionesRecibidas->add($invitacionesRecibida);
+            $invitacionesRecibida->setUsuarioDestino($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitacionRecibida(Invitacion $invitacionesRecibida): self
+    {
+        if ($this->invitacionesRecibidas->removeElement($invitacionesRecibida)) {
+            // set the owning side to null (unless already changed)
+            if ($invitacionesRecibida->getUsuarioDestino() === $this) {
+                $invitacionesRecibida->setUsuarioDestino(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Actividad>
+     */
+    public function getActividades(): Collection
+    {
+        return $this->actividades;
+    }
+
+    public function addActividade(Actividad $actividade): self
+    {
+        if (!$this->actividades->contains($actividade)) {
+            $this->actividades->add($actividade);
+            $actividade->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActividade(Actividad $actividade): self
+    {
+        if ($this->actividades->removeElement($actividade)) {
+            // set the owning side to null (unless already changed)
+            if ($actividade->getUsuario() === $this) {
+                $actividade->setUsuario(null);
+            }
         }
 
         return $this;
