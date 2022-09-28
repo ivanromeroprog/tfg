@@ -54,7 +54,7 @@ class RegistrationFormType extends AbstractType
                     'type' => PasswordType::class,
                     'invalid_message' => 'Los campos de Clave deben ser iguales.',
                     'options' => ['attr' => ['class' => 'password-field']],
-                    'required' => $options['required_password'],
+                    'required' => true,
                     'first_options' => ['label' => 'Clave'],
                     'second_options' => ['label' => 'Repetir Clave'],
                     'disabled' => $options['view'],

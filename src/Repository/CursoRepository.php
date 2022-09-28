@@ -60,7 +60,7 @@ class CursoRepository extends ServiceEntityRepository {
      * @param int $usuario_id
      * @return QueryBuilder
      */
-    public function listQueryBuilder(array $onlikecriteria = [], int $order = 1, Usuario $usuario = null): QueryBuilder {
+    public function listQueryBuilder(array $onlikecriteria = [], int $order = -1, Usuario $usuario = null): QueryBuilder {
         $builder = $this->createQueryBuilder('c');
 
         foreach ($onlikecriteria as $field => $value) {
@@ -68,10 +68,14 @@ class CursoRepository extends ServiceEntityRepository {
             $builder->orWhere('c.' . $field . ' LIKE :' . $field);
         }
 
+        //Si orden es negativo DESC, positivo ASC, 0 -> DESC y $order = -1
         if ($order < 0) {
             $orderdirection = 'DESC';
-        } else {
+        } elseif($order > 0) {
             $orderdirection = 'ASC';
+        } else {
+            $orderdirection = 'DESC';
+            $order = -1;
         }
         
         if(!is_null($usuario))
@@ -81,11 +85,10 @@ class CursoRepository extends ServiceEntityRepository {
         }
         $orderindex = abs($order) - 1;
         if (isset($this->orderFields[$orderindex])) {
+            //dd($this->orderFields[$orderindex]);
             $builder->orderBy('c.' . $this->orderFields[$orderindex], $orderdirection);
         }
         
-        dump($builder->getQuery()->getResult());
-
         return $builder;
     }
 

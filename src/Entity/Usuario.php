@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity('email')]
 #[UniqueEntity('username')]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+    
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
     #[ORM\Id]

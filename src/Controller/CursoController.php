@@ -36,11 +36,11 @@ class CursoController extends AbstractController {
         $perpage = $request->query->getInt('perpage', 10);
         $search = $request->query->get('search', '');
         $page = $request->query->getInt('page', 1);
-        $order = $request->query->getInt('order', -1);
+        $order = $request->query->getInt('order', 0);
         
         if($perpage < 1)
             $perpage = 10;
-
+        
         $listqb = $this->cr->listQueryBuilder(
                 $search !== '' ?
                 [
