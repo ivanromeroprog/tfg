@@ -19,37 +19,39 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('ROLE_DOCENTE')]
-class CursoController extends AbstractController {
+class CursoController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private CursoRepository $cr;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(Curso::class);
     }
 
     #[Route('/curso', name: 'app_curso')]
-    public function index(Request $request): Response {
+    public function index(Request $request): Response
+    {
 
         $perpage = $request->query->getInt('perpage', 10);
-        $search = $request->query->get('search', '');
         $page = $request->query->getInt('page', 1);
         $order = $request->query->getInt('order', 0);
-
+        $search = $request->query->get('search', '');
         if ($perpage < 1)
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-                $search !== '' ?
+            $search !== '' ?
                 [
-            'grado' => $search,
-            'materia' => $search,
-            'division' => $search,
-            'anio' => $search
+                    'grado' => $search,
+                    'materia' => $search,
+                    'division' => $search,
+                    'anio' => $search
                 ] : [],
-                $order,
-                $this->getUser()
+            $order,
+            $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -57,17 +59,18 @@ class CursoController extends AbstractController {
         $pager->setCurrentPage($page);
 
         return $this->render('curso/index.html.twig', [
-                    'pager' => $pager,
-                    'order' => $order,
-                    'search' => $search,
-                    'perpageoptions' => [
-                        10, 25, 50, 100
-                    ]
+            'pager' => $pager,
+            'order' => $order,
+            'search' => $search,
+            'perpageoptions' => [
+                10, 25, 50, 100
+            ]
         ]);
     }
 
     #[Route('/curso/nuevo', name: 'app_curso_new')]
-    public function new(Request $request): Response {
+    public function new(Request $request): Response
+    {
         $curso = new Curso();
         $form = $this->createForm(CursoType::class, $curso, ['usuario' => $this->getUser()]);
         $form->handleRequest($request);
@@ -85,12 +88,13 @@ class CursoController extends AbstractController {
         }
 
         return $this->render('curso/new.html.twig', [
-                    'form' => $form->createView()
+            'form' => $form->createView()
         ]);
     }
 
     #[Route('/curso/editar/{id}', name: 'app_curso_edit')]
-    public function edit(int $id, Request $request): Response {
+    public function edit(int $id, Request $request): Response
+    {
         $curso = $this->cr->find($id);
 
         if (is_null($curso))
@@ -98,7 +102,8 @@ class CursoController extends AbstractController {
 
         $form = $this->createForm(CursoType::class, $curso, [
             'modify' => true,
-            'usuario' => $this->getUser()
+            'usuario' => $this->getUser(),
+            'organizacion' => $curso->getOrganizacion()
         ]);
         $form->handleRequest($request);
 
@@ -107,17 +112,16 @@ class CursoController extends AbstractController {
                 $data = $request->request->all()['curso'];
 
                 if (
-                        empty($data['alumno_nombre']) || empty($data['alumno_apellido']) || empty($data['alumno_cua'])
+                    strlen($data['alumno_nombre']) < 3 || strlen($data['alumno_apellido']) < 3 || strlen($data['alumno_cua']) < 2
                 ) {
-
                     $this->addFlash('warning', 'Completa todos los datos del alumno.');
                 } else {
 
                     $alumno = new Alumno(
-                            null,
-                            $data['alumno_nombre'],
-                            $data['alumno_apellido'],
-                            $data['alumno_cua']
+                        null,
+                        $data['alumno_nombre'],
+                        $data['alumno_apellido'],
+                        $data['alumno_cua']
                     );
 
                     $this->em->persist($alumno);
@@ -129,9 +133,8 @@ class CursoController extends AbstractController {
                 $this->em->persist($curso);
                 $this->em->flush();
                 return $this->redirect($request->getUri());
-                
             } else {
-                
+
                 $this->em->persist($curso);
                 $this->em->flush();
                 $this->addFlash('success', 'Se edito el curso correctamente.');
@@ -140,12 +143,13 @@ class CursoController extends AbstractController {
         }
 
         return $this->render('curso/edit.html.twig', [
-                    'form' => $form->createView()
+            'form' => $form->createView()
         ]);
     }
 
     #[Route('/curso/ver/{id}', name: 'app_curso_view')]
-    public function view(int $id): Response {
+    public function view(int $id): Response
+    {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -154,16 +158,19 @@ class CursoController extends AbstractController {
         if (is_null($curso))
             throw new AccessDeniedHttpException();
 
-        $form = $this->createForm(CursoType::class, $curso, ['view' => true,
-            'usuario' => $this->getUser()]);
+        $form = $this->createForm(CursoType::class, $curso, [
+            'view' => true,
+            'usuario' => $this->getUser()
+        ]);
 
         return $this->render('curso/new.html.twig', [
-                    'form' => $form->createView(),
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/curso/eliminar/{id}', name: 'app_curso_delete', methods: ['GET', 'HEAD'])]
-    public function delete(int $id): Response {
+    public function delete(int $id): Response
+    {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -172,17 +179,20 @@ class CursoController extends AbstractController {
         if (is_null($curso))
             throw new AccessDeniedHttpException();
 
-        $form = $this->createForm(CursoType::class, $curso, ['view' => true,
-            'usuario' => $this->getUser()]);
+        $form = $this->createForm(CursoType::class, $curso, [
+            'view' => true,
+            'usuario' => $this->getUser()
+        ]);
 
         return $this->render('curso/delete.html.twig', [
-                    'curso' => $curso,
-                    'form' => $form->createView()
+            'curso' => $curso,
+            'form' => $form->createView()
         ]);
     }
 
     #[Route('/curso/eliminar', name: 'app_curso_dodelete', methods: ['DELETE'])]
-    public function doDelete(Request $request): Response {
+    public function doDelete(Request $request): Response
+    {
 
         $submittedToken = $request->request->get('_token');
 
@@ -212,5 +222,4 @@ class CursoController extends AbstractController {
         }
         return $this->redirectToRoute('app_curso');
     }
-
 }

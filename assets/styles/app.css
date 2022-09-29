@@ -1,5 +1,6 @@
 @import "~bootstrap";
 @import "~bootstrap-icons";
+@import 'tom-select/dist/css/tom-select.bootstrap5.css';
 
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
@@ -53,3 +54,12 @@ input:required, input.falserequired, textarea:required, textarea.falserequired{
         font-size: 0.75em;
     }
 }
+
+.default-button-handler {
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    margin: 0;
+    position: absolute;
+  }
