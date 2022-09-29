@@ -11,9 +11,8 @@ import './styles/app.css';
 // start the Stimulus application
 import './bootstrap';
 
-
 //Libs
-import 'bootstrap';
+window.bootstrap = require('bootstrap/dist/js/bootstrap.bundle.js');
 import 'animate.css';
 
 //Locales

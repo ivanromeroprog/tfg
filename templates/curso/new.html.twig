@@ -6,9 +6,9 @@
 
 {% block body %}
     {{ include('alert.html.twig', with_context = true) }}
-    
-    {{ form(form) }}
 
+    {{ form(form) }}
+    
     <a href="{{ path('app_curso') }}" class="btn btn-secondary">Volver</a>
 
 {% endblock %}

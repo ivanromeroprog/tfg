@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Edu-track - Cursos{% endblock %}
+{% block bodytitle %}Curso{% endblock %}
+
+{% block body %}
+    {{ include('alert.html.twig', with_context = true) }}
+
+    {#{ form(form) }#}
+    {{ form_start(form) }}
+
+    {{ form_row(form.grado) }}
+    {{ form_row(form.division) }}
+    {{ form_row(form.materia) }}
+    {{ form_row(form.anio) }}
+    {{ form_row(form.organizacion) }}
+
+
+        <div {{ stimulus_controller('alumno') }}>
+            <h4>Alumnos</h4>
+
+
+            <div class="small p-1 mb-1">Buscar alumnos de la organización para agregar a este curso:</div>
+            {{ form_row(form.alumnos) }}
+            <div class="small p-1 mb-1">Si no encuentra el alumno puede
+                <a href="#" data-bs-toggle="collapse" data-bs-target="#agregar_alumno_form" aria-expanded="false" aria-controls="agregar_alumno_form">agregar uno nuevo</a>.</div>
+            <div class="row collapse" id="agregar_alumno_form">
+                <div class="col-md-4">
+                    {{ form_row(form.alumno_nombre) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.alumno_apellido) }}
+                </div>
+                <div class="col-md-3">
+                    {{ form_row(form.alumno_cua) }}
+                </div>
+                <div class="col-md-1 d-flex align-items-end justify-content-center">
+                    {{ form_row(form.alumno_agregar) }}
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+    {{ form_rest(form) }}
+    {{ form_end(form) }}
+    <a href="{{ path('app_curso') }}" class="btn btn-secondary">Volver</a>
+
+{% endblock %}

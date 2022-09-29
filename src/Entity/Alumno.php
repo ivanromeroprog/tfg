@@ -30,8 +30,11 @@ class Alumno
     #[ORM\OneToMany(mappedBy: 'alumno', targetEntity: Asistencia::class)]
     private Collection $asistencias;
 
-    public function __construct()
-    {
+    public function __construct(?int $id = null, ?string $nombre = null, ?string $apellido = null, ?string $cua = null) {
+        $this->id = $id;
+        $this->nombre = $nombre;
+        $this->apellido = $apellido;
+        $this->cua = $cua;
         $this->cursos = new ArrayCollection();
         $this->asistencias = new ArrayCollection();
     }

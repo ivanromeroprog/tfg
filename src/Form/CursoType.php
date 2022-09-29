@@ -8,7 +8,6 @@ use App\Entity\Organizacion;
 use App\Repository\OrganizacionRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -39,20 +38,31 @@ class CursoType extends AbstractType {
                     //'required' => !$options['modify'],
                     'disabled' => $options['view'] || $options['modify']
         ]);
-
+        
+        // TODO: filtrar alumnos solo para los cursos de la misma organización
+        // TODO: Agregar carga de alumnos con ajax
         if ($options['modify'] || $options['view']) {
             $builder->add('alumnos',
                     EntityType::class,
                     [
-                        'label' => 'Alumnos',
+                        'label' => $options['modify'] ? false : "Alumnos",
                         'class' => Alumno::class,
                         'expanded' => false,
                         'multiple' => true,
                         'disabled' => $options['view'],
+                        'by_reference' => false,
                         'autocomplete' => true,
+                        'required' => false,
                     //'attr' => ['class' => 'js-choice']
             ]);
-            $builder->add('alumnos', CollectionType::class);
+        }
+        if($options['modify']){
+                    $builder
+            ->add('alumno_nombre', TextType::class,['mapped' => false, 'label' => 'Nombre/s', 'required'=>true])
+            ->add('alumno_apellido', TextType::class,['mapped' => false, 'label'=>'Apellido/s', 'required'=>true])
+            ->add('alumno_cua', TextType::class,['mapped' => false, 'label'=>'CUA <a href="#">?</a>', 'label_html'=>true, 'required'=>true])
+            ->add('alumno_agregar', SubmitType::class, ['label' => '<i class="bi bi-plus-circle"></i>','label_html' => true]);
+            //$builder->add('alumnos', AlumnoType::class);
         }
 
 
