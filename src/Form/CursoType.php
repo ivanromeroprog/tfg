@@ -5,10 +5,10 @@ namespace App\Form;
 use App\Entity\Alumno;
 use App\Entity\Curso;
 use App\Entity\Organizacion;
-use App\Entity\Usuario;
 use App\Repository\OrganizacionRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -36,6 +36,7 @@ class CursoType extends AbstractType {
                                 ->where('u = :usuario')
                                 ->setParameter('usuario', $options['usuario']);
                     },
+                    //'required' => !$options['modify'],
                     'disabled' => $options['view'] || $options['modify']
         ]);
 
@@ -43,12 +44,15 @@ class CursoType extends AbstractType {
             $builder->add('alumnos',
                     EntityType::class,
                     [
+                        'label' => 'Alumnos',
                         'class' => Alumno::class,
                         'expanded' => false,
                         'multiple' => true,
-                        'disabled' => $options['view']
+                        'disabled' => $options['view'],
+                        'autocomplete' => true,
                     //'attr' => ['class' => 'js-choice']
             ]);
+            $builder->add('alumnos', CollectionType::class);
         }
 
 
