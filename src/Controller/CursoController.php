@@ -107,12 +107,13 @@ class CursoController extends AbstractController
         ]);
         $form->handleRequest($request);
 
+        //TODO: Validar que el CUA no se repita en la organización
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('alumno_agregar')->isClicked()) {
                 $data = $request->request->all()['curso'];
 
                 if (
-                    strlen($data['alumno_nombre']) < 3 || strlen($data['alumno_apellido']) < 3 || strlen($data['alumno_cua']) < 2
+                    strlen($data['alumno_nombre']) < 2 || strlen($data['alumno_apellido']) < 2 || strlen($data['alumno_cua']) < 2
                 ) {
                     $this->addFlash('warning', 'Completa todos los datos del alumno.');
                 } else {
@@ -160,7 +161,8 @@ class CursoController extends AbstractController
 
         $form = $this->createForm(CursoType::class, $curso, [
             'view' => true,
-            'usuario' => $this->getUser()
+            'usuario' => $this->getUser(),
+            'organizacion' => $curso->getOrganizacion()
         ]);
 
         return $this->render('curso/new.html.twig', [
@@ -181,7 +183,8 @@ class CursoController extends AbstractController
 
         $form = $this->createForm(CursoType::class, $curso, [
             'view' => true,
-            'usuario' => $this->getUser()
+            'usuario' => $this->getUser(),
+            'organizacion' => $curso->getOrganizacion()
         ]);
 
         return $this->render('curso/delete.html.twig', [

@@ -3,15 +3,17 @@
 namespace App\Form;
 
 use App\Entity\Usuario;
+use App\Entity\Organizacion;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
 
 class RegistrationFormType extends AbstractType
 {
@@ -49,16 +51,27 @@ class RegistrationFormType extends AbstractType
         ;
         */
         $builder
-                ->add('username', TextType::class, ['label' => 'Nombre de Usuario', 'disabled' => $options['view']])
-                ->add('password', RepeatedType::class, [
-                    'type' => PasswordType::class,
-                    'invalid_message' => 'Los campos de Clave deben ser iguales.',
-                    'options' => ['attr' => ['class' => 'password-field']],
-                    'required' => true,
-                    'first_options' => ['label' => 'Clave'],
-                    'second_options' => ['label' => 'Repetir Clave'],
-                    'disabled' => $options['view'],
-                    'constraints' => [
+            ->add(
+                'organizacion',
+                EntityType::class,
+                [
+                    'class' => Organizacion::class,
+                    'by_reference' => false,
+                    'autocomplete' => true,
+                    //'multiple' => true,
+                    'mapped' => false
+                ]
+            )
+            ->add('username', TextType::class, ['label' => 'Nombre de Usuario', 'disabled' => $options['view']])
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'invalid_message' => 'Los campos de Clave deben ser iguales.',
+                'options' => ['attr' => ['class' => 'password-field']],
+                'required' => true,
+                'first_options' => ['label' => 'Clave'],
+                'second_options' => ['label' => 'Repetir Clave'],
+                'disabled' => $options['view'],
+                'constraints' => [
                     new Length([
                         'min' => 8,
                         'minMessage' => 'La clave debe tener almenos {{ limit }} caracteres',
@@ -66,14 +79,13 @@ class RegistrationFormType extends AbstractType
                         'max' => 4096,
                     ]),
                 ],
-                ])
-                ->add('email', EmailType::class, ['disabled' => $options['view']])
-                //->add('Dni', NumberType::class, ['html5' => true, 'scale' => 0, 'attr' => ['min' => '0'], 'disabled' => $options['view']])
-                ->add('Nombre', TextType::class, ['disabled' => $options['view']])
-                ->add('Apellido', TextType::class, ['disabled' => $options['view']])
-                ->add('Telefono', TelType::class, ['required' => false, 'label' => 'Teléfono', 'disabled' => $options['view']])
-                ->add('Direccion', TextType::class, ['required' => false, 'label' => 'Dirección', 'disabled' => $options['view']])
-        ;
+            ])
+            ->add('email', EmailType::class, ['disabled' => $options['view']])
+            //->add('Dni', NumberType::class, ['html5' => true, 'scale' => 0, 'attr' => ['min' => '0'], 'disabled' => $options['view']])
+            ->add('Nombre', TextType::class, ['disabled' => $options['view']])
+            ->add('Apellido', TextType::class, ['disabled' => $options['view']])
+            ->add('Telefono', TelType::class, ['required' => false, 'label' => 'Teléfono', 'disabled' => $options['view']])
+            ->add('Direccion', TextType::class, ['required' => false, 'label' => 'Dirección', 'disabled' => $options['view']]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

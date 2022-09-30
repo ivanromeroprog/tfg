@@ -38,6 +38,7 @@ class CursoType extends AbstractType
                         ->where('u = :usuario')
                         ->setParameter('usuario', $options['usuario']);
                 },
+
                 //'required' => !$options['modify'],
                 'disabled' => $options['view'] || $options['modify'],
                 'help' => 'La organización no puede ser modificada una vez creado el curso. Si necesita hacerlo debe crear un nuevo curso.'
@@ -59,7 +60,8 @@ class CursoType extends AbstractType
                     'autocomplete' => true,
                     'required' => false,
                     'help' => $options['modify'] ? 'Buscar alumnos de la organización para agregar a este curso. Si no encuentra el alumno puede'
-                        . ' <a href="#" data-bs-toggle="collapse" data-bs-target="#agregar_alumno_form" aria-expanded="false" aria-controls="agregar_alumno_form">agregar uno nuevo</a>.' : null,
+                        . ' <a href="#" data-bs-toggle="collapse" data-bs-target="#agregar_alumno_form" aria-expanded="false"'
+                        . ' aria-controls="agregar_alumno_form">agregar uno nuevo</a>.' : null,
                     'help_html' => true,
                     'query_builder' => function (AlumnoRepository $ar) use ($options) {
                         return $ar->createQueryBuilder('a')
@@ -80,11 +82,9 @@ class CursoType extends AbstractType
                 ->add(
                     'alumno_cua',
                     TextType::class,
-
                     [
-                        //'help' => '',
                         'mapped' => false,
-                        'label' => 'CUA <a href="#">?</a>',
+                        'label' => 'CUA <a href="javascript:null" data-bs-toggle="tooltip" data-bs-placement="top" title="Código Único de Alumno: puede ser el Nº de DNI o de Matrícula.">?</a>',
                         'label_html' => true,
                         'required' => true
                     ]

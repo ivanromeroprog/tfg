@@ -15,6 +15,6 @@ export default class extends Controller {
         orderel.value = this.orderValue;
     }
     
-    document.getElementById('formsearch').submit();
+    document.getElementById('formsearch').requestSubmit();
    }
 }

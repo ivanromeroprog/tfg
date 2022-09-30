@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use App\Repository\UsuarioRepository;
@@ -9,13 +10,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[UniqueEntity('email')]
 #[UniqueEntity('username')]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
-    
-class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
+class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
+{
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -46,7 +48,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $telefono = null;
-/*
+    /*
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Venta::class)]
     private Collection $Ventas;
 */
@@ -67,10 +69,17 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
     #[ORM\OneToMany(mappedBy: 'usuario', targetEntity: Actividad::class)]
     private Collection $actividades;
-    
-    public function __construct(?int $id = null, ?string $username = null, ?string $password = null,
-            ?string $email = null, ?string $Nombre = null,
-            ?string $Apellido = null, ?string $Telefono = null, ?string $Direccion = null) {
+
+    public function __construct(
+        ?int $id = null,
+        ?string $username = null,
+        ?string $password = null,
+        ?string $email = null,
+        ?string $Nombre = null,
+        ?string $Apellido = null,
+        ?string $Telefono = null,
+        ?string $Direccion = null
+    ) {
         $this->id = $id;
         $this->username = $username;
         //$this->roles = $roles;
@@ -88,15 +97,18 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         $this->actividades = new ArrayCollection();
     }
 
-    public function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    public function getUsername(): ?string {
+    public function getUsername(): ?string
+    {
         return $this->username;
     }
 
-    public function setUsername(string $username): self {
+    public function setUsername(string $username): self
+    {
         $this->username = $username;
 
         return $this;
@@ -107,14 +119,16 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
      *
      * @see UserInterface
      */
-    public function getUserIdentifier(): string {
+    public function getUserIdentifier(): string
+    {
         return (string) $this->username;
     }
 
     /**
      * @see UserInterface
      */
-    public function getRoles(): array {
+    public function getRoles(): array
+    {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
@@ -122,7 +136,8 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         return array_unique($roles);
     }
 
-    public function setRoles(array $roles): self {
+    public function setRoles(array $roles): self
+    {
         $this->roles = $roles;
 
         return $this;
@@ -131,11 +146,13 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string {
+    public function getPassword(): string
+    {
         return $this->password;
     }
 
-    public function setPassword(string $password): self {
+    public function setPassword(string $password): self
+    {
         $this->password = $password;
 
         return $this;
@@ -144,52 +161,61 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
     /**
      * @see UserInterface
      */
-    public function eraseCredentials() {
+    public function eraseCredentials()
+    {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
 
-    public function getEmail(): ?string {
+    public function getEmail(): ?string
+    {
         return $this->email;
     }
 
-    public function setEmail(string $email): self {
+    public function setEmail(string $email): self
+    {
         $this->email = $email;
 
         return $this;
     }
-    
-    public function getNombre(): ?string {
+
+    public function getNombre(): ?string
+    {
         return $this->nombre;
     }
 
-    public function setNombre(string $Nombre): self {
+    public function setNombre(string $Nombre): self
+    {
         $this->nombre = $Nombre;
 
         return $this;
     }
 
-    public function getApellido(): ?string {
+    public function getApellido(): ?string
+    {
         return $this->apellido;
     }
 
-    public function setApellido(string $Apellido): self {
+    public function setApellido(string $Apellido): self
+    {
         $this->apellido = $Apellido;
 
         return $this;
     }
 
-    public function getTelefono(): ?string {
+    public function getTelefono(): ?string
+    {
         return $this->telefono;
     }
 
-    public function setTelefono(string $Telefono): self {
+    public function setTelefono(string $Telefono): self
+    {
         $this->telefono = $Telefono;
 
         return $this;
     }
 
-    
+
     /**
      * @return Collection<int, Venta>
     public function getVentas(): Collection {
@@ -216,17 +242,19 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this;
     }
         
-    */
-    public function getDireccion(): ?string {
+     */
+    public function getDireccion(): ?string
+    {
         return $this->direccion;
     }
 
-    public function setDireccion(?string $Direccion): self {
+    public function setDireccion(?string $Direccion): self
+    {
         $this->direccion = $Direccion;
 
         return $this;
     }
-/*
+    /*
     public function isVerified(): bool
     {
         return $this->isVerified;
@@ -378,5 +406,4 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface {
 
         return $this;
     }
-
 }

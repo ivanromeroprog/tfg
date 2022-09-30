@@ -55,7 +55,7 @@
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
     </head>
-    <body{# data-turbo="false"#}>
+    <body data-turbo="false">
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
@@ -73,7 +73,7 @@
                         {% endif %}
                         {% if is_granted('ROLE_DOCENTE') %}
                             <li class="nav-item">
-                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_docente' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_docente') }}">Inicio Docente</a>
+                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_docente' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_docente') }}">Inicio</a>
                             </li>
                             
                             <li class="nav-item">
