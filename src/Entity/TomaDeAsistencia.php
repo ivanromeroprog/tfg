@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TomaDeAsistenciaRepository::class)]
 class TomaDeAsistencia
 {
+    const ESTADO_INICIADO = 'iniciado';
+    const ESTADO_FINALIZADO = 'finalizado';
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,10 +28,10 @@ class TomaDeAsistencia
 
     #[ORM\Column(length: 50)]
     private ?string $estado = null;
-
-    #[ORM\Column(length: 255)]
+/*
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
-
+*/
     #[ORM\OneToMany(mappedBy: 'tomaDeAsistencia', targetEntity: Asistencia::class)]
     private Collection $asistencias;
 
@@ -59,7 +62,7 @@ class TomaDeAsistencia
         return $this->fecha;
     }
 
-    public function setFecha(\DateTimeInterface $fecha): self
+    public function setFecha(?\DateTimeInterface $fecha): self
     {
         $this->fecha = $fecha;
 
@@ -73,23 +76,40 @@ class TomaDeAsistencia
 
     public function setEstado(string $estado): self
     {
+        if (!in_array($estado, array(self::ESTADO_FINALIZADO, self::ESTADO_INICIADO))) {
+            throw new \InvalidArgumentException("Estado inválido");
+        }
         $this->estado = $estado;
 
         return $this;
     }
-
+/*
     public function getUrl(): ?string
     {
-        return $this->url;
+        return $this->id;
+    }
+  */  
+    public function getUrlEncoded(): ?string
+    {
+        return $this->base64_url_encode($this->id);
+    }
+    
+    public function urlDecode(string $encoded_url): ?string
+    {
+        return $this->base64_url_decode($encoded_url);
+    }
+    /*
+    public function setUrl(?string $url): void {
+        $this->url = $url;
     }
 
-    public function setUrl(string $url): self
+    public function setUrlEncoded(string $url): self
     {
-        $this->url = $url;
+        $this->url = base64_url_decode($url);
 
         return $this;
     }
-
+    */
     /**
      * @return Collection<int, Asistencia>
      */
@@ -118,5 +138,13 @@ class TomaDeAsistencia
         }
 
         return $this;
+    }
+    
+    private function base64_url_encode($input) {
+     return strtr(base64_encode($input), '+/=', '._-');
+    }
+
+    private function base64_url_decode($input) {
+     return base64_decode(strtr($input, '._-', '+/='));
     }
 }

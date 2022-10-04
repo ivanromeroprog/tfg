@@ -1,14 +1,16 @@
 {% extends 'base.html.twig' %}
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
 
-{% block title %}Edu-track - Cursos{% endblock %}
-{% block bodytitle %}Curso{% endblock %}
+{% block title %}Edu-track - Asistencias{% endblock %}
+{% block bodytitle %}Asistencia{% endblock %}
 
 {% block body %}
     {{ include('alert.html.twig', with_context = true) }}
 
     {{ form_start(form) }}
+    {#
     <button class="default-button-handler" value="default-button" name="default-button"></button>
+    
     {{ form_row(form.grado) }}
     {{ form_row(form.division) }}
     {{ form_row(form.materia) }}
@@ -35,9 +37,9 @@
             </div>
         </div>
 
-
+    #}
     {{ form_rest(form) }}
     {{ form_end(form) }}
-    <a href="{{ path('app_curso') }}" class="btn btn-secondary">Volver</a>
+    <a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
 
 {% endblock %}

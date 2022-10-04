@@ -60,20 +60,23 @@
 				{% for asistencia in pager %}
 					<tr>
 						<td>{{ asistencia.Id }}</td>
-						<td>{{ asistencia.Grado }}
-							{{ asistencia.division }}</td>
-						<td>{{ asistencia.Materia }}</td>
-						<td>{{ asistencia.Anio }}</td>
-						<td>
+						<td>{{ asistencia.curso.Grado }}
+							{{ asistencia.curso.Division }}</td>
+						<td>{{ asistencia.curso.Materia }}</td>
+						<td>{{ asistencia.Fecha|date("d/m/Y") }}</td>
+						<td>    {#
 							<a href="{{ path('app_asistencia_view',{'id':asistencia.id}) }}" class="btn btn-primary btn-sm" title="Ver">
 								<i class="bi bi-eye"></i>
 							</a>
+                                                        #}
 							<a href="{{ path('app_asistencia_edit',{'id':asistencia.id}) }}" class="btn btn-primary btn-sm" title="Editar">
-								<i class="bi bi-pencil-fill"></i>
+								<i class="bi bi-eye"></i>
 							</a>
+                                                        {#
 							<a href="{{ path('app_asistencia_delete',{'id':asistencia.id}) }}" class="btn btn-danger btn-sm" title="Eliminar">
 								<i class="bi bi-trash-fill"></i>
 							</a>
+                                                        #}
 						</td>
 					</tr>
 				{% endfor %}

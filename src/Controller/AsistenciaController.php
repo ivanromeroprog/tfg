@@ -72,23 +72,17 @@ class AsistenciaController extends AbstractController
     {
         $tomaasis = new TomaDeAsistencia();
         $tomaasis->setFecha(new \DateTime());
-
         
         $form = $this->createForm(AsistenciaType::class, $tomaasis, ['usuario' => $this->getUser()]);
         $form->handleRequest($request);
 
-
         if ($form->isSubmitted() && $form->isValid()) {
 
-            //$tomaasis->setUsuario($this->getUser());
-            
-            //$this->em->persist($tomaasis);
-            //$this->em->flush();
+            $tomaasis->setEstado(TomaDeAsistencia::ESTADO_INICIADO);
+            $this->em->persist($tomaasis);
+            $this->em->flush();
 
-            //$this->addFlash('success', 'Se creo el asistencia correctamente.');
-
-            //return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
-            
+            return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
         }
         
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
@@ -97,60 +91,37 @@ class AsistenciaController extends AbstractController
         ], $response);
     }
 
-    #[Route('/asistencia/editar/{id}', name: 'app_asistencia_edit')]
+    #[Route('/asistencia/panel/{id}', name: 'app_asistencia_edit')]
     public function edit(int $id, Request $request): Response
     {
-        $asistencia = $this->cr->find($id);
+        $tomaasis = $this->cr->find($id);
 
-        if (is_null($asistencia))
+        if (is_null($tomaasis))
             throw new AccessDeniedHttpException();
 
-        $form = $this->createForm(AsistenciaType::class, $asistencia, [
-            'modify' => true,
+        $form = $this->createForm(AsistenciaType::class, $tomaasis, [
             'usuario' => $this->getUser(),
-            'organizacion' => $asistencia->getOrganizacion()
+            'modify' => true
         ]);
         $form->handleRequest($request);
 
-        //TODO: Validar que el CUA no se repita en la organización
+        /*
+
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('alumno_agregar')->isClicked()) {
-                $data = $request->request->all()['asistencia'];
 
-                if (
-                    strlen($data['alumno_nombre']) < 2 || strlen($data['alumno_apellido']) < 2 || strlen($data['alumno_cua']) < 2
-                ) {
-                    $this->addFlash('warning', 'Completa todos los datos del alumno.');
-                } else {
+            $this->em->persist($tomaasis);
+            $this->em->flush();
 
-                    $alumno = new Alumno(
-                        null,
-                        $data['alumno_nombre'],
-                        $data['alumno_apellido'],
-                        $data['alumno_cua']
-                    );
+            //$this->addFlash('success', 'Se creo el asistencia correctamente.');
 
-                    $this->em->persist($alumno);
-                    $asistencia->addAlumno($alumno);
-
-                    $this->addFlash('success', 'Se agregó el alumno correctamente.');
-                }
-
-                $this->em->persist($asistencia);
-                $this->em->flush();
-                return $this->redirect($request->getUri());
-            } else {
-
-                $this->em->persist($asistencia);
-                $this->em->flush();
-                $this->addFlash('success', 'Se edito el asistencia correctamente.');
-                return $this->redirect($request->getUri());
-            }
-        }
-
+            return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
+            
+        }*/
+        
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/edit.html.twig', [
-            'form' => $form->createView()
-        ]);
+          'form' => $form->createView()
+        ], $response);
     }
 
     #[Route('/asistencia/ver/{id}', name: 'app_asistencia_view')]

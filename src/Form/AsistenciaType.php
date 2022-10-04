@@ -11,6 +11,8 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AsistenciaType extends AbstractType {
 
@@ -23,7 +25,9 @@ class AsistenciaType extends AbstractType {
                             'label' => 'Clase',
                             'multiple' => false,
                             //'disabled' => $options['view'],
-                            'by_reference' => false,
+                            'required' => true,
+                            'constraints' => [new NotBlank()],
+                            //'by_reference' => false,
                             'autocomplete' => true,
                             'query_builder' => function (CursoRepository $er) use ($options) {
                                 return $er->createQueryBuilder('c')
@@ -32,6 +36,7 @@ class AsistenciaType extends AbstractType {
                                 ->where('u = :usuario')
                                 ;
                             },
+                                    //'attr' => ['required'=>'required']
                         //'required' => !$options['modify'],
                         //'disabled' => $options['view'] || $options['modify'],
                         //'help' => 'La organización no puede ser modificada una vez creado el curso. Si necesita hacerlo debe crear un nuevo curso.'
@@ -41,6 +46,8 @@ class AsistenciaType extends AbstractType {
                         [
                             'html5' => true,
                             'widget' => 'single_text',
+                            'required' => true,
+                            'constraints' => [new NotBlank()],
                             'attr' => [
                                 'placeholder' => 'aaaa-mm-ddThh:mm:ss',
                                 //'data-controller' => 'datetimefix',
