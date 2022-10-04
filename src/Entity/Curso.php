@@ -179,4 +179,8 @@ class Curso
 
         return $this;
     }
+    
+    public function __toString():string {
+        return $this->grado . 'º ' . $this->division . ' - ' . $this->materia . ' - ' . $this->anio;
+    }
 }

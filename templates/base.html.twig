@@ -55,7 +55,7 @@
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
     </head>
-    <body data-turbo="false">
+    <body{# data-turbo="false" #}>
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
@@ -78,10 +78,10 @@
                             
                             <li class="nav-item">
                                     <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_curso' %} active{% endif %}" href="{{ path('app_curso') }}">Cursos</a>
-                            </li>{#
-                            <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_cliente' %} active{% endif %}" href="{{ path('app_cliente') }}">Clientes</a>
                             </li>
+                            <li class="nav-item">
+                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_asistencia' %} active{% endif %}" href="{{ path('app_asistencia') }}">Asistencia</a>
+                            </li>{#
                             <li class="nav-item">
                                     <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_producto' %} active{% endif %}" href="{{ path('app_producto') }}">Productos</a>
                             </li>

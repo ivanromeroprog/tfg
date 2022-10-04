@@ -23,7 +23,7 @@ class Asistencia
 
     #[ORM\Column]
     private ?bool $presente = null;
-
+    
     public function getId(): ?int
     {
         return $this->id;

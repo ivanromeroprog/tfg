@@ -49,16 +49,6 @@ class CursoRepository extends ServiceEntityRepository
         }
     }
 
-    public function getOrderFields(): array
-    {
-        return $this->orderFields;
-    }
-
-    public function setOrderFields(array $orderFields): void
-    {
-        $this->orderFields = $orderFields;
-    }
-
     /**
      * 
      * @param array $onlikecriteria

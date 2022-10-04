@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Edu-track - Cursos
+{% endblock %}
+{% block bodytitle %}Eliminar Curso
+{% endblock %}
+
+{% block body %}
+	
+		<div class="alert alert-danger">
+			<p class="fw-bold">¿Está seguro de eliminar este Curso?</p>
+		</div>
+                {{ form(form) }}
+        
+        <form action="{{ path('app_curso_dodelete') }}" method="POST">
+            
+		<input type="hidden" name="id" value="{{ curso.id }}"/>
+		<input type="hidden" name="_method" value="DELETE"/>
+		<input type="hidden" name="_token" value="{{ csrf_token('borrarcosa') }}"/>
+		<input type="submit" value="Eliminar" class="btn btn-danger" style="float: right" /><a href="{{ path('app_curso') }}" class="btn btn-secondary">Volver</a>
+		
+	</form>
+{% endblock %}

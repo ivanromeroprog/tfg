@@ -31,7 +31,6 @@ class CursoType extends AbstractType
             EntityType::class,
             [
                 'class' => Organizacion::class,
-                'attr' => ['class' => 'js-choice'],
                 'query_builder' => function (OrganizacionRepository $er) use ($options) {
                     return $er->createQueryBuilder('o')
                         ->innerJoin('o.usuarios', 'u')
