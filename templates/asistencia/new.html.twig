@@ -1,14 +1,59 @@
 {% extends 'base.html.twig' %}
+{#
+{% form_theme form.Submit 'bootstrap_5_layout.html.twig' %}
+{% form_theme form.fecha 'bootstrap_5_horizontal_layout.html.twig' %}
+{% form_theme form.estado 'bootstrap_5_horizontal_layout.html.twig' %}
+{% form_theme form.curso 'bootstrap_5_horizontal_layout.html.twig' %}
+#}
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
-
 {% block title %}Edu-track - Asistencias{% endblock %}
-{% block bodytitle %}Asistencia{% endblock %}
+{% block bodytitle %}Tomar Asistencia{% endblock %}
 
 {% block body %}
     {{ include('alert.html.twig', with_context = true) }}
 
-    {{ form(form) }}
-    
-    <a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
+
+	{{ form_start(form) }}
+	<div class="row">
+		<div class="col-sm">{{ form_row(form.curso) }}</div>
+		<div class="col-sm">{{ form_row(form.fecha) }}</div>
+
+
+	</div>
+
+	{#
+	    <button class="default-button-handler" value="default-button" name="default-button"></button>
+	    
+	    {{ form_row(form.grado) }}
+	    {{ form_row(form.division) }}
+	    {{ form_row(form.materia) }}
+	    {{ form_row(form.anio) }}
+	    {{ form_row(form.organizacion) }}
+	
+	
+	        <div {{ stimulus_controller('alumno') }}>
+	            <h4>Alumnos</h4>
+	            {{ form_row(form.alumnos) }}
+	            <div class="row collapse mb-3" id="agregar_alumno_form">
+	                <div class="col-md-4">
+	                    {{ form_row(form.alumno_nombre) }}
+	                </div>
+	                <div class="col-md-4">
+	                    {{ form_row(form.alumno_apellido) }}
+	                </div>
+	                <div class="col-md-3">
+	                    {{ form_row(form.alumno_cua) }}
+	                </div>
+	                <div class="col-md-1 d-flex align-items-end justify-content-center">
+	                    {{ form_row(form.alumno_agregar) }}
+	                </div>
+	            </div>
+	        </div>
+	
+	    #}
+
+	{{ form_rest(form) }}
+	{{ form_end(form) }}
+	<a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
 
 {% endblock %}

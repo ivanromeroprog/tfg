@@ -23,9 +23,10 @@ class TomaDeAsistenciaRepository extends ServiceEntityRepository
         't.id',
         'c.grado',
         'c.materia',
+        't.estado',
         't.fecha'
     ];
-        
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, TomaDeAsistencia::class);
@@ -63,8 +64,8 @@ class TomaDeAsistenciaRepository extends ServiceEntityRepository
 
         $i = 0;
         foreach ($onlikecriteria as $field => $value) {
-            $builder->setParameter('param'.$i, '%' . $value . '%');
-            $builder->orWhere( $field . ' LIKE :' . 'param'.$i);
+            $builder->setParameter('param' . $i, '%' . $value . '%');
+            $builder->orWhere($field . ' LIKE :' . 'param' . $i);
             $i++;
         }
 
@@ -94,14 +95,14 @@ class TomaDeAsistenciaRepository extends ServiceEntityRepository
     {
         return $this->listQueryBuilder($onlikecriteria, $order, $usuario)->getQuery()->getResult();
     }
-    
-    public function getOrderFields(): array {
+
+    public function getOrderFields(): array
+    {
         return $this->orderFields;
     }
 
-    public function setOrderFields(array $orderFields): void {
+    public function setOrderFields(array $orderFields): void
+    {
         $this->orderFields = $orderFields;
     }
-
-
 }

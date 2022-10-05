@@ -11,9 +11,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TomaDeAsistenciaRepository::class)]
 class TomaDeAsistencia
 {
-    const ESTADO_INICIADO = 'iniciado';
-    const ESTADO_FINALIZADO = 'finalizado';
-    
+    const ESTADO_INICIADO = 'Iniciado';
+    const ESTADO_FINALIZADO = 'Finalizado';
+    const ESTADOS = [
+        self::ESTADO_INICIADO => self::ESTADO_INICIADO,
+        self::ESTADO_FINALIZADO => self::ESTADO_FINALIZADO
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -28,7 +32,7 @@ class TomaDeAsistencia
 
     #[ORM\Column(length: 50)]
     private ?string $estado = null;
-/*
+    /*
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
 */
@@ -83,20 +87,20 @@ class TomaDeAsistencia
 
         return $this;
     }
-/*
+    /*
     public function getUrl(): ?string
     {
         return $this->id;
     }
-  */  
+    */
     public function getUrlEncoded(): ?string
     {
         return $this->base64_url_encode($this->id);
     }
-    
-    public function urlDecode(string $encoded_url): ?string
+
+    static public function urlDecode(string $encoded_url): ?string
     {
-        return $this->base64_url_decode($encoded_url);
+        return self::base64_url_decode($encoded_url);
     }
     /*
     public function setUrl(?string $url): void {
@@ -139,12 +143,14 @@ class TomaDeAsistencia
 
         return $this;
     }
-    
-    private function base64_url_encode($input) {
-     return strtr(base64_encode($input), '+/=', '._-');
+
+    private function base64_url_encode($input)
+    {
+        return strtr(base64_encode($input), '+/=', '._-');
     }
 
-    private function base64_url_decode($input) {
-     return base64_decode(strtr($input, '._-', '+/='));
+    static private function base64_url_decode($input)
+    {
+        return base64_decode(strtr($input, '._-', '+/='));
     }
 }

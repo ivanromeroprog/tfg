@@ -9,32 +9,28 @@ input[type='number']::-webkit-inner-spin-button {
     margin-left: 10px;
 }
 
-.choices__inner{
-    border-radius: 6px !important;
-    background-color: #fff !important;
-    min-height: 38px !important;
-    height: 38px !important;
-    padding: 3.75px 5.5px !important;
-}
-
-tbody.detalles td{
+tbody.detalles td {
     vertical-align: middle;
 }
 
-tbody.detalles div.mb-3{
-    margin:0 !important;
+tbody.detalles div.mb-3 {
+    margin: 0 !important;
 }
 
-input, textarea {
+input,
+textarea {
     border-style: dashed !important;
 }
 
-input:required, input.falserequired, textarea:required, textarea.falserequired{
+input:required,
+input.falserequired,
+textarea:required,
+textarea.falserequired {
     border-style: solid !important;
 }
 
-.dataTables_length{
-    display:none;
+.dataTables_length {
+    display: none;
 }
 
 @media (min-width:600px) {
@@ -46,11 +42,13 @@ input:required, input.falserequired, textarea:required, textarea.falserequired{
 }
 
 @media (max-width: 600px) {
-    thead, thead{
+
+    thead {
         font-size: 0.8em;
     }
 
-    tbody, tbody, tfoot, tfoot{
+    tbody,
+    tfoot {
         font-size: 0.75em;
     }
 }
@@ -62,4 +60,9 @@ input:required, input.falserequired, textarea:required, textarea.falserequired{
     border: 0;
     margin: 0;
     position: absolute;
-  }
+}
+
+.pagination {
+    align-items: center !important;
+    justify-content: center !important;
+}

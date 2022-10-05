@@ -3,19 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Alumno;
-use App\Entity\TomaDeAsistencia;
+use Pagerfanta\Pagerfanta;
 use App\Form\AsistenciaType;
-use App\Repository\TomaDeAsistenciaRepository;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use App\Entity\TomaDeAsistencia;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
+use Symfony\Component\HttpFoundation\Request;
+use App\Repository\TomaDeAsistenciaRepository;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('ROLE_DOCENTE')]
 class AsistenciaController extends AbstractController
@@ -72,7 +73,7 @@ class AsistenciaController extends AbstractController
     {
         $tomaasis = new TomaDeAsistencia();
         $tomaasis->setFecha(new \DateTime());
-        
+
         $form = $this->createForm(AsistenciaType::class, $tomaasis, ['usuario' => $this->getUser()]);
         $form->handleRequest($request);
 
@@ -84,10 +85,10 @@ class AsistenciaController extends AbstractController
 
             return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
         }
-        
+
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/new.html.twig', [
-          'form' => $form->createView()
+            'form' => $form->createView()
         ], $response);
     }
 
@@ -98,6 +99,10 @@ class AsistenciaController extends AbstractController
 
         if (is_null($tomaasis))
             throw new AccessDeniedHttpException();
+
+        $code = $tomaasis->getUrlEncoded();
+        dump($this->generateUrl('app_asistencia_alumno', ['code' => $code], UrlGeneratorInterface::ABSOLUTE_URL));
+        dump(TomaDeAsistencia::urlDecode($code));
 
         $form = $this->createForm(AsistenciaType::class, $tomaasis, [
             'usuario' => $this->getUser(),
@@ -117,10 +122,10 @@ class AsistenciaController extends AbstractController
             return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
             
         }*/
-        
+
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/edit.html.twig', [
-          'form' => $form->createView()
+            'form' => $form->createView()
         ], $response);
     }
 

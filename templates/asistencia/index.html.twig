@@ -51,6 +51,7 @@
 				<th class="canorder">Id</th>
 				<th class="canorder">Grado - División</th>
 				<th class="canorder">Materia</th>
+				<th class="canorder">Estado</th>
 				<th class="canorder">Fecha</th>
 				<th></th>
 			</tr>
@@ -63,13 +64,14 @@
 						<td>{{ asistencia.curso.Grado }}
 							{{ asistencia.curso.Division }}</td>
 						<td>{{ asistencia.curso.Materia }}</td>
+						<td>{{ asistencia.Estado|capitalize }}</td>
 						<td>{{ asistencia.Fecha|date("d/m/Y") }}</td>
 						<td>    {#
 							<a href="{{ path('app_asistencia_view',{'id':asistencia.id}) }}" class="btn btn-primary btn-sm" title="Ver">
 								<i class="bi bi-eye"></i>
 							</a>
                                                         #}
-							<a href="{{ path('app_asistencia_edit',{'id':asistencia.id}) }}" class="btn btn-primary btn-sm" title="Editar">
+							<a href="{{ path('app_asistencia_edit',{'id':asistencia.id}) }}" class="btn btn-primary btn-sm" title="Ver">
 								<i class="bi bi-eye"></i>
 							</a>
                                                         {#
