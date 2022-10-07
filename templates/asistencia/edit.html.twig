@@ -7,76 +7,82 @@
 {% endblock %}
 
 {% block body %}
-    {{ include('alert.html.twig', with_context = true) }}
+	{{ include('alert.html.twig', with_context = true) }}
 
-    <!-- Button trigger modal -->
-    <div class="text-end">
-        <button type="button" class="btn btn-success flex" data-bs-toggle="modal" data-bs-target="#shareModal">
-            Compartir
-        </button>
-    </div>
-    <!-- Modal -->
-    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="shareModalLabel">Compartir con los Alumnos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="input-group" data-controller="clipboard">
-                        <input readonly="readonly" aria-label="URL para compartir" data-clipboard-target="source" class="form-control" value="{{ url }}">
-                        <button type="button" id="clipboardcopy" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar" class="btn btn-secondary" data-action="clipboard#copy"><i class="bi bi-clipboard"></i></button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    {#        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>#}
-                </div>
-            </div>
-        </div>
-    </div>
-    {{ form_start(form) }}
-    <div class="row">
-        <div class="col-sm">{{ form_row(form.curso) }}</div>
-        <div class="col-sm">{{ form_row(form.fecha) }}</div>
-    </div>
+	<!-- Button trigger modal -->
+	<div class="text-end">
+		<button type="button" class="btn btn-success flex" data-bs-toggle="modal" data-bs-target="#shareModal">
+			<i class="bi bi-link-45deg"></i> Compartir
+		</button>
+	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="shareModal" data-controller="modal" data-modal-open-value="{{ modal ? 'true' : 'false' }}" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="shareModalLabel">Compartir con los Alumnos</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body text-center">
+					<p class="mt-4 mb-2">Copiar el link y compartir:</p>
+					<div class="input-group" data-controller="clipboard">
+						<input required readonly="readonly" aria-label="URL para compartir" data-clipboard-target="source" class="form-control" value="{{ url }}">
+						<button type="button" id="clipboardcopy" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar" class="btn btn-secondary" data-action="clipboard#copy">
+							<i class="bi bi-clipboard"></i>
+						</button>
+					</div>
+					<p class="mt-4 mb-0">O puede usar el siguiente código QR:</p>
+					<div class="text-center"><img style="width: 200px; height: 200px" src="{{ qr_code_url(url) }}"/></div>
+                    <a href="{{ qr_code_url(url) }}" class="btn btn-primary" download="qrcode.png">Descargar código QR</a>
 
-    {#
-        <button class="default-button-handler" value="default-button" name="default-button"></button>
-        
-        {{ form_row(form.grado) }}
-        {{ form_row(form.division) }}
-        {{ form_row(form.materia) }}
-        {{ form_row(form.anio) }}
-        {{ form_row(form.organizacion) }}
-    
-    
-            <div {{ stimulus_controller('alumno') }}>
-                <h4>Alumnos</h4>
-                {{ form_row(form.alumnos) }}
-                <div class="row collapse mb-3" id="agregar_alumno_form">
-                    <div class="col-md-4">
-                        {{ form_row(form.alumno_nombre) }}
-                    </div>
-                    <div class="col-md-4">
-                        {{ form_row(form.alumno_apellido) }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ form_row(form.alumno_cua) }}
-                    </div>
-                    <div class="col-md-1 d-flex align-items-end justify-content-center">
-                        {{ form_row(form.alumno_agregar) }}
-                    </div>
-                </div>
-            </div>
-    
-        #}
+				</div>
+				<div
+					class="modal-footer">{#        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						                            <button type="button" class="btn btn-primary">Save changes</button>#}
+				</div>
+			</div>
+		</div>
+	</div>
+	{{ form_start(form) }}
+	<div class="row">
+		<div class="col-sm">{{ form_row(form.curso) }}</div>
+		<div class="col-sm">{{ form_row(form.fecha) }}</div>
+	</div>
 
-    {{ form_rest(form) }}
-    {{ form_end(form) }}
-    <a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
+	{#
+	        <button class="default-button-handler" value="default-button" name="default-button"></button>
+	        
+	        {{ form_row(form.grado) }}
+	        {{ form_row(form.division) }}
+	        {{ form_row(form.materia) }}
+	        {{ form_row(form.anio) }}
+	        {{ form_row(form.organizacion) }}
+	    
+	    
+	            <div {{ stimulus_controller('alumno') }}>
+	                <h4>Alumnos</h4>
+	                {{ form_row(form.alumnos) }}
+	                <div class="row collapse mb-3" id="agregar_alumno_form">
+	                    <div class="col-md-4">
+	                        {{ form_row(form.alumno_nombre) }}
+	                    </div>
+	                    <div class="col-md-4">
+	                        {{ form_row(form.alumno_apellido) }}
+	                    </div>
+	                    <div class="col-md-3">
+	                        {{ form_row(form.alumno_cua) }}
+	                    </div>
+	                    <div class="col-md-1 d-flex align-items-end justify-content-center">
+	                        {{ form_row(form.alumno_agregar) }}
+	                    </div>
+	                </div>
+	            </div>
+	    
+	        #}
 
+	{{ form_rest(form) }}
+	{{ form_end(form) }}
+	<a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
 
 
 {% endblock %}

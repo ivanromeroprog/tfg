@@ -19,18 +19,21 @@ use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[IsGranted('ROLE_DOCENTE')]
-class AsistenciaController extends AbstractController {
+class AsistenciaController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private TomaDeAsistenciaRepository $cr;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
     }
 
     #[Route('/asistencia', name: 'app_asistencia')]
-    public function index(Request $request): Response {
+    public function index(Request $request): Response
+    {
 
         $perpage = $request->query->getInt('perpage', 10);
         $page = $request->query->getInt('page', 1);
@@ -40,15 +43,15 @@ class AsistenciaController extends AbstractController {
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-                $search !== '' ?
+            $search !== '' ?
                 [
-            'c.grado' => $search,
-            'c.materia' => $search,
-            'c.division' => $search,
-            't.fecha' => $search
+                    'c.grado' => $search,
+                    'c.materia' => $search,
+                    'c.division' => $search,
+                    't.fecha' => $search
                 ] : [],
-                $order,
-                $this->getUser()
+            $order,
+            $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -56,17 +59,18 @@ class AsistenciaController extends AbstractController {
         $pager->setCurrentPage($page);
 
         return $this->render('asistencia/index.html.twig', [
-                    'pager' => $pager,
-                    'order' => $order,
-                    'search' => $search,
-                    'perpageoptions' => [
-                        10, 25, 50, 100
-                    ]
+            'pager' => $pager,
+            'order' => $order,
+            'search' => $search,
+            'perpageoptions' => [
+                10, 25, 50, 100
+            ]
         ]);
     }
 
     #[Route('/asistencia/nuevo', name: 'app_asistencia_new')]
-    public function new(Request $request): Response {
+    public function new(Request $request): Response
+    {
         $tomaasis = new TomaDeAsistencia();
         $tomaasis->setFecha(new \DateTime());
 
@@ -79,17 +83,18 @@ class AsistenciaController extends AbstractController {
             $this->em->persist($tomaasis);
             $this->em->flush();
 
-            return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
+            return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId(), 'modal' => 'true']);
         }
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/new.html.twig', [
-                    'form' => $form->createView()
-                        ], $response);
+            'form' => $form->createView()
+        ], $response);
     }
 
-    #[Route('/asistencia/panel/{id}', name: 'app_asistencia_edit')]
-    public function edit(int $id, Request $request): Response {
+    #[Route('/asistencia/panel/{id}/{modal}', name: 'app_asistencia_edit')]
+    public function edit(int $id, Request $request, string $modal = 'false'): Response
+    {
         $tomaasis = $this->cr->find($id);
 
         if (is_null($tomaasis))
@@ -97,9 +102,9 @@ class AsistenciaController extends AbstractController {
 
         $code = $tomaasis->getUrlEncoded();
         $url = $this->generateUrl(
-                'app_asistencia_alumno',
-                ['code' => $code],
-                UrlGeneratorInterface::ABSOLUTE_URL
+            'app_asistencia_alumno',
+            ['code' => $code],
+            UrlGeneratorInterface::ABSOLUTE_URL
         );
 
         $form = $this->createForm(AsistenciaType::class, $tomaasis, [
@@ -123,13 +128,15 @@ class AsistenciaController extends AbstractController {
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/edit.html.twig', [
-                    'form' => $form->createView(),
-                    'url' => $url,
-                        ], $response);
+            'form' => $form->createView(),
+            'url' => $url,
+            'modal' => $modal === 'true',
+        ], $response);
     }
 
     #[Route('/asistencia/ver/{id}', name: 'app_asistencia_view')]
-    public function view(int $id): Response {
+    public function view(int $id): Response
+    {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -145,12 +152,13 @@ class AsistenciaController extends AbstractController {
         ]);
 
         return $this->render('asistencia/new.html.twig', [
-                    'form' => $form->createView(),
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/asistencia/eliminar/{id}', name: 'app_asistencia_delete', methods: ['GET', 'HEAD'])]
-    public function delete(int $id): Response {
+    public function delete(int $id): Response
+    {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -166,13 +174,14 @@ class AsistenciaController extends AbstractController {
         ]);
 
         return $this->render('asistencia/delete.html.twig', [
-                    'asistencia' => $asistencia,
-                    'form' => $form->createView()
+            'asistencia' => $asistencia,
+            'form' => $form->createView()
         ]);
     }
 
     #[Route('/asistencia/eliminar', name: 'app_asistencia_dodelete', methods: ['DELETE'])]
-    public function doDelete(Request $request): Response {
+    public function doDelete(Request $request): Response
+    {
 
         $submittedToken = $request->request->get('_token');
 
@@ -202,5 +211,4 @@ class AsistenciaController extends AbstractController {
         }
         return $this->redirectToRoute('app_asistencia');
     }
-
 }

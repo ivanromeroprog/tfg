@@ -1,8 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-
-    copy(event) {
+        
+    static targets = ['source']
+        
+    copy() {
         // Get the text field
         var copyText = this.sourceTarget;
 
