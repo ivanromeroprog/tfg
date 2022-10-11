@@ -7,7 +7,9 @@ use App\Entity\Organizacion;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -77,6 +79,17 @@ class RegistrationFormType extends AbstractType
                         'minMessage' => 'La clave debe tener almenos {{ limit }} caracteres',
                         // max length allowed by Symfony for security reasons
                         'max' => 4096,
+                    ]),
+                    //regex -> to have at elast one digit
+                    new Regex([
+                        'pattern' => '/\d+/i',
+                        'message' => 'La clave debe contener al menos un dígito',
+                    ]),
+                    //regex -> to have at elast one special char from the list
+                    //note: list of special-char is [#?!@$%^&*-]. Adjust to suite your needs
+                    new Regex([
+                        'pattern' => '/[#?!@$%^&*-]+/i',
+                        'message' => 'La clave debe contener al menos un carácter especial de los siguientes: # ? ! @ $ % ^ & * -)',
                     ]),
                 ],
             ])

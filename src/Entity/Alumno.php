@@ -105,7 +105,7 @@ class Alumno
     }
     
     public function __toString() {
-        return $this->apellido . ', ' . $this->nombre . '('. $this->cua .')';
+        return $this->apellido . ', ' . $this->nombre . ' ('. $this->cua .')';
     }
 
     /**
