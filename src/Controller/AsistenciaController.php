@@ -2,21 +2,23 @@
 
 namespace App\Controller;
 
-use App\Entity\Alumno;
-use Pagerfanta\Pagerfanta;
-use App\Form\AsistenciaType;
+use App\Entity\Asistencia;
 use App\Entity\TomaDeAsistencia;
+use App\Form\AsistenciaType;
+use App\Repository\CursoRepository;
+use App\Repository\TomaDeAsistenciaRepository;
+use DateTime;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Symfony\Component\HttpFoundation\Request;
-use App\Repository\TomaDeAsistenciaRepository;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[IsGranted('ROLE_DOCENTE')]
 class AsistenciaController extends AbstractController
@@ -24,6 +26,7 @@ class AsistenciaController extends AbstractController
 
     private EntityManagerInterface $em;
     private TomaDeAsistenciaRepository $cr;
+    private CursoRepository $cur;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -72,7 +75,7 @@ class AsistenciaController extends AbstractController
     public function new(Request $request): Response
     {
         $tomaasis = new TomaDeAsistencia();
-        $tomaasis->setFecha(new \DateTime());
+        $tomaasis->setFecha(new DateTime());
 
         $form = $this->createForm(AsistenciaType::class, $tomaasis, ['usuario' => $this->getUser()]);
         $form->handleRequest($request);
@@ -80,6 +83,13 @@ class AsistenciaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $tomaasis->setEstado(TomaDeAsistencia::ESTADO_INICIADO);
+            
+            //TODO: Probar Agregar las asistencias de cada alumno de este curso con valor false 
+            $alumnos = $tomaasis->getCurso()->getAlumnos();
+            foreach($alumnos as $alumno){
+                $asistencia = new Asistencia(null, $alumno, false);
+                $tomaasis->addAsistencia($asistencia);
+            }
             $this->em->persist($tomaasis);
             $this->em->flush();
 

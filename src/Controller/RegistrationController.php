@@ -16,7 +16,6 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 //TODO: Agregar campo para registrar como docente o responsable
-//TODO: Agregar campo para buscar organización
 
 class RegistrationController extends AbstractController
 {

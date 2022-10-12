@@ -45,6 +45,7 @@ class LoginAlumnoController extends AbstractController {
 
         $tomaasitencia = $this->cr->find($idtomaasistencia);
         if (is_null($tomaasitencia) || $tomaasitencia->getEstado() != TomaDeAsistencia::ESTADO_INICIADO) {
+            $this->session->remove('alumno');
             throw new AccessDeniedHttpException();
         }
 

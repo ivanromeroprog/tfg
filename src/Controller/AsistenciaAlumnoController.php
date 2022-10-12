@@ -14,14 +14,16 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use function dump;
 
-class AsistenciaAlumnoController extends AbstractController {
+class AsistenciaAlumnoController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private TomaDeAsistenciaRepository $cr;
-    private AlumnoRepository $ar;
+
     private Session $session;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
     }
@@ -42,6 +44,7 @@ class AsistenciaAlumnoController extends AbstractController {
 
         $tomaasitencia = $this->cr->find($idtomaasistencia);
         if (is_null($tomaasitencia) || $tomaasitencia->getEstado() != TomaDeAsistencia::ESTADO_INICIADO) {
+            $this->session->remove('alumno');
             throw new AccessDeniedHttpException();
         }
         
@@ -51,8 +54,7 @@ class AsistenciaAlumnoController extends AbstractController {
             return $this->redirectToRoute('app_login_alumno_asistencia', ['code' => $code]);
         }
         return $this->render('asistencia_alumno/index.html.twig', [
-                    //'tomaassitencia' => $tomaasitencia,
+            //'tomaassitencia' => $tomaasitencia,
         ]);
     }
-
 }
