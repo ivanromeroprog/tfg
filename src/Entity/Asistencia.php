@@ -6,8 +6,8 @@ use App\Repository\AsistenciaRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AsistenciaRepository::class)]
-class Asistencia
-{
+class Asistencia {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,45 +23,46 @@ class Asistencia
 
     #[ORM\Column]
     private ?bool $presente = null;
-    
-    public function getId(): ?int
-    {
+
+    public function __construct(?int $id = null, ?Alumno $alumno = null, ?bool $presente = null, ?TomaDeAsistencia $tomaDeAsistencia = null) {
+        $this->id = $id;
+        $this->tomaDeAsistencia = $tomaDeAsistencia;
+        $this->alumno = $alumno;
+        $this->presente = $presente;
+    }
+
+    public function getId(): ?int {
         return $this->id;
     }
 
-    public function getTomaDeAsistencia(): ?TomaDeAsistencia
-    {
+    public function getTomaDeAsistencia(): ?TomaDeAsistencia {
         return $this->tomaDeAsistencia;
     }
 
-    public function setTomaDeAsistencia(?TomaDeAsistencia $tomaDeAsistencia): self
-    {
+    public function setTomaDeAsistencia(?TomaDeAsistencia $tomaDeAsistencia): self {
         $this->tomaDeAsistencia = $tomaDeAsistencia;
 
         return $this;
     }
 
-    public function getAlumno(): ?Alumno
-    {
+    public function getAlumno(): ?Alumno {
         return $this->alumno;
     }
 
-    public function setAlumno(?Alumno $alumno): self
-    {
+    public function setAlumno(?Alumno $alumno): self {
         $this->alumno = $alumno;
 
         return $this;
     }
 
-    public function isPresente(): ?bool
-    {
+    public function isPresente(): ?bool {
         return $this->presente;
     }
 
-    public function setPresente(bool $presente): self
-    {
+    public function setPresente(bool $presente): self {
         $this->presente = $presente;
 
         return $this;
     }
+
 }
