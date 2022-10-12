@@ -73,7 +73,7 @@
                         <td>{{ asistencia.alumno.Apellido }}, {{ asistencia.alumno.Nombre }}</td>
                         <td>{# <input type="checkbox" name="l{{loop.index}}" id="l{{loop.index}}" class="form-check-input falserequired"><label for="l{{loop.index}}"></label> #}
                             <div class="form-check form-switch">
-                                <input class="form-check-input falserequired" type="checkbox"{{ asistencia.presente ? ' checked="checked' : '' }}{{ tomaasis.estado != 'Iniciado' ? ' disabled="disabled"' : '' }} name="asistenciaalumno[{{asistencia.id}}]" id="asistenciaalumno_{{asistencia.id}}">
+                                <input data-controller="toggleasistencia" data-action="change->toggleasistencia#change" data-toggleasistencia-ida-value="{{asistencia.id}}" class="form-check-input falserequired" type="checkbox"{{ asistencia.presente ? ' checked="checked"' : '' }}{{ tomaasis.estado != 'Iniciado' ? ' disabled="disabled"' : '' }} name="asistenciaalumno[{{asistencia.id}}]" id="asistenciaalumno_{{asistencia.id}}">
                                 <label class="form-check-label" for="asistenciaalumno_{{asistencia.id}}"></label>
                             </div></td>
                         <td></td>
@@ -103,11 +103,11 @@
         {% endif %}
         
         {% if tomaasis.estado != 'Iniciado' %}
-        <div class="col{{ tomaasis.estado == 'Finalizado' ? ' text-end' : ' text-center' }}"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'iniciar','_fragment': 'pregunta'}) }}" class="btn btn-success">Iniciar</a></div>
+        <div class="col{{ tomaasis.estado == 'Finalizado' ? ' text-end' : ' text-center' }}"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'iniciar'}) }}" class="btn btn-success">Iniciar</a></div>
         {% endif %}
         
         {% if tomaasis.estado != 'Finalizado' %}
-        <div class="col text-end"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'finalizar','_fragment': 'pregunta'}) }}" class="btn btn-primary">Finalizar</a></div>
+        <div class="col text-end"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'finalizar'}) }}" class="btn btn-primary">Finalizar</a></div>
         {% endif %}
     </div>
     {% else %}
