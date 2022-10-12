@@ -7,6 +7,7 @@ use App\Repository\AlumnoRepository;
 use App\Repository\TomaDeAsistenciaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -23,12 +24,13 @@ class AsistenciaAlumnoController extends AbstractController {
     public function __construct(EntityManagerInterface $em) {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
-        
-        $this->session = new Session();
     }
 
     #[Route('/a/{code}', name: 'app_asistencia_alumno')]
-    public function index(string $code): Response {
+    public function index(string $code,Request $request): Response {
+        $this->session = $request->getSession();
+        //$this->session->remove('alumno');
+        
         //TODO: usar https://github.com/nayzo/NzoUrlEncryptorBundle para encriptar urls
         $idtomaasistencia = TomaDeAsistencia::urlDecode($code);
 
@@ -43,10 +45,10 @@ class AsistenciaAlumnoController extends AbstractController {
             throw new AccessDeniedHttpException();
         }
         
-        if ($this->session->get('alumno', null) <> null) {
+        if (!is_null($this->session->get('alumno', null))) {
             dump($this->session->get('alumno'));
         } else {
-            return $this->redirectToRoute('app_login_alumno_asistencia', ['code' => $code, 'tipo_ingreso' => 'asistencia']);
+            return $this->redirectToRoute('app_login_alumno_asistencia', ['code' => $code]);
         }
         return $this->render('asistencia_alumno/index.html.twig', [
                     //'tomaassitencia' => $tomaasitencia,

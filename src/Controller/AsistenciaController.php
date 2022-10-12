@@ -106,6 +106,12 @@ class AsistenciaController extends AbstractController
             ['code' => $code],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
+        
+        
+        //Lista de alumnos
+        //Si sigue abierta la toma de asistencia cargar desde alumnos del curso
+        $alumnos = $tomaasis->getCurso()->getAlumnos();
+        
 
         $form = $this->createForm(AsistenciaType::class, $tomaasis, [
             'usuario' => $this->getUser(),
@@ -125,12 +131,15 @@ class AsistenciaController extends AbstractController
           return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
 
           } */
+        
+       
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/edit.html.twig', [
             'form' => $form->createView(),
             'url' => $url,
             'modal' => $modal === 'true',
+            'lista_alumnos' => $alumnos
         ], $response);
     }
 

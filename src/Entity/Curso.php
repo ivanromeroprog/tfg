@@ -28,6 +28,7 @@ class Curso
     private ?int $anio = null;
 
     #[ORM\ManyToMany(targetEntity: Alumno::class, mappedBy: 'cursos')]
+    #[ORM\OrderBy(['apellido'=>'ASC'])]
     private Collection $alumnos;
 
     #[ORM\ManyToOne(inversedBy: 'cursos')]

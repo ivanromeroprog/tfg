@@ -96,6 +96,10 @@ class Alumno
 
         return $this;
     }
+    
+    public function hasCurso(Curso $curso): bool{
+        return $this->cursos->contains($curso);
+    }
 
     public function removeCurso(Curso $curso): self
     {

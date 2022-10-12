@@ -12,7 +12,8 @@
 	<!-- Button trigger modal -->
 	<div class="text-end">
 		<button type="button" class="btn btn-success flex" data-bs-toggle="modal" data-bs-target="#shareModal">
-			<i class="bi bi-link-45deg"></i> Compartir
+			<i class="bi bi-link-45deg"></i>
+			Compartir
 		</button>
 	</div>
 	<!-- Modal -->
@@ -33,12 +34,12 @@
 					</div>
 					<p class="mt-4 mb-0">O puede usar el siguiente código QR:</p>
 					<div class="text-center"><img style="width: 200px; height: 200px" src="{{ qr_code_url(url) }}"/></div>
-                    <a href="{{ qr_code_url(url) }}" class="btn btn-primary" download="qrcode.png">Descargar código QR</a>
+					<a href="{{ qr_code_url(url) }}" class="btn btn-primary" download="qrcode.png">Descargar código QR</a>
 
 				</div>
 				<div
 					class="modal-footer">{#        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						                            <button type="button" class="btn btn-primary">Save changes</button>#}
+																								                                                        <button type="button" class="btn btn-primary">Save changes</button>#}
 				</div>
 			</div>
 		</div>
@@ -48,41 +49,42 @@
 		<div class="col-sm">{{ form_row(form.curso) }}</div>
 		<div class="col-sm">{{ form_row(form.fecha) }}</div>
 	</div>
+	{{form_row(form.estado)}}
 
-	{#
-	        <button class="default-button-handler" value="default-button" name="default-button"></button>
-	        
-	        {{ form_row(form.grado) }}
-	        {{ form_row(form.division) }}
-	        {{ form_row(form.materia) }}
-	        {{ form_row(form.anio) }}
-	        {{ form_row(form.organizacion) }}
-	    
-	    
-	            <div {{ stimulus_controller('alumno') }}>
-	                <h4>Alumnos</h4>
-	                {{ form_row(form.alumnos) }}
-	                <div class="row collapse mb-3" id="agregar_alumno_form">
-	                    <div class="col-md-4">
-	                        {{ form_row(form.alumno_nombre) }}
-	                    </div>
-	                    <div class="col-md-4">
-	                        {{ form_row(form.alumno_apellido) }}
-	                    </div>
-	                    <div class="col-md-3">
-	                        {{ form_row(form.alumno_cua) }}
-	                    </div>
-	                    <div class="col-md-1 d-flex align-items-end justify-content-center">
-	                        {{ form_row(form.alumno_agregar) }}
-	                    </div>
-	                </div>
-	            </div>
-	    
-	        #}
-
+	<h3>Alumnos</h3>
+	<table class="table table-striped table-sm" id="tabla">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Apellido y Nombre</th>
+				<th>Presente</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if(lista_alumnos|length > 0) %}
+				{% for alumno in lista_alumnos %}
+					<tr>
+						<td>{{ alumno.Id }}</td>
+						<td>{{ alumno.Apellido }}, {{ alumno.Nombre }}</td>
+						<td>{# <input type="checkbox" name="l{{loop.index}}" id="l{{loop.index}}" class="form-check-input falserequired"><label for="l{{loop.index}}"></label> #}
+                        <div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault{{loop.index}}">
+  <label class="form-check-label" for="flexSwitchCheckDefault{{loop.index}}"></label>
+</div></td>
+						<td></td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr>
+					<td colspan="5" class="text-center">No hay resultados</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
 	{{ form_rest(form) }}
-	{{ form_end(form) }}
 	<a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
+	{{ form_end(form) }}
 
 
 {% endblock %}
