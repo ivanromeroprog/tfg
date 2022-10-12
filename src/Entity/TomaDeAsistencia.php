@@ -9,13 +9,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TomaDeAsistenciaRepository::class)]
-class TomaDeAsistencia
-{
+class TomaDeAsistencia {
+
     const ESTADO_INICIADO = 'Iniciado';
     const ESTADO_FINALIZADO = 'Finalizado';
+    const ESTADO_ANULADO = 'Anulado';
     const ESTADOS = [
         self::ESTADO_INICIADO => self::ESTADO_INICIADO,
-        self::ESTADO_FINALIZADO => self::ESTADO_FINALIZADO
+        self::ESTADO_FINALIZADO => self::ESTADO_FINALIZADO,
+        self::ESTADO_ANULADO => self::ESTADO_ANULADO,
     ];
 
     #[ORM\Id]
@@ -33,97 +35,90 @@ class TomaDeAsistencia
     #[ORM\Column(length: 50)]
     private ?string $estado = null;
     /*
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $url = null;
-*/
+      #[ORM\Column(length: 255, nullable: true)]
+      private ?string $url = null;
+     */
+
     #[ORM\OneToMany(mappedBy: 'tomaDeAsistencia', targetEntity: Asistencia::class)]
     private Collection $asistencias;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->asistencias = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
+    public function getId(): ?int {
         return $this->id;
     }
 
-    public function getCurso(): ?Curso
-    {
+    public function getCurso(): ?Curso {
         return $this->curso;
     }
 
-    public function setCurso(?Curso $curso): self
-    {
+    public function setCurso(?Curso $curso): self {
         $this->curso = $curso;
 
         return $this;
     }
 
-    public function getFecha(): ?\DateTimeInterface
-    {
+    public function getFecha(): ?\DateTimeInterface {
         return $this->fecha;
     }
 
-    public function setFecha(?\DateTimeInterface $fecha): self
-    {
+    public function setFecha(?\DateTimeInterface $fecha): self {
         $this->fecha = $fecha;
 
         return $this;
     }
 
-    public function getEstado(): ?string
-    {
+    public function getEstado(): ?string {
         return $this->estado;
     }
 
-    public function setEstado(string $estado): self
-    {
-        if (!in_array($estado, array(self::ESTADO_FINALIZADO, self::ESTADO_INICIADO))) {
+    public function setEstado(string $estado): self {
+        if (!in_array($estado, self::ESTADOS)) {
             throw new \InvalidArgumentException("Estado inválido");
         }
         $this->estado = $estado;
 
         return $this;
     }
+
     /*
-    public function getUrl(): ?string
-    {
-        return $this->id;
-    }
-    */
-    public function getUrlEncoded(): ?string
-    {
+      public function getUrl(): ?string
+      {
+      return $this->id;
+      }
+     */
+
+    public function getUrlEncoded(): ?string {
         return $this->base64_url_encode($this->id);
     }
 
-    static public function urlDecode(string $encoded_url): ?string
-    {
+    static public function urlDecode(string $encoded_url): ?string {
         return self::base64_url_decode($encoded_url);
     }
+
     /*
-    public function setUrl(?string $url): void {
-        $this->url = $url;
-    }
+      public function setUrl(?string $url): void {
+      $this->url = $url;
+      }
 
-    public function setUrlEncoded(string $url): self
-    {
-        $this->url = base64_url_decode($url);
+      public function setUrlEncoded(string $url): self
+      {
+      $this->url = base64_url_decode($url);
 
-        return $this;
-    }
-    */
+      return $this;
+      }
+     */
+
     /**
      * @return Collection<int, Asistencia>
      */
-    public function getAsistencias(): Collection
-    {
+    public function getAsistencias(): Collection {
         return $this->asistencias;
     }
 
-    public function addAsistencia(Asistencia $asistencia): self
-    {
+    public function addAsistencia(Asistencia $asistencia): self {
         if (!$this->asistencias->contains($asistencia)) {
             $this->asistencias->add($asistencia);
             $asistencia->setTomaDeAsistencia($this);
@@ -132,8 +127,7 @@ class TomaDeAsistencia
         return $this;
     }
 
-    public function removeAsistencia(Asistencia $asistencia): self
-    {
+    public function removeAsistencia(Asistencia $asistencia): self {
         if ($this->asistencias->removeElement($asistencia)) {
             // set the owning side to null (unless already changed)
             if ($asistencia->getTomaDeAsistencia() === $this) {
@@ -144,13 +138,12 @@ class TomaDeAsistencia
         return $this;
     }
 
-    private function base64_url_encode($input)
-    {
+    private function base64_url_encode($input) {
         return strtr(base64_encode($input), '+/=', '._-');
     }
 
-    static private function base64_url_decode($input)
-    {
+    static private function base64_url_decode($input) {
         return base64_decode(strtr($input, '._-', '+/='));
     }
+
 }

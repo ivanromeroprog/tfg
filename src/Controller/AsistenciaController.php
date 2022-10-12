@@ -8,7 +8,6 @@ use App\Form\AsistenciaType;
 use App\Repository\CursoRepository;
 use App\Repository\TomaDeAsistenciaRepository;
 use DateTime;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -21,22 +20,19 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[IsGranted('ROLE_DOCENTE')]
-class AsistenciaController extends AbstractController
-{
+class AsistenciaController extends AbstractController {
 
     private EntityManagerInterface $em;
     private TomaDeAsistenciaRepository $cr;
     private CursoRepository $cur;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(EntityManagerInterface $em) {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
     }
 
     #[Route('/asistencia', name: 'app_asistencia')]
-    public function index(Request $request): Response
-    {
+    public function index(Request $request): Response {
 
         $perpage = $request->query->getInt('perpage', 10);
         $page = $request->query->getInt('page', 1);
@@ -46,15 +42,15 @@ class AsistenciaController extends AbstractController
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-            $search !== '' ?
+                $search !== '' ?
                 [
-                    'c.grado' => $search,
-                    'c.materia' => $search,
-                    'c.division' => $search,
-                    't.fecha' => $search
+            'c.grado' => $search,
+            'c.materia' => $search,
+            'c.division' => $search,
+            't.fecha' => $search
                 ] : [],
-            $order,
-            $this->getUser()
+                $order,
+                $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -62,18 +58,17 @@ class AsistenciaController extends AbstractController
         $pager->setCurrentPage($page);
 
         return $this->render('asistencia/index.html.twig', [
-            'pager' => $pager,
-            'order' => $order,
-            'search' => $search,
-            'perpageoptions' => [
-                10, 25, 50, 100
-            ]
+                    'pager' => $pager,
+                    'order' => $order,
+                    'search' => $search,
+                    'perpageoptions' => [
+                        10, 25, 50, 100
+                    ]
         ]);
     }
 
     #[Route('/asistencia/nuevo', name: 'app_asistencia_new')]
-    public function new(Request $request): Response
-    {
+    public function new(Request $request): Response {
         $tomaasis = new TomaDeAsistencia();
         $tomaasis->setFecha(new DateTime());
 
@@ -83,28 +78,33 @@ class AsistenciaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $tomaasis->setEstado(TomaDeAsistencia::ESTADO_INICIADO);
-            
+
             //TODO: Probar Agregar las asistencias de cada alumno de este curso con valor false 
             $alumnos = $tomaasis->getCurso()->getAlumnos();
-            foreach($alumnos as $alumno){
-                $asistencia = new Asistencia(null, $alumno, false);
-                $tomaasis->addAsistencia($asistencia);
-            }
-            $this->em->persist($tomaasis);
-            $this->em->flush();
 
-            return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId(), 'modal' => 'true']);
+            if (count($alumnos) > 0) {
+                foreach ($alumnos as $alumno) {
+                    $asistencia = new Asistencia(null, $alumno, false);
+                    $this->em->persist($asistencia);
+                    $tomaasis->addAsistencia($asistencia);
+                }
+                $this->em->persist($tomaasis);
+                $this->em->flush();
+
+                return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId(), 'modal' => 'true']);
+            } else {
+                $this->addFlash('error', 'El curso seleccionado no tiene alumnos cargados, no puede tomar asistencia.');
+            }
         }
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/new.html.twig', [
-            'form' => $form->createView()
-        ], $response);
+                    'form' => $form->createView()
+                        ], $response);
     }
 
-    #[Route('/asistencia/panel/{id}/{modal}', name: 'app_asistencia_edit')]
-    public function edit(int $id, Request $request, string $modal = 'false'): Response
-    {
+    #[Route('/asistencia/panel/{id}/{modal}/{pregunta}', name: 'app_asistencia_edit')]
+    public function edit(int $id, Request $request, string $modal = 'false', string $pregunta = ''): Response {
         $tomaasis = $this->cr->find($id);
 
         if (is_null($tomaasis))
@@ -112,20 +112,19 @@ class AsistenciaController extends AbstractController
 
         $code = $tomaasis->getUrlEncoded();
         $url = $this->generateUrl(
-            'app_asistencia_alumno',
-            ['code' => $code],
-            UrlGeneratorInterface::ABSOLUTE_URL
+                'app_asistencia_alumno',
+                ['code' => $code],
+                UrlGeneratorInterface::ABSOLUTE_URL
         );
-        
-        
+
         //Lista de alumnos
         //Si sigue abierta la toma de asistencia cargar desde alumnos del curso
-        $alumnos = $tomaasis->getCurso()->getAlumnos();
-        
+        $asistencia = $tomaasis->getAsistencias();
 
         $form = $this->createForm(AsistenciaType::class, $tomaasis, [
             'usuario' => $this->getUser(),
             'modify' => true,
+            'pregunta' => $pregunta
         ]);
         $form->handleRequest($request);
 
@@ -141,93 +140,132 @@ class AsistenciaController extends AbstractController
           return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
 
           } */
-        
-       
+        if ($form->isSubmitted() && $form->isValid()) {
+            $estado = '';
+            foreach (TomaDeAsistencia::ESTADOS as $e) {
+                if ($form->has($e) && $form->get($e)->isClicked()) {
+                    $estado = $e;
+                }
+            }
+
+            if ($estado != '') {
+                $tomaasis->setEstado($estado);
+                $this->em->persist($tomaasis);
+                $this->em->flush();
+
+                $this->addFlash('success', 'Se ' .
+                        ($estado == TomaDeAsistencia::ESTADO_ANULADO ? 'Anuló' :
+                                ($estado == TomaDeAsistencia::ESTADO_INICIADO ? 'Inició' :
+                                        ($estado == TomaDeAsistencia::ESTADO_FINALIZADO ? 'Finalizó' :
+                        '')))
+                        . ' la toma de asistencia correctamente.');
+                return $this->redirectToRoute('app_asistencia_edit',
+                        [
+                            'id' => $tomaasis->getId(),
+                            'modal'=>($estado == TomaDeAsistencia::ESTADO_INICIADO ? 'true' : 'f')
+                        ]);
+            }
+        }
+
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/edit.html.twig', [
-            'form' => $form->createView(),
-            'url' => $url,
-            'modal' => $modal === 'true',
-            'lista_alumnos' => $alumnos
-        ], $response);
+                    'form' => $form->createView(),
+                    'url' => $url,
+                    'modal' => $modal === 'true',
+                    'lista_asistencias' => $asistencia,
+                    'pregunta' => $pregunta,
+                    'tomaasis' => $tomaasis,
+                        ], $response);
     }
 
-    #[Route('/asistencia/ver/{id}', name: 'app_asistencia_view')]
-    public function view(int $id): Response
-    {
-        if ($id < 1)
-            throw new AccessDeniedHttpException();
+    /*
+      #[Route('/asistencia/ver/{id}', name: 'app_asistencia_view')]
+      public function view(int $id): Response
+      {
+      if ($id < 1)
+      throw new AccessDeniedHttpException();
 
-        $asistencia = $this->cr->find($id);
+      $asistencia = $this->cr->find($id);
 
-        if (is_null($asistencia))
-            throw new AccessDeniedHttpException();
+      if (is_null($asistencia))
+      throw new AccessDeniedHttpException();
 
-        $form = $this->createForm(AsistenciaType::class, $asistencia, [
-            'view' => true,
-            'usuario' => $this->getUser(),
-            'organizacion' => $asistencia->getOrganizacion()
-        ]);
+      $form = $this->createForm(AsistenciaType::class, $asistencia, [
+      'view' => true,
+      'usuario' => $this->getUser(),
+      'organizacion' => $asistencia->getOrganizacion()
+      ]);
 
-        return $this->render('asistencia/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
+      return $this->render('asistencia/new.html.twig', [
+      'form' => $form->createView(),
+      ]);
+      }
 
-    #[Route('/asistencia/eliminar/{id}', name: 'app_asistencia_delete', methods: ['GET', 'HEAD'])]
-    public function delete(int $id): Response
-    {
-        if ($id < 1)
-            throw new AccessDeniedHttpException();
 
-        $asistencia = $this->cr->find($id);
+      #[Route('/asistencia/anular/{id}', name: 'app_asistencia_delete', methods: ['GET', 'HEAD'])]
+      public function delete(int $id): Response {
+      if ($id < 1)
+      throw new AccessDeniedHttpException();
 
-        if (is_null($asistencia))
-            throw new AccessDeniedHttpException();
+      $asistencia = $this->cr->find($id);
+      $anulado = ($asistencia->getEstado() === TomaDeAsistencia::ESTADO_ANULADO);
 
-        $form = $this->createForm(AsistenciaType::class, $asistencia, [
-            'view' => true,
-            'usuario' => $this->getUser(),
-            'organizacion' => $asistencia->getOrganizacion()
-        ]);
+      if (is_null($asistencia))
+      throw new AccessDeniedHttpException();
 
-        return $this->render('asistencia/delete.html.twig', [
-            'asistencia' => $asistencia,
-            'form' => $form->createView()
-        ]);
-    }
+      $form = $this->createForm(AsistenciaType::class, $asistencia, [
+      'view' => true,
+      'usuario' => $this->getUser(),
+      'organizacion' => $asistencia->getOrganizacion()
+      ]);
 
-    #[Route('/asistencia/eliminar', name: 'app_asistencia_dodelete', methods: ['DELETE'])]
-    public function doDelete(Request $request): Response
-    {
+      return $this->render('asistencia/delete.html.twig', [
+      'asistencia' => $asistencia,
+      'form' => $form->createView(),
+      'anulado' => $anulado,
+      ]);
+      }
 
-        $submittedToken = $request->request->get('_token');
+      #[Route('/asistencia/anular', name: 'app_asistencia_dodelete', methods: ['DELETE'])]
+      public function doDelete(Request $request): Response {
 
-        if (!$this->isCsrfTokenValid('borrarcosa', $submittedToken)) {
-            throw new AccessDeniedHttpException();
-        }
+      $submittedToken = $request->request->get('_token');
 
-        $id = $request->get('id');
+      if (!$this->isCsrfTokenValid('borrarcosa', $submittedToken)) {
+      throw new AccessDeniedHttpException();
+      }
 
-        if (is_numeric($id)) {
-            $id = intval($id);
-            if ($id < 1) {
-                throw new AccessDeniedHttpException();
-            }
-        } else {
-            throw new AccessDeniedHttpException();
-        }
+      $id = $request->get('id');
 
-        $asistencia = $this->cr->find($id);
+      if (is_numeric($id)) {
+      $id = intval($id);
+      if ($id < 1) {
+      throw new AccessDeniedHttpException();
+      }
+      } else {
+      throw new AccessDeniedHttpException();
+      }
 
-        $this->em->remove($asistencia);
-        try {
-            $this->em->flush();
-            $this->addFlash('success', 'Se eliminó el asistencia correctamente.');
-        } catch (ForeignKeyConstraintViolationException $e) {
-            $this->addFlash('error', 'No se puede eliminar el asistencia. Ya se ha vendido.');
-        }
-        return $this->redirectToRoute('app_asistencia');
-    }
+      $asistencia = $this->cr->find($id);
+      $anulado = ($asistencia->getEstado() === TomaDeAsistencia::ESTADO_ANULADO);
+      if($anulado){
+      $asistencia->setEstado(TomaDeAsistencia::ESTADO_INICIADO);
+      }
+      else
+      {
+      $asistencia->setEstado(TomaDeAsistencia::ESTADO_ANULADO);
+      }
+
+
+      //$this->em->remove($asistencia);
+      try {
+      $this->em->flush();
+      $this->addFlash('success', 'Se anuló la asistencia correctamente.');
+      } catch (Exception $e) {
+      $this->addFlash('error', 'No se puede eliminar la toma de asistencia.');
+      }
+      return $this->redirectToRoute('app_asistencia');
+      }
+     */
 }

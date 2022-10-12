@@ -7,84 +7,117 @@
 {% endblock %}
 
 {% block body %}
-	{{ include('alert.html.twig', with_context = true) }}
+    {{ include('alert.html.twig', with_context = true) }}
 
-	<!-- Button trigger modal -->
-	<div class="text-end">
-		<button type="button" class="btn btn-success flex" data-bs-toggle="modal" data-bs-target="#shareModal">
-			<i class="bi bi-link-45deg"></i>
-			Compartir
-		</button>
-	</div>
-	<!-- Modal -->
-	<div class="modal fade" id="shareModal" data-controller="modal" data-modal-open-value="{{ modal ? 'true' : 'false' }}" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="shareModalLabel">Compartir con los Alumnos</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body text-center">
-					<p class="mt-4 mb-2">Copiar el link y compartir:</p>
-					<div class="input-group" data-controller="clipboard">
-						<input required readonly="readonly" aria-label="URL para compartir" data-clipboard-target="source" class="form-control" value="{{ url }}">
-						<button type="button" id="clipboardcopy" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar" class="btn btn-secondary" data-action="clipboard#copy">
-							<i class="bi bi-clipboard"></i>
-						</button>
-					</div>
-					<p class="mt-4 mb-0">O puede usar el siguiente código QR:</p>
-					<div class="text-center"><img style="width: 200px; height: 200px" src="{{ qr_code_url(url) }}"/></div>
-					<a href="{{ qr_code_url(url) }}" class="btn btn-primary" download="qrcode.png">Descargar código QR</a>
+    {% if tomaasis.Estado == 'Iniciado' %}
+    <!-- Button trigger modal -->
+    <div class="text-end">
+        <button type="button" class="btn btn-success flex" data-bs-toggle="modal" data-bs-target="#shareModal">
+            <i class="bi bi-link-45deg"></i>
+            Compartir
+        </button>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="shareModal" data-controller="modal" data-modal-open-value="{{ modal ? 'true' : 'false' }}" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shareModalLabel">Compartir con los Alumnos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mt-4 mb-2">Copiar el link y compartir:</p>
+                    <div class="input-group" data-controller="clipboard">
+                        <input required readonly="readonly" aria-label="URL para compartir" data-clipboard-target="source" class="form-control" value="{{ url }}">
+                        <button type="button" id="clipboardcopy" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar" class="btn btn-secondary" data-action="clipboard#copy">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <p class="mt-4 mb-0">O puede usar el siguiente código QR:</p>
+                    <div class="text-center"><img style="width: 200px; height: 200px" src="{{ qr_code_url(url) }}"/></div>
+                    <a href="{{ qr_code_url(url) }}" class="btn btn-primary" download="qrcode.png">Descargar código QR</a>
 
-				</div>
-				<div
-					class="modal-footer">{#        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-																								                                                        <button type="button" class="btn btn-primary">Save changes</button>#}
-				</div>
-			</div>
-		</div>
-	</div>
-	{{ form_start(form) }}
-	<div class="row">
-		<div class="col-sm">{{ form_row(form.curso) }}</div>
-		<div class="col-sm">{{ form_row(form.fecha) }}</div>
-	</div>
-	{{form_row(form.estado)}}
+                </div>
+                <div
+                    class="modal-footer">{#        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                                                                                                                                                        <button type="button" class="btn btn-primary">Save changes</button>#}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}            
+                
+                
+    {{ form_start(form) }}
+    <div class="row">
+        <div class="col-sm">{{ form_row(form.curso) }}</div>
+        <div class="col-sm">{{ form_row(form.fecha) }}</div>
+    </div>
+    {{form_row(form.estado)}}
 
-	<h3>Alumnos</h3>
-	<table class="table table-striped table-sm" id="tabla">
-		<thead>
-			<tr>
-				<th>Id</th>
-				<th>Apellido y Nombre</th>
-				<th>Presente</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{% if(lista_alumnos|length > 0) %}
-				{% for alumno in lista_alumnos %}
-					<tr>
-						<td>{{ alumno.Id }}</td>
-						<td>{{ alumno.Apellido }}, {{ alumno.Nombre }}</td>
-						<td>{# <input type="checkbox" name="l{{loop.index}}" id="l{{loop.index}}" class="form-check-input falserequired"><label for="l{{loop.index}}"></label> #}
-                        <div class="form-check form-switch">
-  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault{{loop.index}}">
-  <label class="form-check-label" for="flexSwitchCheckDefault{{loop.index}}"></label>
-</div></td>
-						<td></td>
-					</tr>
-				{% endfor %}
-			{% else %}
-				<tr>
-					<td colspan="5" class="text-center">No hay resultados</td>
-				</tr>
-			{% endif %}
-		</tbody>
-	</table>
-	{{ form_rest(form) }}
-	<a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
-	{{ form_end(form) }}
+    <h3>Alumnos</h3>
+    <table class="table table-striped table-sm" id="tabla">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Apellido y Nombre</th>
+                <th>Presente</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if(lista_asistencias|length > 0) %}
+                {% for asistencia in lista_asistencias %}
+                    <tr>
+                        <td>{{ asistencia.alumno.Id }}</td>
+                        <td>{{ asistencia.alumno.Apellido }}, {{ asistencia.alumno.Nombre }}</td>
+                        <td>{# <input type="checkbox" name="l{{loop.index}}" id="l{{loop.index}}" class="form-check-input falserequired"><label for="l{{loop.index}}"></label> #}
+                            <div class="form-check form-switch">
+                                <input class="form-check-input falserequired" type="checkbox"{{ asistencia.presente ? ' checked="checked' : '' }}{{ tomaasis.estado != 'Iniciado' ? ' disabled="disabled"' : '' }} name="asistenciaalumno[{{asistencia.id}}]" id="asistenciaalumno_{{asistencia.id}}">
+                                <label class="form-check-label" for="asistenciaalumno_{{asistencia.id}}"></label>
+                            </div></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No hay alumnos en el curso</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+        {% if pregunta != '' %}
+            <a id="pregunta" data-controller="scroll" data-scroll-location-value="pregunta"></a>
+            <div class="alert alert-warning alert-dismissible fade show animate__animated animate__flash text-center" role="alert">
+                
+            ¿Está seguro que quiere {{ pregunta }} este proceso de toma de asistencia?
+            </div>
+        {% endif %}
+    {{ form_rest(form) }}
+    {% if pregunta == '' %}
+    <div class="row">
+        <div class="col text-start"><a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a></div>
+        
+        {% if tomaasis.estado != 'Anulado' %}
+        <div class="col text-center"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'anular'}) }}" class="btn btn-danger">Anular</a></div>
+        {% endif %}
+        
+        {% if tomaasis.estado != 'Iniciado' %}
+        <div class="col{{ tomaasis.estado == 'Finalizado' ? ' text-end' : ' text-center' }}"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'iniciar','_fragment': 'pregunta'}) }}" class="btn btn-success">Iniciar</a></div>
+        {% endif %}
+        
+        {% if tomaasis.estado != 'Finalizado' %}
+        <div class="col text-end"><a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':'finalizar','_fragment': 'pregunta'}) }}" class="btn btn-primary">Finalizar</a></div>
+        {% endif %}
+    </div>
+    {% else %}
+        
+        <a href="{{ path('app_asistencia_edit',{'id':tomaasis.id}) }}" class="btn btn-secondary">Cancelar</a>
+    {% endif %}
+
+
+
+    {{ form_end(form) }}
 
 
 {% endblock %}
