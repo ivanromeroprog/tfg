@@ -1,0 +1,20 @@
+{#
+<turbo-frame id="frameasistencia_{{asistencia.id}}">
+	<a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':pregunta,'idasistencia':asistencia.id}) }}">
+		<input data-controller="toggleasistencia" data-action="change->toggleasistencia#change" data-toggleasistencia-ida-value="{{asistencia.id}}" class="form-check-input falserequired" type="checkbox" {{ asistencia.presente ? ' checked="checked"' : '' }} {{ tomaasis.estado != 'Iniciado' ? ' disabled="disabled"' : '' }} name="asistenciaalumno[{{asistencia.id}}]" id="asistenciaalumno_{{asistencia.id}}">
+		<label class="form-check-label" for="asistenciaalumno_{{asistencia.id}}"></label>
+	</a>
+</turbo-frame>
+#}
+<turbo-frame id="frameasistencia_{{asistencia.id}}">
+	<a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':pregunta,'idasistencia':asistencia.id,'presente': (asistencia.presente ? 0 : 1) }) }}" class="frame-loading-hide text-decoration-none" title="Cambiar estado del alumno.">
+{% if asistencia.presente %}
+<span class="silink">✔️ Sí</span>
+{% else %}
+<span class="nolink">❌ No</span>
+{% endif %}
+	</a>
+<div class="spinner-border text-primary spinner-border-sm frame-loading-show" role="status">
+  <span class="visually-hidden">Loading...</span>
+</div>
+</turbo-frame>

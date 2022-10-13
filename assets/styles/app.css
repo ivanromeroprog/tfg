@@ -7,9 +7,26 @@ input[type="checkbox"]:not(:checked) + label::after
     content: '❌ No';
     color: #550000;
 }
+.nolink{
+    color: #550000;
+}
 input[type="checkbox"]:checked + label::after{
     content: "✔️ Sí";
     color: #005500;
+}
+.silink{
+    color: #005500;
+}
+
+/*Turbo Frames*/
+turbo-frame[busy] .frame-loading-hide, turbo-frame .frame-loading-show {
+    display: none;
+}
+turbo-frame[busy] .frame-loading-show {
+    display: inline-block;
+}
+turbo-frame[busy]{
+    opacity: 0.5;
 }
 
 input[type='number']::-webkit-outer-spin-button,

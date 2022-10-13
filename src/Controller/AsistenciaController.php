@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Asistencia;
 use App\Entity\TomaDeAsistencia;
 use App\Form\AsistenciaType;
+use App\Repository\AsistenciaRepository;
 use App\Repository\CursoRepository;
 use App\Repository\TomaDeAsistenciaRepository;
 use DateTime;
@@ -20,19 +21,23 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[IsGranted('ROLE_DOCENTE')]
-class AsistenciaController extends AbstractController {
+class AsistenciaController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private TomaDeAsistenciaRepository $cr;
-    private CursoRepository $cur;
+    private AsistenciaRepository $ar;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
+        $this->ar = $this->em->getRepository(Asistencia::class);
     }
 
     #[Route('/asistencia', name: 'app_asistencia')]
-    public function index(Request $request): Response {
+    public function index(Request $request): Response
+    {
 
         $perpage = $request->query->getInt('perpage', 10);
         $page = $request->query->getInt('page', 1);
@@ -42,15 +47,15 @@ class AsistenciaController extends AbstractController {
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-                $search !== '' ?
+            $search !== '' ?
                 [
-            'c.grado' => $search,
-            'c.materia' => $search,
-            'c.division' => $search,
-            't.fecha' => $search
+                    'c.grado' => $search,
+                    'c.materia' => $search,
+                    'c.division' => $search,
+                    't.fecha' => $search
                 ] : [],
-                $order,
-                $this->getUser()
+            $order,
+            $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -58,17 +63,18 @@ class AsistenciaController extends AbstractController {
         $pager->setCurrentPage($page);
 
         return $this->render('asistencia/index.html.twig', [
-                    'pager' => $pager,
-                    'order' => $order,
-                    'search' => $search,
-                    'perpageoptions' => [
-                        10, 25, 50, 100
-                    ]
+            'pager' => $pager,
+            'order' => $order,
+            'search' => $search,
+            'perpageoptions' => [
+                10, 25, 50, 100
+            ]
         ]);
     }
 
     #[Route('/asistencia/nuevo', name: 'app_asistencia_new')]
-    public function new(Request $request): Response {
+    public function new(Request $request): Response
+    {
         $tomaasis = new TomaDeAsistencia();
         $tomaasis->setFecha(new DateTime());
 
@@ -99,28 +105,40 @@ class AsistenciaController extends AbstractController {
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/new.html.twig', [
-                    'form' => $form->createView()
-                        ], $response);
+            'form' => $form->createView()
+        ], $response);
     }
 
-    #[Route('/asistencia/panel/{id}/{modal}/{pregunta}', name: 'app_asistencia_edit')]
-    public function edit(int $id, Request $request, string $modal = 'false', string $pregunta = ''): Response {
-        $tomaasis = $this->cr->find($id);
+    #[Route('/asistencia/panel/{id}/{modal}/{pregunta}/{idasistencia}/{presente}', name: 'app_asistencia_edit')]
+    public function edit(int $id, Request $request, string $modal = 'false', string $pregunta = '', int $idasistencia = 0, ?bool $presente = null): Response
+    {
 
-        if (is_null($tomaasis))
+        /*
+        Preparar valores necesarios
+        */
+        //Toma de asistencia
+        $tomaasis = $this->cr->find($id);
+        if (is_null($tomaasis) || $tomaasis->getCurso()->getUsuario() != $this->getUser())
             throw new AccessDeniedHttpException();
 
+        //Url para compartir la toma de asistencia
         $code = $tomaasis->getUrlEncoded();
         $url = $this->generateUrl(
-                'app_asistencia_alumno',
-                ['code' => $code],
-                UrlGeneratorInterface::ABSOLUTE_URL
+            'app_asistencia_alumno',
+            ['code' => $code],
+            UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        //Lista de alumnos
-        //Si sigue abierta la toma de asistencia cargar desde alumnos del curso
-        $asistencia = $tomaasis->getAsistencias();
+        //Lista de asistencias de alumnos de esta toma de asistencia
+        $lista_asistencias = $tomaasis->getAsistencias();
 
+        //Pregunta para el usuario, filtrar para solo aceptar los valores válidos
+        $pregunta = (in_array($pregunta, ['anular', 'iniciar', 'finalizar']) ? $pregunta : 'f');
+
+
+        /*
+        Formulario
+        */
         $form = $this->createForm(AsistenciaType::class, $tomaasis, [
             'usuario' => $this->getUser(),
             'modify' => true,
@@ -128,19 +146,11 @@ class AsistenciaController extends AbstractController {
         ]);
         $form->handleRequest($request);
 
-        /*
-
-          if ($form->isSubmitted() && $form->isValid()) {
-
-          $this->em->persist($tomaasis);
-          $this->em->flush();
-
-          //$this->addFlash('success', 'Se creo el asistencia correctamente.');
-
-          return $this->redirectToRoute('app_asistencia_edit', ['id' => $tomaasis->getId()]);
-
-          } */
+        //Se envio el form desde alguno de los botones de submit
         if ($form->isSubmitted() && $form->isValid()) {
+
+            //Determinar que boton se uso, se usan los valores de 
+            //TomaDeAsistencia::ESTADOS como nombres de los botones
             $estado = '';
             foreach (TomaDeAsistencia::ESTADOS as $e) {
                 if ($form->has($e) && $form->get($e)->isClicked()) {
@@ -154,29 +164,48 @@ class AsistenciaController extends AbstractController {
                 $this->em->flush();
 
                 $this->addFlash('success', 'Se ' .
-                        ($estado == TomaDeAsistencia::ESTADO_ANULADO ? 'Anuló' :
-                                ($estado == TomaDeAsistencia::ESTADO_INICIADO ? 'Inició' :
-                                        ($estado == TomaDeAsistencia::ESTADO_FINALIZADO ? 'Finalizó' :
+                    ($estado == TomaDeAsistencia::ESTADO_ANULADO ? 'Anuló' : ($estado == TomaDeAsistencia::ESTADO_INICIADO ? 'Inició' : ($estado == TomaDeAsistencia::ESTADO_FINALIZADO ? 'Finalizó' :
                         '')))
-                        . ' la toma de asistencia correctamente.');
-                return $this->redirectToRoute('app_asistencia_edit',
-                        [
-                            'id' => $tomaasis->getId(),
-                            'modal'=>($estado == TomaDeAsistencia::ESTADO_INICIADO ? 'true' : 'f')
-                        ]);
+                    . ' la toma de asistencia correctamente.');
+                return $this->redirectToRoute(
+                    'app_asistencia_edit',
+                    [
+                        'id' => $tomaasis->getId(),
+                        'modal' => ($estado == TomaDeAsistencia::ESTADO_INICIADO ? 'true' : 'f')
+                    ]
+                );
+            }
+        } elseif ($idasistencia > 0) {
+            //Turboframes: No se envio form y Docente cambia el estado de asistencia de un alumno
+            $asistencia = $this->ar->find($idasistencia);
+            if (is_null($asistencia) || !($asistencia->getTomaDeAsistencia() === $tomaasis) || is_null($presente)) {
+                throw new AccessDeniedHttpException();
+            } else {
+                $asistencia->setPresente($presente);
+                $this->em->flush();
+
+                //Solo renderizar el frameasistencia si usamos turboframe
+                if ($request->headers->get('Turbo-Frame')) {
+                    //dump($request->headers->get('Turbo-Frame'));
+                    return $this->render('asistencia/frameasistencia.html.twig', [
+                        'pregunta' => $pregunta,
+                        'tomaasis' => $tomaasis,
+                        'asistencia' => $asistencia,
+                    ]);
+                }
             }
         }
 
-
+        //Renderizar página normalmente
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('asistencia/edit.html.twig', [
-                    'form' => $form->createView(),
-                    'url' => $url,
-                    'modal' => $modal === 'true',
-                    'lista_asistencias' => $asistencia,
-                    'pregunta' => $pregunta,
-                    'tomaasis' => $tomaasis,
-                        ], $response);
+            'form' => $form->createView(),
+            'url' => $url,
+            'modal' => $modal === 'true',
+            'lista_asistencias' => $lista_asistencias,
+            'pregunta' => $pregunta,
+            'tomaasis' => $tomaasis,
+        ], $response);
     }
 
     /*
