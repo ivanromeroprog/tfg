@@ -9,7 +9,7 @@ export default class extends Controller {
 
     connect() {
         let audiof = new Audio(this.audioValue);
-        this.es = new EventSource(this.sourceValue);
+        this.es = new EventSource(this.sourceValue,{withCredentials: true});
 
         this.es.onmessage = event => {
             //console.log(JSON.parse(event.data));
