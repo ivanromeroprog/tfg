@@ -6,8 +6,10 @@ use function dump;
 use App\Entity\Asistencia;
 use App\Entity\TomaDeAsistencia;
 use App\Repository\AlumnoRepository;
+use Symfony\Component\Mercure\Update;
 use App\Repository\AsistenciaRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\TomaDeAsistenciaRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +36,7 @@ class AsistenciaAlumnoController extends AbstractController
     }
 
     #[Route('/a/{code}', name: 'app_asistencia_alumno')]
-    public function index(string $code, Request $request): Response
+    public function index(string $code, Request $request, HubInterface $hub): Response
     {
         $this->session = $request->getSession();
         //$this->session->remove('alumno');
@@ -66,6 +68,18 @@ class AsistenciaAlumnoController extends AbstractController
             $asistencia->setPresente(true);
             //$this->em->persist($asistencia);
             $this->em->flush();
+
+            $update = new Update(
+                'asistencia/' . $tomaasitencia->getId(),
+                json_encode([
+                    'id' => $asistencia->getId(),
+                    'estado' => $asistencia->isPresente()
+                ])
+            );
+
+            //dd($update);
+
+            $hub->publish($update);
         } else {
             return $this->redirectToRoute('app_login_alumno_asistencia', ['code' => $code]);
         }

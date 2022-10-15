@@ -121,5 +121,7 @@
 
     {{ form_end(form) }}
 
-
+<div data-controller="mercureasistencia" data-mercureasistencia-audio-value="{{ asset('audio/not.wav') }}" data-mercureasistencia-source-value="{{ mercure([
+    ('asistencia/' ~ tomaasis.id)
+]) }}"></div>
 {% endblock %}

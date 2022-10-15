@@ -17,6 +17,10 @@ import 'animate.css';
 
 //Locales
 import './confirmbutton.js';
+//import animateCSS from './animatecss.js'
+//import mercureapp from './mercureapp.js'
+
+
 
 //Eventos
 document.addEventListener('turbo:load', function () {
@@ -25,3 +29,8 @@ document.addEventListener('turbo:load', function () {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   })
 });
+
+//HACK: Convertir animateCSS en variable global, hay otra forma?
+//window.animateCSS = animateCSS.animateCSS;
+//window.mercureapp = mercureapp;
+
