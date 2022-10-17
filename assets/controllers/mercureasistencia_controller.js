@@ -9,6 +9,9 @@ export default class extends Controller {
 
     connect() {
         let audiof = new Audio(this.audioValue);
+        //inseguro
+        //this.es = new EventSource(this.sourceValue);
+        //seguro
         this.es = new EventSource(this.sourceValue,{withCredentials: true});
 
         this.es.onmessage = event => {

@@ -69,6 +69,8 @@ class AsistenciaAlumnoController extends AbstractController
             //$this->em->persist($asistencia);
             $this->em->flush();
 
+            //inseguro
+            /*
             $update = new Update(
                 'asistencia/' . $tomaasitencia->getId(),
                 json_encode([
@@ -76,8 +78,16 @@ class AsistenciaAlumnoController extends AbstractController
                     'estado' => $asistencia->isPresente()
                 ])
             );
-
-            //dd($update);
+            */
+            //Seguro
+            $update = new Update(
+                'asistencia/' . $tomaasitencia->getId(),
+                json_encode([
+                    'id' => $asistencia->getId(),
+                    'estado' => $asistencia->isPresente()
+                ]),
+                true
+            );
 
             $hub->publish($update);
         } else {
