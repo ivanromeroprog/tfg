@@ -8,11 +8,12 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-    
-    public function boot() {
-        parent::boot();
-        
-        date_default_timezone_set($this->getContainer()->getParameter('timezone'));
-    }
 
+    public function boot()
+    {
+        parent::boot();
+
+        if ($this->getContainer()->hasParameter('timezone'))
+            date_default_timezone_set($this->getContainer()->getParameter('timezone'));
+    }
 }
