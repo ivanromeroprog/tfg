@@ -1,7 +1,16 @@
 @import "~bootstrap";
 @import "~bootstrap-icons";
 @import 'tom-select/dist/css/tom-select.bootstrap5.css';
+@import url('https://fonts.googleapis.com/css?family=Ubuntu&display=swap');
+@import url('https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c&display=swap');
 
+
+body {
+    font-family: 'Ubuntu','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+h1,h2,h3,h4,h5,h6{
+    font-family: 'M PLUS Rounded 1c', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
 input[type="checkbox"]:not(:checked) + label::after
 {
     content: '❌ No';
