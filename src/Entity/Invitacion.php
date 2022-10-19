@@ -28,6 +28,12 @@ class Invitacion
     #[ORM\Column(length: 255)]
     private ?string $rol = null;
 
+    #[ORM\Column]
+    private ?bool $aceptada = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $tipo = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,6 +83,30 @@ class Invitacion
     public function setRol(string $rol): self
     {
         $this->rol = $rol;
+
+        return $this;
+    }
+
+    public function isAceptada(): ?bool
+    {
+        return $this->aceptada;
+    }
+
+    public function setAceptada(bool $aceptada): self
+    {
+        $this->aceptada = $aceptada;
+
+        return $this;
+    }
+
+    public function getTipo(): ?string
+    {
+        return $this->tipo;
+    }
+
+    public function setTipo(string $tipo): self
+    {
+        $this->tipo = $tipo;
 
         return $this;
     }
