@@ -7,6 +7,7 @@
 </turbo-frame>
 #}
 <turbo-frame id="frameasistencia_{{asistencia.id}}">
+	
 	<a href="{{ path('app_asistencia_edit',{'id':tomaasis.id,'modal':'f','pregunta':pregunta,'idasistencia':asistencia.id,'presente': (asistencia.presente ? 0 : 1) }) }}" class="frame-loading-hide text-decoration-none" title="Cambiar estado del alumno.">
 <span class="silink{% if not asistencia.presente %} d-none{% endif %}">✔️ Sí</span>
 <span class="nolink{% if asistencia.presente %} d-none{% endif %}">❌ No</span>

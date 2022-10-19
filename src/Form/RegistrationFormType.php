@@ -57,6 +57,7 @@ class RegistrationFormType extends AbstractType
                 'organizacion',
                 EntityType::class,
                 [
+                    'label' => 'Organización (Escuela, Instituto)',
                     'class' => Organizacion::class,
                     'by_reference' => false,
                     'autocomplete' => true,

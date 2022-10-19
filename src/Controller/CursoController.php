@@ -72,6 +72,7 @@ class CursoController extends AbstractController
     public function new(Request $request): Response
     {
         $curso = new Curso();
+        $curso->setAnio(intval(date("Y")));
         $form = $this->createForm(CursoType::class, $curso, ['usuario' => $this->getUser()]);
         $form->handleRequest($request);
 

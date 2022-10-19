@@ -37,7 +37,8 @@ class CursoType extends AbstractType
                         ->where('u = :usuario')
                         ->setParameter('usuario', $options['usuario']);
                 },
-
+                'autocomplete' => true,
+                'label' => 'Organización (Escuela, Instituto)',
                 //'required' => !$options['modify'],
                 'disabled' => $options['view'] || $options['modify'],
                 'help' => 'La organización no puede ser modificada una vez creado el curso. Si necesita hacerlo debe crear un nuevo curso.'

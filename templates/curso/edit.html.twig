@@ -9,8 +9,10 @@
 
     {{ form_start(form) }}
     <button class="default-button-handler" value="default-button" name="default-button"></button>
-    {{ form_row(form.grado) }}
-    {{ form_row(form.division) }}
+    <div class="row">
+        <div class="col-sm">{{ form_row(form.grado) }}</div>
+        <div class="col-sm">{{ form_row(form.division) }}</div>
+    </div>
     {{ form_row(form.materia) }}
     {{ form_row(form.anio) }}
     {{ form_row(form.organizacion) }}
