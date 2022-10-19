@@ -8,7 +8,7 @@ export default class extends Controller {
         });
         document.getElementsByName('search')[0].addEventListener('change', (e) => {
             if(e.target.value == ''){
-                console.log('locos');
+                //console.log('locos');
                 this.element.requestSubmit();
             }
         });

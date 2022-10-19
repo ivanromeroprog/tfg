@@ -18,7 +18,12 @@ input[type="checkbox"]:checked + label::after{
     color: #005500;
 }
 
-/*Turbo Frames*/
+/*Turbo and Turbo Frames*/
+html[data-turbo-preview] body img{
+    visibility: hidden;
+}
+
+
 turbo-frame[busy] .frame-loading-hide, turbo-frame .frame-loading-show {
     display: none;
 }

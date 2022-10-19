@@ -1,23 +1,42 @@
 {% extends 'base_users.html.twig' %}
 
-{% block title %}Edu-track{% endblock %}
+{% block title %}Edu-track
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+	<style>
+		.example-wrapper {
+			margin: 1em auto;
+			max-width: 800px;
+			width: 95%;
+			font: 18px / 1.5 sans-serif;
+		}
+		.example-wrapper code {
+			background: #F5F5F5;
+			padding: 2px 6px;
+		}
+	</style>
 
-<div class="example-wrapper text-center">
-    <h1>¡Bienvenido a Edu-track!</h1>
-    
-    <p>Crea actividades interactivas para tus alumnos y registra sus resultados automáticamente.</p>
-    <p>Registrate para comenzar:</p>
-    
-    <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg mt-3">👨‍🏫 Soy Docente</a>
-    <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg mt-3">🏫 Soy un Directivo de una Escuela</a>
-    
-    <p class="mt-4">¿Ya es usuario?</p>
-    <a href="{{ path('app_login') }}" class="btn btn-secondary btn-lg mt-1">Iniciar Sesión</a>
-</div>
+	<div class="example-wrapper text-center">
+		<h1>¡Bienvenido a Edu-track!</h1>
+
+		<p>Crea actividades interactivas para tus alumnos y registra sus resultados automáticamente.</p>
+		<div class="row">
+			<div class="col-md-8">
+				<p>Registrate para comenzar:</p>
+
+				<a href="{{ path('app_register',{'tipousuario': 'docente'}) }}" class="btn btn-primary btn-lg mb-4 mt-1">👨‍🏫 Soy Docente</a>
+				<a href="#" class="btn btn-primary btn-lg mb-4 mt-1">🏫 Soy un Directivo</a>
+			</div>
+			<div class="col-md-4">
+				<p>¿Ya es usuario?</p>
+				<a href="{{ path('app_login') }}" class="btn btn-secondary btn-lg mb-4 mt-1">Iniciar Sesión</a>
+			</div>
+		</div>
+
+
+		<img src="{{ asset('image/inf.png') }}" class="img-fluid mt-4 animate__animated animate__backInUp" alt="¿Como funciona?">
+
+
+	</div>
 {% endblock %}

@@ -28,8 +28,8 @@ class RegistrationController extends AbstractController
         $this->er = $this->em->getRepository(Organizacion::class);
     }
 
-    #[Route('/registro', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    #[Route('/registro/{tipousuario}', name: 'app_register')]
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, string $tipousuario = 'docente'): Response
     {
         $user = new Usuario();
         $form = $this->createForm(RegistrationFormType::class, $user);
