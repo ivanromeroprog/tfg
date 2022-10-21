@@ -5,6 +5,7 @@
 {% block bodytitle %}Curso{% endblock %}
 
 {% block body %}
+
     {{ include('alert.html.twig', with_context = true) }}
 
     {{ form_start(form) }}
@@ -16,8 +17,15 @@
     {{ form_row(form.materia) }}
     {{ form_row(form.anio) }}
     {{ form_row(form.organizacion) }}
-
-
+{% if (app.flashes('success-alumnos')|length > 0) %}
+<a id="mensajea" data-controller="scroll" data-scroll-location-value="mensajea"></a>
+{% endif %}
+{% for message in app.flashes('success-alumnos') %}
+    <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
         <div {{ stimulus_controller('alumno') }}>
             <h4>Alumnos</h4>
             {{ form_row(form.alumnos) }}
@@ -28,10 +36,10 @@
                 <div class="col-md-4">
                     {{ form_row(form.alumno_apellido) }}
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     {{ form_row(form.alumno_cua) }}
                 </div>
-                <div class="col-md-1 d-flex align-items-end justify-content-center">
+                <div class="col-md-2 d-flex align-items-end justify-content-center">
                     {{ form_row(form.alumno_agregar) }}
                 </div>
             </div>

@@ -4,13 +4,38 @@
 @import url('https://fonts.googleapis.com/css?family=Ubuntu&display=swap');
 @import url('https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c&display=swap');
 
-
+/* Fuentes */
 body {
     font-family: 'Ubuntu','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 h1,h2,h3,h4,h5,h6{
     font-family: 'M PLUS Rounded 1c', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
+
+/* @media */
+@media (min-width:600px) {
+    .cuerpo {
+        padding: 20px;
+    }
+
+
+}
+@media (max-width: 600px) {
+
+    thead {
+        font-size: 0.8em;
+    }
+
+    tbody,
+    tfoot {
+        font-size: 0.75em;
+    }
+    .cuerpo {
+        padding: 10px 0px;
+    }
+}
+
+/* Checkbox yes no */
 input[type="checkbox"]:not(:checked) + label::after
 {
     content: '❌ No';
@@ -31,8 +56,6 @@ input[type="checkbox"]:checked + label::after{
 html[data-turbo-preview] body img{
     visibility: hidden;
 }
-
-
 turbo-frame[busy] .frame-loading-hide, turbo-frame .frame-loading-show {
     display: none;
 }
@@ -43,6 +66,7 @@ turbo-frame[busy]{
     opacity: 0.5;
 }
 
+/* Numeric Up Down */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: inner-spin-button;
@@ -50,19 +74,17 @@ input[type='number']::-webkit-inner-spin-button {
     margin-left: 10px;
 }
 
+/* Tables and fields */
 tbody.detalles td {
     vertical-align: middle;
 }
-
 tbody.detalles div.mb-3 {
     margin: 0 !important;
 }
-
 input,
 textarea {
     border-style: dashed !important;
 }
-
 input:required,
 input.falserequired,
 textarea:required,
@@ -70,33 +92,10 @@ textarea.falserequired {
     border-style: solid !important;
 }
 
+/* Clases */
 .dataTables_length {
     display: none;
 }
-
-@media (min-width:600px) {
-    .cuerpo {
-        padding: 20px;
-    }
-
-
-}
-
-@media (max-width: 600px) {
-
-    thead {
-        font-size: 0.8em;
-    }
-
-    tbody,
-    tfoot {
-        font-size: 0.75em;
-    }
-    .cuerpo {
-        padding: 10px 0px;
-    }
-}
-
 .default-button-handler {
     width: 0;
     height: 0;
@@ -105,17 +104,24 @@ textarea.falserequired {
     margin: 0;
     position: absolute;
 }
-
 .pagination {
     align-items: center !important;
     justify-content: center !important;
 }
 
+.ts-control .item{
+    display: block !important;
+    width: 100% !important;
+    margin-right: 35px !important;
+}
+
+.ts-control .item .remove{
+    float: right
+}
 
 
-/*checkbox*/
 
-/* Box aspect */
+/* Checkbox   
 [type="checkbox"]:not(:checked) + label::before,
 [type="checkbox"]:checked + label::before {
 	content: '';
@@ -130,3 +136,4 @@ textarea.falserequired {
 	box-shadow: inset 0 1px 3px rgba(0,0,0, .1), 0 0 0 rgba(203, 34, 237, .2);
 	transition: all .275s;
 }
+*/    

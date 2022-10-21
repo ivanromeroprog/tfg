@@ -129,7 +129,7 @@ class CursoController extends AbstractController
                     $this->em->persist($alumno);
                     $curso->addAlumno($alumno);
 
-                    $this->addFlash('success', 'Se agregó el alumno correctamente.');
+                    $this->addFlash('success-alumnos', 'Se agregó el alumno correctamente.');
                 }
 
                 $this->em->persist($curso);

@@ -89,7 +89,8 @@ class CursoType extends AbstractType
                         'required' => true
                     ]
                 )
-                ->add('alumno_agregar', SubmitType::class, ['label' => '<i class="bi bi-plus-circle"></i>', 'label_html' => true]);
+                //->add('alumno_agregar', SubmitType::class, ['label' => '<i class="bi bi-plus-circle"></i>', 'label_html' => true]);
+                ->add('alumno_agregar', SubmitType::class, ['label' => 'Agregar', 'attr' => ['class' => 'btn btn-success']]);
         }
 
         if (!$options['view']) {
