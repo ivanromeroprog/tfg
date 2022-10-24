@@ -71,21 +71,39 @@ class ActividadController extends AbstractController
     #[Route('/actividad/nuevo', name: 'app_actividad_new')]
     public function new(Request $request): Response
     {
+
+        //Obtener datos de post por fuera del form, sino no se puede modificar los campos :(
+        $tipo = null;
+        $alldata = $request->request->all();
+        if (isset($alldata['actividad'])) {
+            $data = $alldata['actividad'];
+            $tipo = isset($data['tipo']) ? $data['tipo'] : null;
+        }
+
         $actividad = new Actividad();
-        $actividad->setAnio(intval(date("Y")));
-        $form = $this->createForm(ActividadType::class, $actividad, ['usuario' => $this->getUser()]);
+        $actividad->setUsuario($this->getUser());
+        $form = $this->createForm(ActividadType::class, $actividad, [
+            'tipo' => $tipo
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            dump($form->getData());
+
+            /*
 
             $actividad->setUsuario($this->getUser());
 
             $this->em->persist($actividad);
             $this->em->flush();
 
-            $this->addFlash('success', 'Se creo el actividad correctamente.');
+            $this->addFlash('success', 'Se creo la actividad correctamente.');
 
             return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
+
+            */
         }
 
         return $this->render('actividad/new.html.twig', [

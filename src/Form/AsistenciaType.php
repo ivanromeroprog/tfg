@@ -68,25 +68,19 @@ class AsistenciaType extends AbstractType
                 ->add('estado', ChoiceType::class, [
                     'choices' => TomaDeAsistencia::ESTADOS,
                     'disabled' => true,
-                    'help_html'=> true,
+                    'help_html' => true,
                     'help' => '<em>Iniciado</em>: la toma de asistencia esta en progreso y los alumnos pueden dar el presente.<br>'
-                    . '<em>Finalizado</em>: finalizo la toma de asistencia y los alumnos ya no pueden dar el presente.<br>'
-                    . '<em>Anulado</em>: finalizo la toma de asistencia y los datos registrados aquí no serán tomados en cuanta al generar informes.<br>'
+                        . '<em>Finalizado</em>: finalizo la toma de asistencia y los alumnos ya no pueden dar el presente.<br>'
+                        . '<em>Anulado</em>: finalizo la toma de asistencia y los datos registrados aquí no serán tomados en cuanta al generar informes.<br>'
                 ]);
 
-                if($options['pregunta'] == 'anular')
-                {
-                   $builder->add(TomaDeAsistencia::ESTADO_ANULADO, SubmitType::class, ['label' => 'Anular', 'attr' => ['class' => 'btn-danger', 'value' => 'Anular', 'style' => "float:right;"]]);
-                }
-                elseif($options['pregunta'] == 'finalizar')
-                {
-                   $builder->add(TomaDeAsistencia::ESTADO_FINALIZADO, SubmitType::class, ['label' => 'Finalizar', 'attr' => ['style' => "float:right;", 'value' => 'Finalizar']]); 
-                }
-                elseif($options['pregunta'] == 'iniciar')
-                {
-                   $builder->add(TomaDeAsistencia::ESTADO_INICIADO, SubmitType::class, ['label' => 'Iniciar', 'attr' => ['class' => 'btn-success', 'style' => "float:right;", 'value' => 'Re-Iniciar']]); 
-                }
-                
+            if ($options['pregunta'] == 'anular') {
+                $builder->add(TomaDeAsistencia::ESTADO_ANULADO, SubmitType::class, ['label' => 'Anular', 'attr' => ['class' => 'btn-danger', 'value' => 'Anular', 'style' => "float:right;"]]);
+            } elseif ($options['pregunta'] == 'finalizar') {
+                $builder->add(TomaDeAsistencia::ESTADO_FINALIZADO, SubmitType::class, ['label' => 'Finalizar', 'attr' => ['style' => "float:right;", 'value' => 'Finalizar']]);
+            } elseif ($options['pregunta'] == 'iniciar') {
+                $builder->add(TomaDeAsistencia::ESTADO_INICIADO, SubmitType::class, ['label' => 'Iniciar', 'attr' => ['class' => 'btn-success', 'style' => "float:right;", 'value' => 'Re-Iniciar']]);
+            }
         } else {
             $builder->add('Submit', SubmitType::class, ['label' => 'Iniciar', 'attr' => ['style' => "float:right;"]]);
         }

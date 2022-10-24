@@ -92,6 +92,10 @@ textarea.falserequired {
     border-style: solid !important;
 }
 
+input .falsedisabled, textarea .falsedisabled{
+    background-color: #e9ecef;
+}
+
 /* Clases */
 .dataTables_length {
     display: none;

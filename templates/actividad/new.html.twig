@@ -11,11 +11,14 @@
 
 	{{ form_start(form) }}
     <div class="row">
-        <div class="col-sm">{{ form_row(form.grado) }}</div>
-        <div class="col-sm">{{ form_row(form.division) }}</div>
+        <div class="col-sm">{{ form_row(form.titulo) }}</div>
+        <div class="col-sm">{{ form_row(form.tipo) }}{{ form_row(form.tipofake) }}</div>
     </div>
+	{{ form_row(form.descripcion) }}
 	{{ form_rest(form) }}
 	{{ form_end(form) }}
+
+	{# {{form(form)}} #}
 	<a href="{{ path('app_actividad') }}" class="btn btn-secondary">Volver</a>
 
 {% endblock %}
