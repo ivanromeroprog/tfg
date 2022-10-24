@@ -2,7 +2,7 @@
 {% block menu %}
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">
+                <a class="navbar-brand" href="{{ path('app_inicio_general') }}">
                     👨‍🏫
                     Edu-track</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,14 +25,18 @@
                             </li>
                             <li class="nav-item">
                                     <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_asistencia' %} active{% endif %}" href="{{ path('app_asistencia') }}">Asistencia</a>
-                            </li>{#
-                            <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_producto' %} active{% endif %}" href="{{ path('app_producto') }}">Productos</a>
                             </li>
-                            #}
+                            <li class="nav-item">
+                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_actividad' %} active{% endif %}" href="{{ path('app_actividad') }}">Actividades</a>
+                            </li>
+                            <li class="nav-item">
+                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_presentacion_actividad' %} active{% endif %}" href="{{ path('app_presentacion_actividad') }}">Presentar Actividades</a>
+                            </li>
+                            {#
                             <li class="nav-item">
                                 <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_usuario' %} active{% endif %}" href="{{ path('app_usuario') }}">Usuarios</a>
                             </li>
+                            #}
                         {% endif %}
 
                         <li class="nav-item">

@@ -35,6 +35,9 @@ class PresentacionActividad
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descripcion = null;
+    
+    #[ORM\Column(length: 50)]
+    private ?string $tipo = null;
 
     #[ORM\OneToMany(mappedBy: 'presentacionActividad', targetEntity: DetallePresentacionActividad::class, orphanRemoval: true)]
     private Collection $detallesPresentacionActividad;
@@ -147,6 +150,18 @@ class PresentacionActividad
                 $detallesPresentacionActividad->setPresentacionActividad(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTipo(): ?string
+    {
+        return $this->tipo;
+    }
+
+    public function setTipo(string $tipo): self
+    {
+        $this->tipo = $tipo;
 
         return $this;
     }

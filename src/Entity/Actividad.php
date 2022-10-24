@@ -11,6 +11,27 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ActividadRepository::class)]
 class Actividad
 {
+
+    const TIPO_CUESTIONARIO = 'Cuestionario';
+    const TIPO_NUBE_DE_PALABRAS = 'Nube de Palabras';
+    const TIPO_RELACIONAR_CONCEPTOS = 'Relacionar Conceptos';
+    const TIPO_COMPLETAR_TEXTO = 'Completar Texto';
+    const TIPOS = [
+        self::TIPO_CUESTIONARIO => self::TIPO_CUESTIONARIO,
+        self::TIPO_NUBE_DE_PALABRAS => self::TIPO_NUBE_DE_PALABRAS,
+        self::TIPO_RELACIONAR_CONCEPTOS => self::TIPO_RELACIONAR_CONCEPTOS,
+        self::TIPO_COMPLETAR_TEXTO => self::TIPO_COMPLETAR_TEXTO,
+    ];
+    /*
+    const ESTADO_INICIADO = 'Iniciado';
+    const ESTADO_FINALIZADO = 'Finalizado';
+    const ESTADO_ANULADO = 'Anulado';
+    const ESTADOS = [
+        self::ESTADO_INICIADO => self::ESTADO_INICIADO,
+        self::ESTADO_FINALIZADO => self::ESTADO_FINALIZADO,
+        self::ESTADO_ANULADO => self::ESTADO_ANULADO,
+    ];
+    */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -24,10 +45,10 @@ class Actividad
 
     #[ORM\Column(length: 50)]
     private ?string $tipo = null;
-
+/*
     #[ORM\Column(length: 50)]
     private ?string $estado = null;
-
+*/
     #[ORM\ManyToOne(inversedBy: 'actividades')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Usuario $usuario = null;
@@ -80,7 +101,7 @@ class Actividad
 
         return $this;
     }
-
+/*
     public function getEstado(): ?string
     {
         return $this->estado;
@@ -92,7 +113,7 @@ class Actividad
 
         return $this;
     }
-
+*/
     public function getUsuario(): ?Usuario
     {
         return $this->usuario;

@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\PresentacionActividad;
+use App\Entity\Usuario;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+
 
 /**
  * @extends ServiceEntityRepository<PresentacionActividad>
@@ -16,6 +19,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PresentacionActividadRepository extends ServiceEntityRepository
 {
+    private array $orderFields = [
+        'id',
+        'titulo',
+        'descripcion',
+        'tipo',
+        'estado',
+        'fecha',
+        'curso'
+        //'estado'
+    ];
+        
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, PresentacionActividad::class);
@@ -39,28 +53,47 @@ class PresentacionActividadRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return PresentacionActividad[] Returns an array of PresentacionActividad objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
 
-//    public function findOneBySomeField($value): ?PresentacionActividad
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * 
+     * @param array $onlikecriteria
+     * @param int $order orden de los registros, números diferentes de 0. Negativo significa DESC, positivo ASC
+     * @param int $usuario_id
+     * @return QueryBuilder
+     */
+    public function listQueryBuilder(array $onlikecriteria = [], int $order = -1, Usuario $usuario = null): QueryBuilder
+    {
+        $builder = $this->createQueryBuilder('c');
+
+        foreach ($onlikecriteria as $field => $value) {
+            $builder->setParameter($field, '%' . $value . '%');
+            $builder->orWhere('c.' . $field . ' LIKE :' . $field);
+        }
+
+        //Si orden es negativo DESC, positivo ASC, 0 -> DESC y $order = -1
+        if ($order < 0) {
+            $orderdirection = 'DESC';
+        } elseif ($order > 0) {
+            $orderdirection = 'ASC';
+        } else {
+            $orderdirection = 'DESC';
+            $order = -1;
+        }
+
+        if (!is_null($usuario)) {
+            $builder->setParameter('usuario', $usuario);
+            $builder->andWhere('c.usuario = :usuario');
+        }
+        $orderindex = abs($order) - 1;
+        if (isset($this->orderFields[$orderindex])) {
+            $builder->orderBy('c.' . $this->orderFields[$orderindex], $orderdirection);
+        }
+
+        return $builder;
+    }
+
+    public function list($onlikecriteria = [], $order = 1, $usuario = null)
+    {
+        return $this->listQueryBuilder($onlikecriteria, $order, $usuario)->getQuery()->getResult();
+    }
 }
