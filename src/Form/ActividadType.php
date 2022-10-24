@@ -15,6 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ActividadType extends AbstractType
 {
@@ -23,7 +24,13 @@ class ActividadType extends AbstractType
         //Solo permitir los valores de tipo válidos
         $options['tipo'] = in_array($options['tipo'], Actividad::TIPOS) ? $options['tipo'] : null;
 
-        $builder->add('titulo', TextType::class, ['label' => 'Título'])
+        $builder->add('titulo', TextType::class, [
+            'label' => 'Título',
+            'required' => true,
+            'constraints' => [
+                new NotBlank()
+            ]
+        ])
             ->add('descripcion', TextareaType::class, ['label' => 'Descripción', 'required' =>  false]);
 
         //Si no hay tipo, permitir seleccionar

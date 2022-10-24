@@ -107,7 +107,8 @@ class ActividadController extends AbstractController
         }
 
         return $this->render('actividad/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'tipo' => $tipo,
         ]);
     }
 
