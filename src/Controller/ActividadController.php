@@ -180,12 +180,15 @@ class ActividadController extends AbstractController
 
         $form = $this->createForm(ActividadType::class, $actividad, [
             'view' => true,
+            'tipo' => $actividad->getTipo()
+            /*
             'usuario' => $this->getUser(),
-            'organizacion' => $actividad->getOrganizacion()
+            'organizacion' => $actividad->getOrganizacion()*/
         ]);
 
         return $this->render('actividad/new.html.twig', [
             'form' => $form->createView(),
+            'tipo' => $actividad->getTipo(),
         ]);
     }
 
@@ -202,12 +205,15 @@ class ActividadController extends AbstractController
 
         $form = $this->createForm(ActividadType::class, $actividad, [
             'view' => true,
+            'tipo' => $actividad->getTipo()
+            /*
             'usuario' => $this->getUser(),
-            'organizacion' => $actividad->getOrganizacion()
+            'organizacion' => $actividad->getOrganizacion()*/
         ]);
 
         return $this->render('actividad/delete.html.twig', [
             'actividad' => $actividad,
+            'tipo' => $actividad->getTipo(),
             'form' => $form->createView()
         ]);
     }
@@ -238,9 +244,9 @@ class ActividadController extends AbstractController
         $this->em->remove($actividad);
         try {
             $this->em->flush();
-            $this->addFlash('success', 'Se eliminó el actividad correctamente.');
+            $this->addFlash('success', 'Se eliminó la actividad correctamente.');
         } catch (ForeignKeyConstraintViolationException $e) {
-            $this->addFlash('error', 'No se puede eliminar el actividad. Ya se ha vendido.');
+            $this->addFlash('error', 'No se puede eliminar la actividad. Ya se utilizó.');
         }
         return $this->redirectToRoute('app_actividad');
     }

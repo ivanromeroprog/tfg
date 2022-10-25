@@ -1,0 +1,22 @@
+	{{ form_start(form) }}
+    <div class="row">
+        <div class="col-sm">{{ form_row(form.titulo) }}</div>
+        <div class="col-sm">{{ form_row(form.tipo) }}{{ form_row(form.tipofake) }}</div>
+    </div>
+	{{ form_row(form.descripcion) }}
+
+	{% if tipo == "Cuestionario" %}
+		{{ include('actividad/tipo/cuestionario.html.twig', with_context = true) }}
+	{% endif %}
+	{% if tipo == "Nube de Palabras" %}
+		{{ include('actividad/tipo/nube.html.twig', with_context = true) }}
+	{% endif %}
+		{% if tipo == "Relacionar Conceptos" %}
+		{{ include('actividad/tipo/relacionar.html.twig', with_context = true) }}
+	{% endif %}
+		{% if tipo == "Completar Texto" %}
+		{{ include('actividad/tipo/texto.html.twig', with_context = true) }}
+	{% endif %}
+
+	{{ form_rest(form) }}
+	{{ form_end(form) }}

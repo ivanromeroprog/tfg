@@ -29,12 +29,17 @@ class ActividadType extends AbstractType
             'required' => true,
             'constraints' => [
                 new NotBlank()
-            ]
+            ],
+            'disabled' => $options['view']
         ])
-            ->add('descripcion', TextareaType::class, ['label' => 'Descripción', 'required' =>  false]);
+            ->add('descripcion', TextareaType::class, [
+                'label' => 'Descripción',
+                'required' =>  false,
+                'disabled' => $options['view']
+            ]);
 
         //Si no hay tipo, permitir seleccionar
-        if (is_null($options['tipo'])) {
+        if (is_null($options['tipo']) && !$options['view']) {
 
             //Agregar un elemento falso invisible
             $builder->add('tipofake', HiddenType::class, ['label' => 'Tipo', 'disabled' => true, 'mapped' => false, 'data' => $options['tipo']]);
@@ -45,12 +50,12 @@ class ActividadType extends AbstractType
 
             //Agregar un elemento invisible para mostrar el deshabilitado
             $builder->add('tipofake', TextType::class, ['label' => 'Tipo', 'disabled' => true, 'mapped' => false, 'data' => $options['tipo']]);
-            $builder->add('tipo', HiddenType::class, ['label' => 'Tipo']);
+            $builder->add('tipo', HiddenType::class, ['label' => 'Tipo', 'disabled' => $options['view']]);
 
             $submitlabel = 'Guardar';
         }
 
-        $builder->add('Submit', SubmitType::class, ['label' => $submitlabel, 'attr' => ['style' => 'float: right']]);
+        if (!$options['view']) $builder->add('Submit', SubmitType::class, ['label' => $submitlabel, 'attr' => ['style' => 'float: right']]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -58,6 +63,7 @@ class ActividadType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Actividad::class,
             'tipo' => null,
+            'view' => false
         ]);
     }
 }
