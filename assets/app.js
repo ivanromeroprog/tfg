@@ -14,9 +14,13 @@ import './bootstrap';
 //Libs
 window.bootstrap = require('bootstrap/dist/js/bootstrap.bundle.js');
 import 'animate.css';
+window.Swal = require('sweetalert2');
+
+// import customAlert from 'custom-alert/dist/js/custom-alert-debug.js';
+// customAlert();
 
 //Locales
-import './confirmbutton.js';
+//import './confirmbutton.js';
 //import animateCSS from './animatecss.js'
 //import mercureapp from './mercureapp.js'
 
@@ -30,7 +34,28 @@ document.addEventListener('turbo:load', function () {
   })
 });
 
+
+//Funciones globales
+
+window.Eliminar = function (texto, callBackF) {
+  Swal.fire({
+    title: '¿Está seguro?',
+    text: texto,
+    //icon: 'warning',
+    focusCancel: true,
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown animate__faster'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp animate__faster'
+    }
+  }).then((result) => {callBackF(result)})
+}
 //HACK: Convertir animateCSS en variable global, hay otra forma?
 //window.animateCSS = animateCSS.animateCSS;
 //window.mercureapp = mercureapp;
-

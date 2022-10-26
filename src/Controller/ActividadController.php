@@ -80,6 +80,13 @@ class ActividadController extends AbstractController
             $tipo = isset($data['tipo']) ? $data['tipo'] : null;
         }
 
+        //Obtener detalles por fuera del form
+        if (isset($alldata['detalle'])) {
+            $detalles = $alldata['detalle'];
+        } else {
+            $detalles = null;
+        }
+
         $actividad = new Actividad();
         $actividad->setUsuario($this->getUser());
         $form = $this->createForm(ActividadType::class, $actividad, [
@@ -91,7 +98,7 @@ class ActividadController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             dump($form->getData());
-
+            dump($detalles);
             /*
 
             $actividad->setUsuario($this->getUser());
@@ -105,10 +112,56 @@ class ActividadController extends AbstractController
 
             */
         }
+        /*<div class="row">
+        <div class="col-11">
+        <label class="form-label mt-2" for="detalle_preguntas_%_pid_%">Pregunta %_pnum_%</label>
+		<textarea name="detalle[preguntas][%_pid_%]" id="detalle_preguntas_%_pid_%" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="col-1">
+        <a id="eliminar_pregunta_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar"><i class="bi bi-trash-fill"></i></a>
+        </div>
+		</div>*/
+        $preguntatemplate = '<div class="pregunta_div" id="pregunta_div_%_pid_%">
+		<a id="eliminar_pregunta_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar Pregunta">
+            <i class="bi bi-trash-fill"></i>
+        </a> <label class="form-label mt-2" for="detalle_preguntas_%_pid_%">Pregunta %_pnum_%</label>
+		<textarea name="detalle[preguntas][%_pid_%]" id="detalle_preguntas_%_pid_%" class="form-control" rows="3"></textarea>
+		<div class="row">
+			<div class="col-7">Respuesta</div>
+			<div class="col-3">Correcta</div>
+            <div class="col-2"></div>
+		</div>
+	    </div>
+        <div class="text-center mt-2">
+        <input type="button" value="Agregar Respuesta" class="btn btn-success">
+        </div>';
+
+        $respuestatemplate = '<div class="respuesta_div" id="respuesta_div_%_pid_%_%_rid_%">
+		<div class="row mt-1">
+			<div class="col-7">
+
+				<input type="text" class="form-control" name="detalle[respuestas][%_pid_%][%_rid_%][texto]" id="detalle_respuestas_%_pid_%_%_rid_%_texto">
+			</div>
+			<div class="col-3 d-flex align-items-center justify-content-start">
+				
+            <div class="form-check form-switch form-switch-hide">
+					<input class="form-check-input sino" name="detalle[respuestas][%_pid_%][%_rid_%][correcta]" type="checkbox" value="si" id="detalle_respuestas_%_pid_%_%_rid_%_correcta">
+					<label for="detalle_respuestas_%_pid_%_%_rid_%_correcta"></label>
+                    </div>	
+
+			</div>
+            <div class="col-2"><a id="eliminar_respuesta_%_pid_%_%_rid_%" class="btn btn-danger btn-sm" title="Eliminar">
+            <i class="bi bi-trash-fill"></i>
+        </a></div>
+		</div>
+	</div>';
 
         return $this->render('actividad/new.html.twig', [
             'form' => $form->createView(),
             'tipo' => $tipo,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'nuevo' => true
         ]);
     }
 

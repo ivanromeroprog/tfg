@@ -26,9 +26,12 @@
     },
     "dependencies": {
         "@popperjs/core": "^2.11.6",
+        "@sweetalert2/themes": "^5.0.12",
         "animate.css": "^4.1.1",
         "bootstrap-icons": "^1.9.1",
         "choices.js": "^10.1.0",
-        "google-fonts": "^1.0.0"
+        "custom-alert": "^2.2.0",
+        "google-fonts": "^1.0.0",
+        "sweetalert2": "^11.6.2"
     }
 }
