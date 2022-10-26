@@ -1,33 +1,5 @@
 <h3>Preguntas</h3>
 <div data-controller="cuestionario" data-cuestionario-pregunta-value="{{ preguntatemplate|escape }}" data-cuestionario-respuesta-value="{{respuestatemplate|escape }}" data-cuestionario-nuevo-value="{{nuevo}}">
 	<div><input type="button" value="Agregar Pregunta" data-action="click->cuestionario#agregarpreguntaclick" class="btn btn-success"></div>
-{#
-	<div class="pregunta_div" id="pregunta_div_-1">
-		<label class="form-label mt-2" for="detalle_preguntas_-1">Pregunta º1</label>
-		<textarea name="detalle[preguntas][-1]" id="detalle_preguntas_-1" class="form-control" rows="3"></textarea>
-		<div class="row">
-			<div class="col-8">Respuesta</div>
-			<div class="col-4">Correcta</div>
-		</div>
-	</div>
-
-	<div class="respuesta_div" id="respuesta_div_-1_-1">
-		<div class="row">
-			<div class="col-8">
-
-				<input type="text" class="form-control" name="detalle[respuestas][-1][-1][texto]" id="detalle_respuestas_-1_-1_texto">
-			</div>
-			<div class="col-4 d-flex align-items-center justify-content-start">
-				<div class="form-check form-switch">
-
-					<input class="form-check-input sino" name="detalle[respuestas][-1][-1][correcta]" type="checkbox" value="si" id="detalle_respuestas_-1_-1_correcta">
-					<label for="detalle_respuestas_-1_-1_correcta"></label>
-				</div>
-
-			</div>
-		</div>
-	</div>
-
-	
-    #}
+{{detalleshtml|raw}}
 </div>

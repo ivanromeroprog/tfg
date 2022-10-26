@@ -9,113 +9,133 @@ export default class extends Controller {
     }
 
     connect() {
-        if(this.nuevoValue){
-            this.agregarpregunta(-1,1);
+        console.log(this.nuevoValue);
+        if (this.nuevoValue) {
+            this.agregarpregunta(-1, 1);
         }
     }
-    disconnect() {
-        this.es.close();
+
+    eliminarrespuestaclick(e) {
+        console.log(e.params.pid, e.params.rid);
+        let pid = e.params.pid;
+        let rid = e.params.rid;
+
+        e.preventDefault();
+
+        window.PreguntarEliminar(
+            "¿Quiere eliminar esta respuesta?",
+            (result) => {
+                if (result.isConfirmed) {
+                    if (document.getElementById('pregunta_div_' + pid).getElementsByClassName('respuesta_div').length <= 2) {
+                        window.Alertar(
+                            'Cada pregunta debe tener al menos dos respuestas.',
+                            'No se puede eliminar'
+                        )
+                    }
+                    else {
+                        document.getElementById('respuesta_div_' + pid + '_' + rid).parentElement.remove();
+                    }
+                }
+            }
+        )
     }
-    agregarpreguntaclick(e){
-        //console.log(e);
-        /*
-        let preguntas = this.element.getElementsByClassName('pregunta_div');
-        console.log(preguntas);
-        */
-       let pid = null;
-       for(let i = 1; i<50; i++){
-        //console.log(i);
-        //console.log(document.getElementById('pregunta_div_-'+i))
-        if(null === document.getElementById('pregunta_div_-'+i))
-        {
-            pid = i*-1;
-            break;
+
+    eliminarpreguntaclick(e) {
+        console.log(e.params.pid);
+        let pid = e.params.pid;
+
+        e.preventDefault();
+
+        //window.id_pregunta_eliminar = pid;
+        window.PreguntarEliminar(
+            "¿Quiere eliminar esta pregunta?",
+            (result) => {
+                if (result.isConfirmed) {
+                    if (this.element.getElementsByClassName('pregunta_div').length < 2) {
+                        window.Alertar(
+                            'El cuestionario debe tener por lo menos una pregunta.',
+                            'No se puede eliminar'
+                        )
+                    }
+                    else
+                    {
+                        document.getElementById('pregunta_div_' + pid).parentElement.remove();
+                    }
+                }
+            }
+        )
+    }
+
+    agregarpreguntaclick(e) {
+        let pid = null;
+        for (let i = 1; i < 50; i++) {
+            if (null === document.getElementById('pregunta_div_-' + i)) {
+                pid = i * -1;
+                break;
+            }
         }
-       }
 
-       let pnum = this.element.getElementsByClassName('pregunta_div').length + 1;
+        let pnum = this.element.getElementsByClassName('pregunta_div').length + 1;
 
-       if(pid === null){
-        alert('No puede agregar más preguntas');
-       }
-       else{
-        this.agregarpregunta(pid,pnum);
-        //console.log(document.getElementById('detalle_preguntas_'+pid));
-        document.getElementById('detalle_preguntas_'+pid).focus();
-       }
+        if (pid === null) {
+            alert('No puede agregar más preguntas');
+        }
+        else {
+            this.agregarpregunta(pid, pnum);
+            let detallepregel = document.getElementById('detalle_preguntas_' + pid);
+            detallepregel.scrollIntoView();
+            detallepregel.focus();
+        }
     }
 
-    agregarrespuestaclick(e){
-        console.log(e);
+    agregarrespuestaclick(e) {
+        let pid = e.params.pid;
+        let rid = null;
+        for (let i = 1; i < 50; i++) {
+            if (null === document.getElementById('respuesta_div_' + pid + '_-' + i)) {
+                rid = i * -1;
+                break;
+            }
+        }
+
+        if (pid === null) {
+            alert('No puede agregar más preguntas');
+        }
+        else {
+            this.agregarrespuesta(pid, rid);
+            let detalleresptext = document.getElementById('detalle_respuestas_' + pid + '_' + rid + '_texto');
+            detalleresptext.scrollIntoView();
+            detalleresptext.focus();
+
+        }
     }
 
-    agregarpregunta(pid,pnum){
+    //Helpers
+    agregarpregunta(pid, pnum) {
         let ph = document.createElement("div");
         let tmpl = this.preguntaValue;
 
-        tmpl = tmpl.replace(/%_pid_%/g, pid)
-        tmpl = tmpl.replace(/%_pnum_%/g, pnum)
+        tmpl = tmpl.replace(/%_pid_%/g, pid);
+        tmpl = tmpl.replace(/%_pnum_%/g, pnum);
+        tmpl = tmpl.replace(/%_ptext_%/g, '');
 
         ph.innerHTML = tmpl;
-        //console.log(this.element);
         this.element.append(ph)
 
-        //console.log(ph)
-
-        //document.getElementById('pregunta_div_'+pid).append(ph);
-
-        let removeButton = document.getElementById('eliminar_pregunta_'+pid);
-        
-        removeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            //window.id_pregunta_eliminar = pid;
-            window.Eliminar(
-                "¿Quiere elminar esta pregunta?",
-            (result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('pregunta_div_'+pid).parentElement.remove();
-                    //window.id_pregunta_eliminar = null;
-                  }/*else{
-                    window.id_pregunta_eliminar = null;
-                  }*/
-               }
-            )
-
-        });
-
-        this.agregarrespuesta(pid,-1)
-        this.agregarrespuesta(pid,-2)
+        this.agregarrespuesta(pid, -1)
+        this.agregarrespuesta(pid, -2)
     }
 
-    agregarrespuesta(pid,rid){
+    agregarrespuesta(pid, rid) {
         let ph = document.createElement("div");
         let tmpl = this.respuestaValue;
         tmpl = tmpl.replace(/%_pid_%/g, pid)
         tmpl = tmpl.replace(/%_rid_%/g, rid)
-
+        tmpl = tmpl.replace(/%_rtext_%/g, '');
+        tmpl = tmpl.replace(/%_rcorr_%/g, '');
+        
         ph.innerHTML = tmpl;
 
-        document.getElementById('pregunta_div_'+pid).append(ph);
-
-        let removeButton = document.getElementById('eliminar_respuesta_'+pid+'_'+rid);
-        
-        removeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            window.Eliminar(
-                "¿Quiere elminar esta respuesta?",
-            function(result){
-                if (result.isConfirmed) {
-                    Swal.fire(
-                      'Deleted!',
-                      'Your file has been deleted.',
-                      'success'
-                    )
-                  }
-               }
-            )
-
-        });
+        document.getElementById('pregunta_div_' + pid).append(ph);
     }
 }

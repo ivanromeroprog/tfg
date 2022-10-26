@@ -122,47 +122,87 @@ class ActividadController extends AbstractController
         </div>
 		</div>*/
         $preguntatemplate = '<div class="pregunta_div" id="pregunta_div_%_pid_%">
-		<a id="eliminar_pregunta_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar Pregunta">
+		<a id="eliminar_pregunta_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar Pregunta" data-action="click->cuestionario#eliminarpreguntaclick" data-cuestionario-pid-param="%_pid_%" data-cuestionario-rid-param="%_rid_%">
             <i class="bi bi-trash-fill"></i>
-        </a> <label class="form-label mt-2" for="detalle_preguntas_%_pid_%">Pregunta %_pnum_%</label>
-		<textarea name="detalle[preguntas][%_pid_%]" id="detalle_preguntas_%_pid_%" class="form-control" rows="3"></textarea>
+        </a> <label class="form-label mt-2" for="detalle_preguntas_%_pid_%">Pregunta</label>
+		<textarea name="detalle[preguntas][%_pid_%]" id="detalle_preguntas_%_pid_%" class="form-control" rows="4">%_ptext_%</textarea>
 		<div class="row">
 			<div class="col-7">Respuesta</div>
 			<div class="col-3">Correcta</div>
             <div class="col-2"></div>
 		</div>
+        <!-- %_resp_% -->
 	    </div>
+        
         <div class="text-center mt-2">
-        <input type="button" value="Agregar Respuesta" class="btn btn-success">
+        <input type="button" value="Agregar Respuesta" data-action="click->cuestionario#agregarrespuestaclick" data-cuestionario-pid-param="%_pid_%" class="btn btn-success">
         </div>';
 
         $respuestatemplate = '<div class="respuesta_div" id="respuesta_div_%_pid_%_%_rid_%">
 		<div class="row mt-1">
 			<div class="col-7">
 
-				<input type="text" class="form-control" name="detalle[respuestas][%_pid_%][%_rid_%][texto]" id="detalle_respuestas_%_pid_%_%_rid_%_texto">
+				<input type="text" class="form-control" name="detalle[respuestas][%_pid_%][%_rid_%][texto]" id="detalle_respuestas_%_pid_%_%_rid_%_texto" value="%_rtext_%">
 			</div>
 			<div class="col-3 d-flex align-items-center justify-content-start">
 				
             <div class="form-check form-switch form-switch-hide">
-					<input class="form-check-input sino" name="detalle[respuestas][%_pid_%][%_rid_%][correcta]" type="checkbox" value="si" id="detalle_respuestas_%_pid_%_%_rid_%_correcta">
+					<input class="form-check-input sino" name="detalle[respuestas][%_pid_%][%_rid_%][correcta]" type="checkbox" value="si" id="detalle_respuestas_%_pid_%_%_rid_%_correcta" %_rcorr_%>
 					<label for="detalle_respuestas_%_pid_%_%_rid_%_correcta"></label>
                     </div>	
 
 			</div>
-            <div class="col-2"><a id="eliminar_respuesta_%_pid_%_%_rid_%" class="btn btn-danger btn-sm" title="Eliminar">
+            <div class="col-2"><a id="eliminar_respuesta_%_pid_%_%_rid_%" class="btn btn-danger btn-sm" title="Eliminar" data-action="click->cuestionario#eliminarrespuestaclick" data-cuestionario-pid-param="%_pid_%" data-cuestionario-rid-param="%_rid_%">
             <i class="bi bi-trash-fill"></i>
         </a></div>
 		</div>
 	</div>';
 
+        $detalleshtml = '';
+        $preguntahtml = '';
+        $respuestahtml = '';
+        $nuevo = 1;
+
+        if ($detalles) {
+            $i = 1;
+            foreach ($detalles['preguntas'] as $k => $preg) {
+                $preguntahtml = str_replace(
+                    ['%_pid_%', '%_pnum_%', '%_ptext_%'],
+                    [$k, $i, htmlentities($preg)],
+                    '<div>' . $preguntatemplate . '</div>'
+                );
+                $i++;
+
+                $respuestahtml = '';
+                foreach ($detalles['respuestas'][$k] as $kk => $resp) {
+                    $respuestahtml .= str_replace(
+                        ['%_pid_%', '%_rid_%', '%_rtext_%', '%_rcorr_%'],
+                        [$k, $kk, htmlentities($resp['texto']), (isset($resp['correcta']) ? ' checked="checked"' : '')],
+                        '<div>' . $respuestatemplate . '</div>'
+                    );
+                }
+
+                $detalleshtml .= str_replace(
+                    '<!-- %_resp_% -->',
+                    $respuestahtml,
+                    $preguntahtml
+                );
+
+                $nuevo = 0;
+            }
+        }
+
+        dump($detalleshtml);
+
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('actividad/new.html.twig', [
             'form' => $form->createView(),
             'tipo' => $tipo,
             'respuestatemplate' => $respuestatemplate,
             'preguntatemplate' => $preguntatemplate,
-            'nuevo' => true
-        ]);
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => $nuevo
+        ], $response);
     }
 
     #[Route('/actividad/editar/{id}', name: 'app_actividad_edit')]

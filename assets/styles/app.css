@@ -47,6 +47,9 @@ h6 {
             /*margin-right: 10px !important;
         width: 20px;
         height: 20px;*/
+        visibility: hidden;
+        width: 0px !important;
+        height: 0px !important;
         margin: 0 !important;
         padding: 0 !important;
             display: inline !important;
@@ -57,7 +60,6 @@ h6 {
         /*margin-right: 10px !important;
     width: 20px;
     height: 20px;*/
-        display: none;
         margin-right: 0px !important;
     }
 }

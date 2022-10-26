@@ -29,14 +29,12 @@ export default class extends Controller {
             {
                 spanno.setAttribute('class', 'nolink d-none');
                 spansi.setAttribute('class', 'silink');
-                //spansi.classList.add('animate__animated', 'animate__flash');
                 animateCSS.animateCSS(spansi,'flash');
                 audiof.volume = 0.2
                 audiof.play();
             }else{
                 spanno.setAttribute('class', 'nolink');
                 spansi.setAttribute('class', 'silink d-none');
-                //window.animateCSS(spanno,'backOutDown');
             }
         }
     }

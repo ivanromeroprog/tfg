@@ -37,7 +37,7 @@ document.addEventListener('turbo:load', function () {
 
 //Funciones globales
 
-window.Eliminar = function (texto, callBackF) {
+window.PreguntarEliminar = function (texto, callBackF) {
   Swal.fire({
     title: '¿Está seguro?',
     text: texto,
@@ -55,6 +55,22 @@ window.Eliminar = function (texto, callBackF) {
       popup: 'animate__animated animate__fadeOutUp animate__faster'
     }
   }).then((result) => {callBackF(result)})
+}
+
+window.Alertar = function (texto, titulo = 'Atención') {
+  Swal.fire({
+    title: titulo,
+    text: texto,
+    //icon: 'warning',
+    confirmButtonColor: '#6c757d',
+    confirmButtonText: 'Aceptar',
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown animate__faster'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp animate__faster'
+    }
+  });
 }
 //HACK: Convertir animateCSS en variable global, hay otra forma?
 //window.animateCSS = animateCSS.animateCSS;
