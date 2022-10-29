@@ -34,6 +34,9 @@ export default class extends Controller {
                         )
                     }
                     else {
+                        if(rid > 0){
+                            document.getElementById('detalle_eliminar').value += '|'+rid
+                        }
                         document.getElementById('respuesta_div_' + pid + '_' + rid).parentElement.remove();
                     }
                 }
@@ -60,6 +63,9 @@ export default class extends Controller {
                     }
                     else
                     {
+                        if(pid > 0){
+                            document.getElementById('detalle_eliminar').value += '|'+pid
+                        }
                         document.getElementById('pregunta_div_' + pid).parentElement.remove();
                     }
                 }

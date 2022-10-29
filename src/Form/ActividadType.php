@@ -39,7 +39,7 @@ class ActividadType extends AbstractType
             ]);
 
         //Si no hay tipo, permitir seleccionar
-        if (is_null($options['tipo']) && !$options['view']) {
+        if (is_null($options['tipo']) /*&& !($options['view'] || $options['modify'])*/) {
 
             //Agregar un elemento falso invisible
             $builder->add('tipofake', HiddenType::class, ['label' => 'Tipo', 'disabled' => true, 'mapped' => false, 'data' => $options['tipo']]);
@@ -73,7 +73,8 @@ class ActividadType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Actividad::class,
             'tipo' => null,
-            'view' => false
+            'view' => false,
+            //'modify' => false,
         ]);
     }
 }
