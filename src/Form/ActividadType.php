@@ -46,6 +46,7 @@ class ActividadType extends AbstractType
             $builder->add('tipo', ChoiceType::class, ['label' => 'Tipo', 'choices' => Actividad::TIPOS]);
 
             $submitlabel = 'Siguiente';
+            $submitname = 'siguiente';
         } else {
 
             //Agregar un elemento invisible para mostrar el deshabilitado
@@ -53,9 +54,18 @@ class ActividadType extends AbstractType
             $builder->add('tipo', HiddenType::class, ['label' => 'Tipo', 'disabled' => $options['view']]);
 
             $submitlabel = 'Guardar';
+            $submitname = 'guardar';
         }
 
-        if (!$options['view']) $builder->add('Submit', SubmitType::class, ['label' => $submitlabel, 'attr' => ['style' => 'float: right']]);
+        if (!$options['view']) {
+            $builder->add($submitname, SubmitType::class, [
+                'label' => $submitlabel,
+                'attr' => [
+                    'value' => 'send',
+                    'style' => 'float: right'
+                ]
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

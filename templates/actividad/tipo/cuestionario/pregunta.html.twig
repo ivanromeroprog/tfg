@@ -1,0 +1,16 @@
+<div class="pregunta_div" id="pregunta_div_%_pid_%">
+		<a id="eliminar_pregunta_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar Pregunta" data-action="click->cuestionario#eliminarpreguntaclick" data-cuestionario-pid-param="%_pid_%" data-cuestionario-rid-param="%_rid_%">
+            <i class="bi bi-trash-fill"></i>
+        </a> <label class="form-label mt-2" for="detalle_preguntas_%_pid_%">Pregunta</label>
+		<textarea name="detalle[preguntas][%_pid_%]" id="detalle_preguntas_%_pid_%" class="form-control" rows="4">%_ptext_%</textarea>
+		<div class="row">
+			<div class="col-7">Respuesta</div>
+			<div class="col-3">Correcta</div>
+            <div class="col-2"></div>
+		</div>
+        %_resp_%
+	    </div>
+        
+        <div class="text-center mt-2">
+        <input type="button" value="Agregar Respuesta" data-action="click->cuestionario#agregarrespuestaclick" id="btn_agregar_respuesta_%_pid_%" data-cuestionario-pid-param="%_pid_%" class="btn btn-success">
+        </div>

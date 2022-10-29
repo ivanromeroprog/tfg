@@ -21,8 +21,8 @@ class CursoType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('grado', TextType::class, ['disabled' => $options['view']])
-            ->add('division', TextType::class, ['disabled' => $options['view']])
+            ->add('grado', TextType::class, ['label' => 'Grado o Año', 'disabled' => $options['view']])
+            ->add('division', TextType::class, ['label' => 'División', 'disabled' => $options['view']])
             ->add('materia', TextType::class, ['disabled' => $options['view']])
             ->add('anio', NumberType::class, ['label' => 'Año Lectivo', 'html5' => true, 'scale' => 0, 'attr' => ['min' => '1990', 'max' => '999999999', 'step' => '1'], 'disabled' => $options['view']]);
 

@@ -9,14 +9,15 @@ export default class extends Controller {
     }
 
     connect() {
-        console.log(this.nuevoValue);
+        //console.log(this.nuevoValue);
         if (this.nuevoValue) {
+            console.log('Nuevo registro, agregar pregunta.')
             this.agregarpregunta(-1, 1);
         }
     }
 
     eliminarrespuestaclick(e) {
-        console.log(e.params.pid, e.params.rid);
+        //console.log(e.params.pid, e.params.rid);
         let pid = e.params.pid;
         let rid = e.params.rid;
 
@@ -41,7 +42,7 @@ export default class extends Controller {
     }
 
     eliminarpreguntaclick(e) {
-        console.log(e.params.pid);
+        //console.log(e.params.pid);
         let pid = e.params.pid;
 
         e.preventDefault();
@@ -82,9 +83,11 @@ export default class extends Controller {
         }
         else {
             this.agregarpregunta(pid, pnum);
-            let detallepregel = document.getElementById('detalle_preguntas_' + pid);
-            detallepregel.scrollIntoView();
-            detallepregel.focus();
+            //let detallepregel = document.getElementById('detalle_preguntas_' + pid);
+            //detallepregel
+            //detallepregel;
+            document.getElementById('detalle_preguntas_' + pid).focus();
+            document.getElementById('btn_agregar_respuesta_' + pid).scrollIntoView();;
         }
     }
 
@@ -112,12 +115,16 @@ export default class extends Controller {
 
     //Helpers
     agregarpregunta(pid, pnum) {
+        
+        console.log('Agregar pregunta '+ pid + " " + pnum);
+        
         let ph = document.createElement("div");
         let tmpl = this.preguntaValue;
 
         tmpl = tmpl.replace(/%_pid_%/g, pid);
         tmpl = tmpl.replace(/%_pnum_%/g, pnum);
         tmpl = tmpl.replace(/%_ptext_%/g, '');
+        tmpl = tmpl.replace(/%_resp_%/g, '');
 
         ph.innerHTML = tmpl;
         this.element.append(ph)

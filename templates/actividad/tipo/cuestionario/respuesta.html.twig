@@ -1,0 +1,19 @@
+<div class="respuesta_div" id="respuesta_div_%_pid_%_%_rid_%">
+		<div class="row mt-1">
+			<div class="col-7">
+
+				<input type="text" class="form-control" name="detalle[respuestas][%_pid_%][%_rid_%][texto]" id="detalle_respuestas_%_pid_%_%_rid_%_texto" value="%_rtext_%">
+			</div>
+			<div class="col-3 d-flex align-items-center justify-content-start">
+				
+            <div class="form-check form-switch form-switch-hide">
+					<input class="form-check-input sino" name="detalle[respuestas][%_pid_%][%_rid_%][correcta]" type="checkbox" value="si" id="detalle_respuestas_%_pid_%_%_rid_%_correcta" %_rcorr_%>
+					<label for="detalle_respuestas_%_pid_%_%_rid_%_correcta"></label>
+                    </div>	
+
+			</div>
+            <div class="col-2"><a id="eliminar_respuesta_%_pid_%_%_rid_%" class="btn btn-danger btn-sm" title="Eliminar" data-action="click->cuestionario#eliminarrespuestaclick" data-cuestionario-pid-param="%_pid_%" data-cuestionario-rid-param="%_rid_%">
+            <i class="bi bi-trash-fill"></i>
+        </a></div>
+		</div>
+	</div>

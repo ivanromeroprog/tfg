@@ -7,6 +7,7 @@ use App\Entity\Organizacion;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -65,6 +66,7 @@ class RegistrationFormType extends AbstractType
                     'mapped' => false
                 ]
             )
+            ->add('rol', ChoiceType::class, ['disabled' => true, 'mapped' => false, 'label' => '¿Qué rol cumple en la organización?', 'choices' => ['Docente' => 'ROLE_DOCENTE', 'Responsable de la Organización (Directivo, coordinador, etc.)' => 'ROLE_RESPONSABLE']])
             ->add('username', TextType::class, ['label' => 'Nombre de Usuario', 'disabled' => $options['view']])
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
