@@ -11,6 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PresentacionActividadRepository::class)]
 class PresentacionActividad
 {
+        
+    const ESTADO_INICIADO = 'Iniciado';
+    const ESTADO_FINALIZADO = 'Finalizado';
+    const ESTADO_ANULADO = 'Anulado';
+    const ESTADOS = [
+        self::ESTADO_INICIADO => self::ESTADO_INICIADO,
+        self::ESTADO_FINALIZADO => self::ESTADO_FINALIZADO,
+        self::ESTADO_ANULADO => self::ESTADO_ANULADO,
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -161,6 +171,9 @@ class PresentacionActividad
 
     public function setTipo(string $tipo): self
     {
+        if (!in_array($tipo, Actividad::TIPOS)) {
+            throw new \InvalidArgumentException("Estado inválido");
+        }
         $this->tipo = $tipo;
 
         return $this;

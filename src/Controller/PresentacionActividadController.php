@@ -6,7 +6,7 @@ use App\Entity\Alumno;
 use App\Entity\PresentacionActividad;
 use App\Form\PresentacionActividadType;
 use App\Repository\PresentacionActividadRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+use DateTime;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
@@ -68,6 +68,7 @@ class PresentacionActividadController extends AbstractController
         ]);
     }
 
+    /*
     #[Route('/presentacion/actividad/nuevo', name: 'app_presentacion_actividad_new')]
     public function new(Request $request): Response
     {
@@ -92,7 +93,48 @@ class PresentacionActividadController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+*/
+    #[Route('/presentacion/actividad/nuevo', name: 'app_presentacion_actividad_new')]
+    public function new(Request $request): Response
+    {
+        $presactividad = new PresentacionActividad();
+        $presactividad->setFecha(new DateTime());
 
+        $form = $this->createForm(PresentacionActividadType::class, $presactividad, ['usuario' => $this->getUser()]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->getConnection()->beginTransaction(); 
+            $actividad = $form->get('actividad')->getData();
+            
+            try {
+                $presactividad->setUsuario($this->getUser());
+                $presactividad->setEstado(PresentacionActividad::ESTADO_INICIADO);
+                $presactividad->setTitulo($titulo);
+                $presactividad->setDescripcion($descripcion);
+                $presactividad->setTipo($tipo);
+                
+                //$presactividad->setTitulo()
+                $this->em->persist($presactividad);
+                $this->em->flush();
+
+                $this->em->getConnection()->commit();
+            } catch (\Exception $e) {
+
+                $this->em->getConnection()->rollBack();
+                if ($error == '') {
+                    $error = 'Error al guardar en la base de datos. ' . $e->getMessage();
+                }
+            }
+
+        }
+
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+        return $this->render('presentacion_actividad/new.html.twig', [
+            'form' => $form->createView()
+        ], $response);
+    }
+    
     #[Route('/presentacion/actividad/editar/{id}', name: 'app_presentacion_actividad_edit')]
     public function edit(int $id, Request $request): Response
     {

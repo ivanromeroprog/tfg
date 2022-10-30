@@ -1,21 +1,26 @@
 {% extends 'base_users.html.twig' %}
+{#
+{% form_theme form.Submit 'bootstrap_5_layout.html.twig' %}
+{% form_theme form.fecha 'bootstrap_5_horizontal_layout.html.twig' %}
+{% form_theme form.estado 'bootstrap_5_horizontal_layout.html.twig' %}
+{% form_theme form.curso 'bootstrap_5_horizontal_layout.html.twig' %}
+#}
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
-
-{% block title %}Edu-track - Presentaciones
-{% endblock %}
-{% block bodytitle %}Presentacion
-{% endblock %}
+{% block title %}Edu-track - Presentaciones de Actividades{% endblock %}
+{% block bodytitle %}Presentar Actividad{% endblock %}
 
 {% block body %}
-	{{ include('alert.html.twig', with_context = true) }}
 
-	{{ form_start(form) }}
+    {{ include('alert.html.twig', with_context = true) }}
+
+
+    {{ form_start(form) }}
     <div class="row">
-        <div class="col-sm">{{ form_row(form.grado) }}</div>
-        <div class="col-sm">{{ form_row(form.division) }}</div>
+        <div class="col-sm">{{ form_row(form.curso) }}</div>
+        <div class="col-sm">{{ form_row(form.fecha) }}</div>
     </div>
-	{{ form_rest(form) }}
-	{{ form_end(form) }}
-	<a href="{{ path('app_presentacion_actividad') }}" class="btn btn-secondary">Volver</a>
+    {{ form_rest(form) }}
+    {{ form_end(form) }}
+    <a href="{{ path('app_asistencia') }}" class="btn btn-secondary">Volver</a>
 
 {% endblock %}

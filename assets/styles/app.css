@@ -42,9 +42,17 @@ h6 {
         padding: 10px 0px;
     }
 
-        /* Checkbox yes no */
-     .form-switch-hide {
-            /*margin-right: 10px !important;
+    /* Checkbox yes no */
+    .form-switch-hide {
+        /*margin-right: 10px !important;
+        width: 20px;
+        height: 20px;
+        margin: 0 !important;*/
+        padding: 0 !important;
+    }
+
+    .form-switch-hide .form-check-input {
+        /*margin-right: 10px !important;
         width: 20px;
         height: 20px;*/
         visibility: hidden;
@@ -52,8 +60,8 @@ h6 {
         height: 0px !important;
         margin: 0 !important;
         padding: 0 !important;
-            display: inline !important;
-        }
+        display: inline !important;
+    }
 
     /* Checkbox yes no */
     input[type="checkbox"].sino {
@@ -67,9 +75,10 @@ h6 {
 /* Checkbox yes no */
 input[type="checkbox"].sino {
     margin-right: 10px !important;
-/*width: 20px;
+    /*width: 20px;
 height: 20px;*/
 }
+
 input.sino[type="checkbox"]:not(:checked)+label::after {
     content: '❌ No';
     color: #550000;

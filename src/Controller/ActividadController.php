@@ -21,18 +21,21 @@ use Symfony\Component\Routing\Annotation\Route;
 use function dump;
 
 #[IsGranted('ROLE_DOCENTE')]
-class ActividadController extends AbstractController {
+class ActividadController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private ActividadRepository $cr;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(Actividad::class);
     }
 
     #[Route('/actividad', name: 'app_actividad')]
-    public function index(Request $request): Response {
+    public function index(Request $request): Response
+    {
 
         $perpage = $request->query->getInt('perpage', 10);
         $page = $request->query->getInt('page', 1);
@@ -42,15 +45,15 @@ class ActividadController extends AbstractController {
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-                $search !== '' ?
+            $search !== '' ?
                 [
-            'titulo' => $search,
-            'descripcion' => $search,
-            'tipo' => $search,
-                //'estado' => $search
+                    'titulo' => $search,
+                    'descripcion' => $search,
+                    'tipo' => $search,
+                    //'estado' => $search
                 ] : [],
-                $order,
-                $this->getUser()
+            $order,
+            $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -58,17 +61,18 @@ class ActividadController extends AbstractController {
         $pager->setCurrentPage($page);
 
         return $this->render('actividad/index.html.twig', [
-                    'pager' => $pager,
-                    'order' => $order,
-                    'search' => $search,
-                    'perpageoptions' => [
-                        10, 25, 50, 100
-                    ]
+            'pager' => $pager,
+            'order' => $order,
+            'search' => $search,
+            'perpageoptions' => [
+                10, 25, 50, 100
+            ]
         ]);
     }
 
     #[Route('/actividad/nuevo', name: 'app_actividad_new')]
-    public function new(Request $request): Response {
+    public function new(Request $request): Response
+    {
 
         //Obtener datos de post por fuera del form, sino no se puede modificar los campos :(
         $tipo = null;
@@ -99,46 +103,46 @@ class ActividadController extends AbstractController {
             $error = $this->guardarCuestionario($actividad, $detalles);
             if ($error == '') {
                 $this->addFlash('success', 'Se guardó la actividad correctamente.');
-                //return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                return $this->redirectToRoute('app_actividad_new');
+                return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
+                //return $this->redirectToRoute('app_actividad_new');
             } else {
                 $this->addFlash('error', $error);
             }
         }
 
         //Generar HTML de preguntas enviadas por Post
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig'));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig'));
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
         $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
 
         //Respuesta
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('actividad/new.html.twig', [
-                    'form' => $form->createView(),
-                    'tipo' => $tipo,
-                    'respuestatemplate' => $respuestatemplate,
-                    'preguntatemplate' => $preguntatemplate,
-                    'detalleshtml' => $detalleshtml,
-                    'nuevo' => empty($detalleshtml) ? 1 : 0,
-                    'nocache' => true,
-                    'detalles_eliminar' => '',
-                        ], $response);
+            'form' => $form->createView(),
+            'tipo' => $tipo,
+            'view' => false,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => empty($detalleshtml) ? 1 : 0,
+            'nocache' => true,
+            'detalles_eliminar' => '',
+        ], $response);
     }
 
     #[Route('/actividad/editar/{id}', name: 'app_actividad_edit')]
-    public function edit(int $id, Request $request): Response {
+    public function edit(int $id, Request $request): Response
+    {
+        if ($id < 1)
+            throw new AccessDeniedHttpException();
+
         $actividad = $this->cr->find($id);
 
         if (is_null($actividad) || $actividad->getUsuario() != $this->getUser())
             throw new AccessDeniedHttpException();
 
-        //Obtener datos de post por fuera del form, sino no se puede modificar los campos :(
-        $alldata = $request->request->all();
-        if (isset($alldata['actividad'])) {
-            $data = $alldata['actividad'];
-        }
-
         //Obtener detalles por fuera del form
+        $alldata = $request->request->all();
         if (isset($alldata['detalle'])) {
             $detalles = $alldata['detalle'];
         } else {
@@ -156,7 +160,7 @@ class ActividadController extends AbstractController {
 
         //Agregar a los detalles de POST los detalles de la DB      
         $detallesdb = $this->formatearPreguntasDB($actividad);
-        $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb,$detalles));
+        $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb, $detalles));
 
         if ($form->isSubmitted() && $form->isValid()) {
             $error = $this->guardarCuestionario($actividad, $detalles);
@@ -171,75 +175,109 @@ class ActividadController extends AbstractController {
 
 
         //Generar HTML de preguntas enviadas por Post y de la DB
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig'));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig'));
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
         $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
 
         //Respuesta
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('actividad/edit.html.twig', [
-                    'form' => $form->createView(),
-                    'tipo' => $tipo,
-                    'respuestatemplate' => $respuestatemplate,
-                    'preguntatemplate' => $preguntatemplate,
-                    'detalleshtml' => $detalleshtml,
-                    'nuevo' => empty($detalleshtml) ? 1 : 0,
-                    'nocache' => true,
-                    'detalles_eliminar' => isset($detalles['eliminar']) ? $detalles['eliminar'] : '',
-                        ], $response);
+            'form' => $form->createView(),
+            'tipo' => $tipo,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => empty($detalleshtml) ? 1 : 0,
+            'nocache' => true,
+            'view' => false,
+            'detalles_eliminar' => isset($detalles['eliminar']) ? $detalles['eliminar'] : '',
+        ], $response);
     }
 
     #[Route('/actividad/ver/{id}', name: 'app_actividad_view')]
-    public function view(int $id): Response {
+    public function view(int $id): Response
+    {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
         $actividad = $this->cr->find($id);
 
-        if (is_null($actividad))
+        if (is_null($actividad) || $actividad->getUsuario() != $this->getUser())
             throw new AccessDeniedHttpException();
 
+        //Tipo de actividad
+        $tipo = $actividad->getTipo();
+
+        //Crear formulario
         $form = $this->createForm(ActividadType::class, $actividad, [
+            'tipo' => $tipo,
             'view' => true,
-            'tipo' => $actividad->getTipo()
-                /*
-                  'usuario' => $this->getUser(),
-                  'organizacion' => $actividad->getOrganizacion() */
         ]);
 
-        return $this->render('actividad/new.html.twig', [
-                    'form' => $form->createView(),
-                    'tipo' => $actividad->getTipo(),
+        //Detalles de la base de datos      
+        $detalles = $this->formatearPreguntasDB($actividad);
+
+        //Generar HTML de preguntas enviadas por Post y de la DB
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => true]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => true]));
+        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+
+        return $this->render('actividad/edit.html.twig', [
+            'form' => $form->createView(),
+            'tipo' => $tipo,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => 0,
+            'detalles_eliminar' => '',
+            'view' => true
         ]);
     }
 
     #[Route('/actividad/eliminar/{id}', name: 'app_actividad_delete', methods: ['GET', 'HEAD'])]
-    public function delete(int $id): Response {
+    public function delete(int $id): Response
+    {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
         $actividad = $this->cr->find($id);
 
-        if (is_null($actividad))
+        if (is_null($actividad) || $actividad->getUsuario() != $this->getUser())
             throw new AccessDeniedHttpException();
 
+        //Tipo de actividad
+        $tipo = $actividad->getTipo();
+
+        //Crear formulario
         $form = $this->createForm(ActividadType::class, $actividad, [
+            'tipo' => $tipo,
             'view' => true,
-            'tipo' => $actividad->getTipo()
-                /*
-                  'usuario' => $this->getUser(),
-                  'organizacion' => $actividad->getOrganizacion() */
         ]);
 
+        //Detalles de la base de datos      
+        $detalles = $this->formatearPreguntasDB($actividad);
+
+        //Generar HTML de preguntas enviadas por Post y de la DB
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => true]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => true]));
+        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+
         return $this->render('actividad/delete.html.twig', [
-                    'actividad' => $actividad,
-                    'tipo' => $actividad->getTipo(),
-                    'form' => $form->createView()
+            'form' => $form->createView(),
+            'tipo' => $tipo,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => 0,
+            'nocache' => true,
+            'detalles_eliminar' => '',
+            'view' => true
         ]);
     }
 
     #[Route('/actividad/eliminar', name: 'app_actividad_dodelete', methods: ['DELETE'])]
-    public function doDelete(Request $request): Response {
+    public function doDelete(Request $request): Response
+    {
 
         $submittedToken = $request->request->get('_token');
 
@@ -275,7 +313,8 @@ class ActividadController extends AbstractController {
      * los datos del array $detalles y los templates
      */
 
-    private function generarPreguntasHtml(?array $detalles, string $preguntatemplate, string $respuestatemplate) {
+    private function generarPreguntasHtml(?array $detalles, string $preguntatemplate, string $respuestatemplate)
+    {
         $detalleshtml = '';
         $preguntahtml = '';
         $respuestahtml = '';
@@ -284,25 +323,25 @@ class ActividadController extends AbstractController {
             $i = 1;
             foreach ($detalles['preguntas'] as $k => $preg) {
                 $preguntahtml = str_replace(
-                        ['%_pid_%', '%_pnum_%', '%_ptext_%'],
-                        [$k, $i, htmlentities($preg)],
-                        '<div>' . $preguntatemplate . '</div>'
+                    ['%_pid_%', '%_pnum_%', '%_ptext_%'],
+                    [$k, $i, htmlentities($preg)],
+                    '<div>' . $preguntatemplate . '</div>'
                 );
                 $i++;
 
                 $respuestahtml = '';
                 foreach ($detalles['respuestas'][$k] as $kk => $resp) {
                     $respuestahtml .= str_replace(
-                            ['%_pid_%', '%_rid_%', '%_rtext_%', '%_rcorr_%'],
-                            [$k, $kk, htmlentities($resp['texto']), (isset($resp['correcta']) ? ' checked="checked"' : '')],
-                            '<div>' . $respuestatemplate . '</div>'
+                        ['%_pid_%', '%_rid_%', '%_rtext_%', '%_rcorr_%'],
+                        [$k, $kk, htmlentities($resp['texto']), (isset($resp['correcta']) ? ' checked="checked"' : '')],
+                        '<div>' . $respuestatemplate . '</div>'
                     );
                 }
 
                 $detalleshtml .= str_replace(
-                        '%_resp_%',
-                        $respuestahtml,
-                        $preguntahtml
+                    '%_resp_%',
+                    $respuestahtml,
+                    $preguntahtml
                 );
             }
         }
@@ -314,13 +353,14 @@ class ActividadController extends AbstractController {
      * Recibe la actividad y el array $detalles
      */
 
-    private function guardarCuestionario(Actividad $actividad, ?array $detalles) {
+    private function guardarCuestionario(Actividad $actividad, ?array $detalles)
+    {
 
         $error = '';
         $ids_guardados = [];
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         $da = $actividad->getDetallesactividad();
-        
+
         try {
             //$actividad->setUsuario($this->getUser());
             $this->em->persist($actividad);
@@ -341,12 +381,13 @@ class ActividadController extends AbstractController {
 
                 //Si es nueva pregunta
                 if ($k < 0) {
-                    $detallepregunta = new DetalleActividad(null,
-                            $preg,
-                            DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
-                            null,
-                            null,
-                            $actividad
+                    $detallepregunta = new DetalleActividad(
+                        null,
+                        $preg,
+                        DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
+                        null,
+                        null,
+                        $actividad
                     );
                     $this->em->persist($detallepregunta);
                     $this->em->flush();
@@ -356,14 +397,13 @@ class ActividadController extends AbstractController {
                 } else {
                     //Si estamos modificando
                     //$da = new ArrayCollection();
-                    
+
                     //TODO: esto funciona acá pero no en eliminar... tener cuidado
                     //sino usar bucle y listo
                     $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $k));
                     $cp = $da->matching($criteria);
                     $detallepregunta = $cp->first();
-                    
-                     dump($k, $da, $cp);
+
 
                     //Solo modifico el texto de la pregunta
                     $detallepregunta->setDato($preg);
@@ -396,14 +436,15 @@ class ActividadController extends AbstractController {
 
                     //Nueva respuesta
                     if ($kk < 0) {
-                        $detallerespuesta = new DetalleActividad(null,
-                                $resp['texto'],
-                                DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA,
-                                $relacion,
-                                $correcto,
-                                $actividad
+                        $detallerespuesta = new DetalleActividad(
+                            null,
+                            $resp['texto'],
+                            DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA,
+                            $relacion,
+                            $correcto,
+                            $actividad
                         );
-                         $this->em->persist($detallerespuesta);
+                        $this->em->persist($detallerespuesta);
                     } else {
                         //Modificamos respuesta
                         //$cp = new ArrayCollection();
@@ -414,9 +455,9 @@ class ActividadController extends AbstractController {
                         $detallerespuesta->setDato($resp['texto']);
                         $detallerespuesta->setCorrecto($correcto);
                     }
-                   
+
                     $this->em->flush();
-                    
+
                     //guardo el id de la respuesta
                     $ids_guardados[] = $detallerespuesta->getId();
                 }
@@ -429,30 +470,32 @@ class ActividadController extends AbstractController {
                     throw new \Exception();
                 }
             }
-            
-            //Eliminar
-            //Solo elimino preguntas / respuestas que no se pasaron por post
-            $eliminara = explode('|', ltrim($detalles['eliminar'], '|'));
 
-            foreach($eliminara as $elid){
-                $eldi = intval($elid);
-                if(!in_array($elid,$ids_guardados))
-                {
-                    
-                    //TODO: No funciona matching en este punto? porque?
-                    foreach($da as $det){
-                        if($det->getId() == $elid || $det->getRelacion() == $elid){
-                            $actividad->removeDetallesactividad($det);
+            //Eliminar si hay algo para eliminar
+            //Solo elimino preguntas / respuestas que no se pasaron por post
+            $detalles['eliminar'] = isset($detalles['eliminar']) ? $detalles['eliminar'] : '';
+            if ($detalles['eliminar'] != '') {
+                $eliminara = explode('|', ltrim($detalles['eliminar'], '|'));
+
+                foreach ($eliminara as $elid) {
+                    $eldi = intval($elid);
+                    if (!in_array($elid, $ids_guardados)) {
+
+                        //TODO: No funciona matching en este punto? porque?
+                        foreach ($da as $det) {
+                            if ($det->getId() == $elid || $det->getRelacion() == $elid) {
+                                $actividad->removeDetallesactividad($det);
+                            }
                         }
                     }
                 }
-                
+                $this->em->flush();
             }
-            $this->em->flush();
 
-            $value = $this->em->getConnection()->commit();
+            $this->em->getConnection()->commit();
         } catch (\Exception $e) {
 
+            //TODO: sacar detalles de error
             $this->em->getConnection()->rollBack();
             if ($error == '') {
                 $error = 'Error al guardar en la base de datos. ' . $e->getMessage();
@@ -480,7 +523,8 @@ class ActividadController extends AbstractController {
      * 
      */
 
-    private function formatearPreguntasDB(Actividad $actividad) {
+    private function formatearPreguntasDB(Actividad $actividad)
+    {
         $det = $actividad->getDetallesactividad();
         $d = new DetalleActividad();
         $ad = [];
@@ -497,5 +541,4 @@ class ActividadController extends AbstractController {
 
         return $ad;
     }
-
 }

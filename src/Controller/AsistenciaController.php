@@ -85,7 +85,7 @@ class AsistenciaController extends AbstractController
 
             $tomaasis->setEstado(TomaDeAsistencia::ESTADO_INICIADO);
 
-            //TODO: Probar Agregar las asistencias de cada alumno de este curso con valor false 
+            //TODO: Probar si funciona bien Agregar las asistencias de cada alumno de este curso con valor false 
             $alumnos = $tomaasis->getCurso()->getAlumnos();
 
             if (count($alumnos) > 0) {

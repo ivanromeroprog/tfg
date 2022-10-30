@@ -45,7 +45,7 @@ class Actividad
 
     #[ORM\Column(length: 50)]
     private ?string $tipo = null;
-/*
+    /*
     #[ORM\Column(length: 50)]
     private ?string $estado = null;
 */
@@ -97,11 +97,14 @@ class Actividad
 
     public function setTipo(string $tipo): self
     {
+        if (!in_array($tipo, self::TIPOS)) {
+            throw new \InvalidArgumentException("Estado inválido");
+        }
         $this->tipo = $tipo;
 
         return $this;
     }
-/*
+    /*
     public function getEstado(): ?string
     {
         return $this->estado;
@@ -154,5 +157,9 @@ class Actividad
         }
 
         return $this;
+    }
+    
+    public function __toString() {
+        return $this->getTitulo(). ' (' . $this->getTipo() . ')';
     }
 }

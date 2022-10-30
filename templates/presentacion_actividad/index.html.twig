@@ -41,21 +41,6 @@
         <thead>
             <tr
                 data-controller="orderheaders">
-                {#
-
-'id',
-'titulo',
-'descripcion',
-'tipo',
-'estado',
-'fecha',
-'curso'
-
-                                <th data-controller="ordercontrol" data-ordercontrol-order-value="1" data-action="click->ordercontrol#click">Id</th>
-                                <th data-controller="ordercontrol" data-ordercontrol-order-value="2" data-action="click->ordercontrol#click">Grado - División</th>
-                                <th data-controller="ordercontrol" data-ordercontrol-order-value="3" data-action="click->ordercontrol#click">Materia</th>
-                                <th data-controller="ordercontrol" data-ordercontrol-order-value="4" data-action="click->ordercontrol#click">Año Lectivo</th>
-                                #}
                 <th class="canorder">Id</th>
                 <th class="canorder">Título</th>
                 <th class="canorder">Descripción</th>
@@ -92,7 +77,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="5" class="text-center">No hay resultados</td>
+                    <td colspan="8" class="text-center">No hay resultados</td>
                 </tr>
             {% endif %}
         </tbody>

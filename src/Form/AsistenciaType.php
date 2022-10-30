@@ -26,7 +26,7 @@ class AsistenciaType extends AbstractType
                 EntityType::class,
                 [
                     'class' => Curso::class,
-                    'label' => 'Clase',
+                    'label' => 'Curso',
                     'multiple' => false,
                     //'disabled' => $options['view'],
                     'required' => true,
