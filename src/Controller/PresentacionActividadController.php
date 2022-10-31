@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Alumno;
+use App\Entity\DetallePresentacionActividad;
+use App\Entity\Interaccion;
 use App\Entity\PresentacionActividad;
 use App\Form\PresentacionActividadType;
 use App\Repository\PresentacionActividadRepository;
@@ -19,21 +21,18 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('ROLE_DOCENTE')]
-class PresentacionActividadController extends AbstractController
-{
+class PresentacionActividadController extends AbstractController {
 
     private EntityManagerInterface $em;
     private PresentacionActividadRepository $cr;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(EntityManagerInterface $em) {
         $this->em = $em;
         $this->cr = $this->em->getRepository(PresentacionActividad::class);
     }
 
     #[Route('/presentacion/actividad', name: 'app_presentacion_actividad')]
-    public function index(Request $request): Response
-    {
+    public function index(Request $request): Response {
 
         $perpage = $request->query->getInt('perpage', 10);
         $page = $request->query->getInt('page', 1);
@@ -43,15 +42,15 @@ class PresentacionActividadController extends AbstractController
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-            $search !== '' ?
+                $search !== '' ?
                 [
-                    'titulo' => $search,
-                    'descripcion' => $search,
-                    'tipo' => $search,
-                    'estado' => $search
+            'titulo' => $search,
+            'descripcion' => $search,
+            'tipo' => $search,
+            'estado' => $search
                 ] : [],
-            $order,
-            $this->getUser()
+                $order,
+                $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -59,44 +58,17 @@ class PresentacionActividadController extends AbstractController
         $pager->setCurrentPage($page);
 
         return $this->render('presentacion_actividad/index.html.twig', [
-            'pager' => $pager,
-            'order' => $order,
-            'search' => $search,
-            'perpageoptions' => [
-                10, 25, 50, 100
-            ]
+                    'pager' => $pager,
+                    'order' => $order,
+                    'search' => $search,
+                    'perpageoptions' => [
+                        10, 25, 50, 100
+                    ]
         ]);
     }
 
-    /*
     #[Route('/presentacion/actividad/nuevo', name: 'app_presentacion_actividad_new')]
-    public function new(Request $request): Response
-    {
-        $presentacion_actividad = new PresentacionActividad();
-        $presentacion_actividad->setAnio(intval(date("Y")));
-        $form = $this->createForm(PresentacionActividadType::class, $presentacion_actividad, ['usuario' => $this->getUser()]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $presentacion_actividad->setUsuario($this->getUser());
-
-            $this->em->persist($presentacion_actividad);
-            $this->em->flush();
-
-            $this->addFlash('success', 'Se creo el presentacion_actividad correctamente.');
-
-            return $this->redirectToRoute('app_presentacion_actividad_edit', ['id' => $presentacion_actividad->getId()]);
-        }
-
-        return $this->render('presentacion_actividad/new.html.twig', [
-            'form' => $form->createView()
-        ]);
-    }
-*/
-    #[Route('/presentacion/actividad/nuevo', name: 'app_presentacion_actividad_new')]
-    public function new(Request $request): Response
-    {
+    public function new(Request $request): Response {
         $presactividad = new PresentacionActividad();
         $presactividad->setFecha(new DateTime());
 
@@ -104,40 +76,78 @@ class PresentacionActividadController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->em->getConnection()->beginTransaction(); 
+            $this->em->getConnection()->beginTransaction();
+            //$actividad = new Actividad();
             $actividad = $form->get('actividad')->getData();
-            
+            $error = '';
             try {
+                //Hago una copia de la actividad a la presentacion de actividad
                 $presactividad->setUsuario($this->getUser());
                 $presactividad->setEstado(PresentacionActividad::ESTADO_INICIADO);
-                $presactividad->setTitulo($titulo);
-                $presactividad->setDescripcion($descripcion);
-                $presactividad->setTipo($tipo);
-                
-                //$presactividad->setTitulo()
+                $presactividad->setTitulo($actividad->getTitulo());
+                $presactividad->setDescripcion($actividad->getDescripcion());
+                $presactividad->setTipo($actividad->getTipo());
+
+                //Recupero los detalles actividad y hago una copia de cada uno
+                // en el detalle presentacion actividad
+                $detalleactividades = $actividad->getDetallesactividad();
+                $alumnos = $form->get('curso')->getData()->getAlumnos();
+                $primerdpa = true;
+                foreach ($detalleactividades as $da) {
+                    $detpresact = new DetallePresentacionActividad(
+                            null,
+                            $da->getDato(),
+                            $da->getTipo(),
+                            $da->getRelacion(),
+                            $da->isCorrecto(),
+                            null
+                    );
+                    $this->em->persist($detpresact);
+
+                    //Agrego una interaccion por cada alumno para que quede fija
+                    //la lista de alumnos al momento de la presentación de la actividad
+                    //(los alumnos pueden ser eliminados/agregados al curso con el tiempo)
+                    if ($primerdpa) {
+                        $primerdpa = false;
+                        foreach ($alumnos as $alumno) {
+                            $interaccion = new Interaccion(null, $alumno);
+                            $this->em->persist($interaccion);
+                            $detpresact->addInteraccion($interaccion);
+                        }
+                    }
+
+                    $presactividad->addDetallesPresentacionActividad($detpresact);
+                }
+
                 $this->em->persist($presactividad);
                 $this->em->flush();
 
                 $this->em->getConnection()->commit();
             } catch (\Exception $e) {
-
+                //TODO: quitar detalle de error en DB
                 $this->em->getConnection()->rollBack();
                 if ($error == '') {
                     $error = 'Error al guardar en la base de datos. ' . $e->getMessage();
                 }
             }
-
+            if ($error == '') {
+                $this->addFlash('success', 'Se guardó la actividad correctamente.');
+                return $this->redirectToRoute('app_presentacion_actividad_new');
+                //return $this->redirectToRoute('app_actividad_new');
+            } else {
+                $this->addFlash('error', $error);
+            }
         }
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('presentacion_actividad/new.html.twig', [
-            'form' => $form->createView()
-        ], $response);
+                    'form' => $form->createView(),
+                    'nocache' => true
+                        ], $response);
     }
-    
+
     #[Route('/presentacion/actividad/editar/{id}', name: 'app_presentacion_actividad_edit')]
-    public function edit(int $id, Request $request): Response
-    {
+    public function edit(int $id, Request $request): Response {
         $presentacion_actividad = $this->cr->find($id);
 
         if (is_null($presentacion_actividad))
@@ -156,16 +166,16 @@ class PresentacionActividadController extends AbstractController
                 $data = $request->request->all()['presentacion_actividad'];
 
                 if (
-                    strlen($data['alumno_nombre']) < 2 || strlen($data['alumno_apellido']) < 2 || strlen($data['alumno_cua']) < 2
+                        strlen($data['alumno_nombre']) < 2 || strlen($data['alumno_apellido']) < 2 || strlen($data['alumno_cua']) < 2
                 ) {
                     $this->addFlash('warning', 'Completa todos los datos del alumno.');
                 } else {
 
                     $alumno = new Alumno(
-                        null,
-                        $data['alumno_nombre'],
-                        $data['alumno_apellido'],
-                        $data['alumno_cua']
+                            null,
+                            $data['alumno_nombre'],
+                            $data['alumno_apellido'],
+                            $data['alumno_cua']
                     );
 
                     $this->em->persist($alumno);
@@ -187,13 +197,12 @@ class PresentacionActividadController extends AbstractController
         }
 
         return $this->render('presentacion_actividad/edit.html.twig', [
-            'form' => $form->createView()
+                    'form' => $form->createView()
         ]);
     }
 
     #[Route('/presentacion/actividad/ver/{id}', name: 'app_presentacion_actividad_view')]
-    public function view(int $id): Response
-    {
+    public function view(int $id): Response {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -209,13 +218,12 @@ class PresentacionActividadController extends AbstractController
         ]);
 
         return $this->render('presentacion_actividad/new.html.twig', [
-            'form' => $form->createView(),
+                    'form' => $form->createView(),
         ]);
     }
 
     #[Route('/presentacion/actividad/eliminar/{id}', name: 'app_presentacion_actividad_delete', methods: ['GET', 'HEAD'])]
-    public function delete(int $id): Response
-    {
+    public function delete(int $id): Response {
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -231,14 +239,13 @@ class PresentacionActividadController extends AbstractController
         ]);
 
         return $this->render('presentacion_actividad/delete.html.twig', [
-            'presentacion_actividad' => $presentacion_actividad,
-            'form' => $form->createView()
+                    'presentacion_actividad' => $presentacion_actividad,
+                    'form' => $form->createView()
         ]);
     }
 
     #[Route('/presentacion/actividad/eliminar', name: 'app_presentacion_actividad_dodelete', methods: ['DELETE'])]
-    public function doDelete(Request $request): Response
-    {
+    public function doDelete(Request $request): Response {
 
         $submittedToken = $request->request->get('_token');
 
@@ -268,4 +275,5 @@ class PresentacionActividadController extends AbstractController
         }
         return $this->redirectToRoute('app_curso');
     }
+
 }

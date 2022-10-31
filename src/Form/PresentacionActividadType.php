@@ -40,7 +40,7 @@ class PresentacionActividadType extends AbstractType {
                                 ->where('u = :usuario');
                             },
                             //'attr' => ['required'=>'required']
-                            //'required' => !$options['modify'],
+                            'required' => true,
                             'disabled' => $options['view'] || $options['modify'],
                         //'help' => 'La organización no puede ser modificada una vez creado el curso. Si necesita hacerlo debe crear un nuevo curso.'
                         ])
@@ -63,7 +63,7 @@ class PresentacionActividadType extends AbstractType {
                                 ->where('u = :usuario');
                             },
                             //'attr' => ['required'=>'required']
-                            //'required' => !$options['modify'],
+                            'required' => true,
                             'disabled' => $options['view'] || $options['modify'],
                         //'help' => 'La organización no puede ser modificada una vez creado el curso. Si necesita hacerlo debe crear un nuevo curso.'
                         ]

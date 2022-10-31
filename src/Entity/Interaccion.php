@@ -21,8 +21,20 @@ class Interaccion
     #[ORM\JoinColumn(nullable: false)]
     private ?DetallePresentacionActividad $detallePresentacionActividad = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $correcto = null;
+    
+    public function __construct(
+            ?int $id=null,
+            ?Alumno $alumno=null,
+            ?DetallePresentacionActividad $detallePresentacionActividad=null,
+            ?bool $correcto=null
+           ) {
+        $this->id = $id;
+        $this->alumno = $alumno;
+        $this->detallePresentacionActividad = $detallePresentacionActividad;
+        $this->correcto = $correcto;
+    }
 
     public function getId(): ?int
     {

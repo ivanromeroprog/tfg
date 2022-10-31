@@ -2,7 +2,7 @@
 	{% if not view %}
 		<a id="eliminar_pregunta_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar Pregunta" data-action="click->cuestionario#eliminarpreguntaclick" data-cuestionario-pid-param="%_pid_%">
 			<i class="bi bi-trash-fill"></i>
-		</a>
+		</a> 
 	{% endif %}
 	<label class="form-label mt-2" for="detalle_preguntas_%_pid_%">Pregunta</label>
 	<textarea name="detalle[preguntas][%_pid_%]" id="detalle_preguntas_%_pid_%" class="form-control" rows="4" {% if view %} disabled="disabled" {% endif %}>%_ptext_%</textarea>
