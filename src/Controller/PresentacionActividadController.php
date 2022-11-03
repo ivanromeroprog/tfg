@@ -21,18 +21,21 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('ROLE_DOCENTE')]
-class PresentacionActividadController extends AbstractController {
+class PresentacionActividadController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private PresentacionActividadRepository $cr;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(PresentacionActividad::class);
     }
 
     #[Route('/presentacion/actividad', name: 'app_presentacion_actividad')]
-    public function index(Request $request): Response {
+    public function index(Request $request): Response
+    {
 
         $perpage = $request->query->getInt('perpage', 10);
         $page = $request->query->getInt('page', 1);
@@ -42,15 +45,15 @@ class PresentacionActividadController extends AbstractController {
             $perpage = 10;
 
         $listqb = $this->cr->listQueryBuilder(
-                $search !== '' ?
+            $search !== '' ?
                 [
-            'titulo' => $search,
-            'descripcion' => $search,
-            'tipo' => $search,
-            'estado' => $search
+                    'titulo' => $search,
+                    'descripcion' => $search,
+                    'tipo' => $search,
+                    'estado' => $search
                 ] : [],
-                $order,
-                $this->getUser()
+            $order,
+            $this->getUser()
         );
 
         $pager = new Pagerfanta(new QueryAdapter($listqb));
@@ -58,17 +61,18 @@ class PresentacionActividadController extends AbstractController {
         $pager->setCurrentPage($page);
 
         return $this->render('presentacion_actividad/index.html.twig', [
-                    'pager' => $pager,
-                    'order' => $order,
-                    'search' => $search,
-                    'perpageoptions' => [
-                        10, 25, 50, 100
-                    ]
+            'pager' => $pager,
+            'order' => $order,
+            'search' => $search,
+            'perpageoptions' => [
+                10, 25, 50, 100
+            ]
         ]);
     }
 
     #[Route('/presentacion/actividad/nuevo', name: 'app_presentacion_actividad_new')]
-    public function new(Request $request): Response {
+    public function new(Request $request): Response
+    {
         $presactividad = new PresentacionActividad();
         $presactividad->setFecha(new DateTime());
 
@@ -95,12 +99,12 @@ class PresentacionActividadController extends AbstractController {
                 $primerdpa = true;
                 foreach ($detalleactividades as $da) {
                     $detpresact = new DetallePresentacionActividad(
-                            null,
-                            $da->getDato(),
-                            $da->getTipo(),
-                            $da->getRelacion(),
-                            $da->isCorrecto(),
-                            null
+                        null,
+                        $da->getDato(),
+                        $da->getTipo(),
+                        $da->getRelacion(),
+                        $da->isCorrecto(),
+                        null
                     );
                     $this->em->persist($detpresact);
 
@@ -131,8 +135,8 @@ class PresentacionActividadController extends AbstractController {
                 }
             }
             if ($error == '') {
-                $this->addFlash('success', 'Se guardó la actividad correctamente.');
-                return $this->redirectToRoute('app_presentacion_actividad_new');
+                //$this->addFlash('success', 'Se guardó la actividad correctamente.');
+                return $this->redirectToRoute('app_presentacion_actividad_edit', ['id' => $presactividad->getId(), 'modal' => 'true']);
                 //return $this->redirectToRoute('app_actividad_new');
             } else {
                 $this->addFlash('error', $error);
@@ -141,12 +145,111 @@ class PresentacionActividadController extends AbstractController {
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('presentacion_actividad/new.html.twig', [
-                    'form' => $form->createView(),
-                    'nocache' => true
-                        ], $response);
+            'form' => $form->createView(),
+            'nocache' => true
+        ], $response);
     }
 
-    #[Route('/presentacion/actividad/editar/{id}', name: 'app_presentacion_actividad_edit')]
+    #[Route('/presentacion/actividad/panel/{id}/{modal}/{pregunta}', name: 'app_presentacion_actividad_edit')] ///{idasistencia}/{presente}
+    public function edit(int $id, Request $request, string $modal = 'false', string $pregunta = ''): Response //, int $idasistencia = 0, ?bool $presente = null
+    {
+        /*
+        Preparar valores necesarios
+        */
+        //Toma de asistencia
+        $presentacion_actividad = $this->cr->find($id);
+        if (is_null($presentacion_actividad) || $presentacion_actividad->getCurso()->getUsuario() != $this->getUser())
+            throw new AccessDeniedHttpException();
+
+        //Url para compartir la toma de asistencia
+        $code = $presentacion_actividad->getUrlEncoded();
+        $url = $this->generateUrl(
+            'app_asistencia_alumno',
+            ['code' => $code],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        //Lista de detalles de la presentación de actividad (preguntas, conceptos a relacionar, etc.)
+        $lista_detalles_actividad = $presentacion_actividad->getDetallesPresentacionActividad();
+
+        //Pregunta para el usuario, filtrar para solo aceptar los valores válidos
+        $pregunta = (in_array($pregunta, ['anular', 'iniciar', 'finalizar']) ? $pregunta : 'f');
+
+
+        /*
+        Formulario
+        */
+        $form = $this->createForm(PresentacionActividadType::class, $presentacion_actividad, [
+            'usuario' => $this->getUser(),
+            'modify' => true,
+            'pregunta' => $pregunta
+        ]);
+        $form->handleRequest($request);
+
+        //Se envio el form desde alguno de los botones de submit
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            //Determinar que boton se uso, se usan los valores de 
+            //PresentacionActividad::ESTADOS como nombres de los botones
+            $estado = '';
+            foreach (PresentacionActividad::ESTADOS as $e) {
+                if ($form->has($e) && $form->get($e)->isClicked()) {
+                    $estado = $e;
+                }
+            }
+
+            if ($estado != '') {
+                $presentacion_actividad->setEstado($estado);
+                $this->em->persist($presentacion_actividad);
+                $this->em->flush();
+
+                $this->addFlash('success', 'Se ' .
+                    ($estado == PresentacionActividad::ESTADO_ANULADO ? 'Anuló' : ($estado == PresentacionActividad::ESTADO_INICIADO ? 'Inició' : ($estado == PresentacionActividad::ESTADO_FINALIZADO ? 'Finalizó' :
+                        '')))
+                    . ' la presentación de actividad correctamente.');
+                return $this->redirectToRoute(
+                    'app_presentacion_actividad_edit',
+                    [
+                        'id' => $presentacion_actividad->getId(),
+                        'modal' => ($estado == PresentacionActividad::ESTADO_INICIADO ? 'true' : 'f')
+                    ]
+                );
+            }
+        } /*elseif ($idasistencia > 0) {
+            //Turboframes: No se envio form y Docente cambia el estado de asistencia de un alumno
+            $asistencia = $this->ar->find($idasistencia);
+            if (is_null($asistencia) || !($asistencia->getPresentacionActividad() === $tomaasis) || is_null($presente)) {
+                throw new AccessDeniedHttpException();
+            } else {
+                $asistencia->setPresente($presente);
+                $this->em->flush();
+
+                //Solo renderizar el frameasistencia si usamos turboframe
+                if ($request->headers->get('Turbo-Frame')) {
+                    //dump($request->headers->get('Turbo-Frame'));
+                    return $this->render('asistencia/frameasistencia.html.twig', [
+                        'pregunta' => $pregunta,
+                        'tomaasis' => $tomaasis,
+                        'asistencia' => $asistencia,
+                    ]);
+                }
+            }
+        }*/
+
+        //Renderizar página normalmente
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+        return $this->render('presentacion_actividad/edit.html.twig', [
+            'form' => $form->createView(),
+            'url' => $url,
+            'modal' => $modal === 'true',
+            'lista_asistencias' => $lista_detalles_actividad,
+            'pregunta' => $pregunta,
+            'presentacion_actividad' => $presentacion_actividad,
+        ], $response);
+    }
+
+    /*
+    #[Route('/presentacion/actividad/panel/{id}', name: 'app_presentacion_actividad_edit')]
     public function edit(int $id, Request $request): Response {
         $presentacion_actividad = $this->cr->find($id);
 
@@ -275,5 +378,5 @@ class PresentacionActividadController extends AbstractController {
         }
         return $this->redirectToRoute('app_curso');
     }
-
+*/
 }
