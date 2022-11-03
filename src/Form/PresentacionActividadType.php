@@ -32,7 +32,7 @@ class PresentacionActividadType extends AbstractType {
                             'constraints' => [new NotBlank()],
                             //'by_reference' => false,
                             'mapped' => false,
-                            'autocomplete' => true,
+                            'autocomplete' => !$options['modify'],
                             'query_builder' => function (ActividadRepository $er) use ($options) {
                                 return $er->createQueryBuilder('c')
                                 ->innerJoin('c.usuario', 'u')
@@ -91,9 +91,9 @@ class PresentacionActividadType extends AbstractType {
                         'choices' => TomaDeAsistencia::ESTADOS,
                         'disabled' => true,
                         'help_html' => true,
-                        'help' => '<em>Iniciado</em>: la toma de asistencia esta en progreso y los alumnos pueden dar el presente.<br>'
-                        . '<em>Finalizado</em>: finalizo la toma de asistencia y los alumnos ya no pueden dar el presente.<br>'
-                        . '<em>Anulado</em>: finalizo la toma de asistencia y los datos registrados aquí no serán tomados en cuanta al generar informes.<br>'
+                        'help' => '<em>Iniciado</em>: la presentación de la actividad esta en progreso y los alumnos pueden resolverla.<br>'
+                        . '<em>Finalizado</em>: finalizo la presentación y los alumnos ya no resolverla. Se guarda el avance realizado por el alumno hasta el momento.<br>'
+                        . '<em>Anulado</em>: finalizo la presentación y los datos registrados aquí no serán tomados en cuanta al generar informes.<br>'
             ]);
 
             if ($options['pregunta'] == 'anular') {
@@ -113,8 +113,9 @@ class PresentacionActividadType extends AbstractType {
         $resolver->setDefaults([
             'data_class' => PresentacionActividad::class,
             'usuario' => null,
-            'modify' => false,
             'view' => false,
+            'modify' => false,
+            'pregunta' => ''
         ]);
     }
 

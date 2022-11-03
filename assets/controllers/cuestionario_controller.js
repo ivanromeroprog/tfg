@@ -11,7 +11,7 @@ export default class extends Controller {
     connect() {
         //console.log(this.nuevoValue);
         if (this.nuevoValue) {
-            console.log('Nuevo registro, agregar pregunta.')
+            //console.log('Nuevo registro, agregar pregunta.')
             this.agregarpregunta(-1, 1);
         }
     }
@@ -122,7 +122,7 @@ export default class extends Controller {
     //Helpers
     agregarpregunta(pid, pnum) {
         
-        console.log('Agregar pregunta '+ pid + " " + pnum);
+        //console.log('Agregar pregunta '+ pid + " " + pnum);
         
         let ph = document.createElement("div");
         let tmpl = this.preguntaValue;

@@ -5,7 +5,7 @@ export default class extends Controller {
     order: Number
   }
   click(){
-    console.log(this.orderValue);
+    //console.log(this.orderValue);
     let orderel = document.getElementById('order');
     
     if(Number(orderel.value) === this.orderValue)

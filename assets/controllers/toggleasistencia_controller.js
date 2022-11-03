@@ -7,6 +7,6 @@ export default class extends Controller {
     }
 
     change() {
-        console.log(this.idaValue);
+        //console.log(this.idaValue);
     }
 }

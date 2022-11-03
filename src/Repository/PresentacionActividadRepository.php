@@ -2,9 +2,13 @@
 
 namespace App\Repository;
 
+use App\Entity\Alumno;
+use App\Entity\DetallePresentacionActividad;
+use App\Entity\Interaccion;
 use App\Entity\PresentacionActividad;
 use App\Entity\Usuario;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -29,7 +33,7 @@ class PresentacionActividadRepository extends ServiceEntityRepository
         'curso'
         //'estado'
     ];
-        
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, PresentacionActividad::class);
@@ -95,5 +99,53 @@ class PresentacionActividadRepository extends ServiceEntityRepository
     public function list($onlikecriteria = [], $order = 1, $usuario = null)
     {
         return $this->listQueryBuilder($onlikecriteria, $order, $usuario)->getQuery()->getResult();
+    }
+
+    /*
+     3
+
+
+I suggest you to change fetch mode in the specific query, as described here in the doc.
+
+So you can describe your query as follow:
+
+$qb =  $this->createQueryBuilder('item')
+                ->addSelect('groups')->join('item.groups', 'groups'); // Not necessary anymore
+
+        $query = $qb->getQuery();
+        // Describe here all the entity and the association name that you want to fetch eager
+        $query->setFetchMode("YourBundle\\Entity\\Item", "groups", ClassMetadata::FETCH_EAGER);
+        $query->setFetchMode("YourBundle\\Entity\\Groups", "subscriber", ClassMetadata::FETCH_EAGER);
+        $query->setFetchMode("YourBundle\\Entity\\Subscriber", "user", ClassMetadata::FETCH_EAGER);
+        ...
+
+return $qb->->getResult();
+NB:
+
+Changing the fetch mode during a query is only possible for one-to-one and many-to-one relations.
+
+Hope this help
+     */
+    public function findWithDetails($id = null)
+    {
+        $builder = $this->createQueryBuilder('c');
+        $builder->setParameter('id', $id)
+                ->addSelect('d')
+                ->leftJoin('c.detallesPresentacionActividad', 'd')
+                ->addSelect('i')
+                ->leftJoin('d.interacciones', 'i')
+                ->addSelect('a')
+                ->leftJoin('i.alumno', 'a')
+                ->where('c.id = :id');
+        
+        
+        
+        $querry = $builder->getQuery();
+        
+        //dd($querry->getSQL());
+        
+        $querry->setFetchMode(DetallePresentacionActividad::class, "detallesPresentacionActividad", ClassMetadata::FETCH_EAGER);
+        
+        return $querry->getOneOrNullResult();
     }
 }

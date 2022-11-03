@@ -1,6 +1,7 @@
-{#% if (app.session.flashBag|length > 0) %}
-<a id="mensajea" data-controller="scroll" data-scroll-location-value="mensajea"></a>
-{% endif %#}
+{#{app.session.flashbag.peekAll()|length}}
+{% if (app.session.flashbag.peekAll()|length) %}
+<a id="mensajeg" name="mensajeg" data-controller="scroll" data-scroll-location-value="mensajeg"></a>
+{% endif % #}
 {% for message in app.flashes('success') %}
     <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
         {{ message }}

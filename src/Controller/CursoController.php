@@ -2,21 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\Alumno;
 use App\Entity\Curso;
+use App\Entity\Alumno;
 use App\Form\CursoType;
+use Pagerfanta\Pagerfanta;
 use App\Repository\CursoRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use App\Repository\AlumnoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Common\Collections\ArrayCollection;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[IsGranted('ROLE_DOCENTE')]
 class CursoController extends AbstractController
@@ -24,11 +25,14 @@ class CursoController extends AbstractController
 
     private EntityManagerInterface $em;
     private CursoRepository $cr;
+    private AlumnoRepository $ar;
+
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
         $this->cr = $this->em->getRepository(Curso::class);
+        $this->ar = $this->em->getRepository(Alumno::class);
     }
 
     #[Route('/curso', name: 'app_curso')]
@@ -109,6 +113,7 @@ class CursoController extends AbstractController
         $form->handleRequest($request);
 
         //TODO: Validar que el CUA no se repita en la organización
+        //TODO: Agregar la posibilidad de modificar el nombre/cua de un alumno una vez cargado
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('alumno_agregar')->isClicked()) {
                 $data = $request->request->all()['curso'];
@@ -116,7 +121,7 @@ class CursoController extends AbstractController
                 if (
                     strlen($data['alumno_nombre']) < 2 || strlen($data['alumno_apellido']) < 2 || strlen($data['alumno_cua']) < 2
                 ) {
-                    $this->addFlash('warning', 'Completa todos los datos del alumno.');
+                    $this->addFlash('error', 'Completa todos los datos del alumno.');
                 } else {
 
                     $alumno = new Alumno(
@@ -129,9 +134,43 @@ class CursoController extends AbstractController
                     $this->em->persist($alumno);
                     $curso->addAlumno($alumno);
 
-                    $this->addFlash('success-alumnos', 'Se agregó el alumno correctamente.');
+                    $this->addFlash('success', 'Se agregó el alumno correctamente.');
                 }
 
+                $this->em->persist($curso);
+                $this->em->flush();
+                return $this->redirect($request->getUri());
+            } else if ($form->get('alumno_modificar')->isClicked()) {
+                $data = $request->request->all()['curso'];
+
+                //Cargar el alumno a modificar
+                $idalumno = $data['alumno_mod_id'];
+
+
+                if (is_numeric($idalumno)) {
+                    $idalumno = intval($idalumno);
+                    $alumno = $this->ar->find($idalumno);
+
+                    if (
+                        (is_null($alumno)) ||
+                        strlen($data['alumno_mod_nombre']) < 2 ||
+                        strlen($data['alumno_mod_apellido']) < 2 ||
+                        strlen($data['alumno_mod_cua']) < 2
+                    ) {
+                        $this->addFlash('error', 'Completa todos los datos del alumno.');
+                    } else {
+
+                        $alumno->setNombre($data['alumno_mod_nombre']);
+                        $alumno->setApellido($data['alumno_mod_apellido']);
+                        $alumno->setCua($data['alumno_mod_cua']);
+                        $this->em->persist($alumno);
+                        $curso->addAlumno($alumno);
+
+                        $this->addFlash('success', 'Se modificó el alumno correctamente.');
+                    }
+                } else {
+                    $this->addFlash('error', 'Debe seleccionar un alumno para modificar.');
+                }
                 $this->em->persist($curso);
                 $this->em->flush();
                 return $this->redirect($request->getUri());

@@ -62,7 +62,7 @@
     <table class="table table-striped table-sm" id="tabla">
         <thead>
             <tr>
-                <th>Id</th>
+                {# <th>Id</th> #}
                 <th>Apellido y Nombre</th>
                 <th>Presente</th>
                 <th></th>
@@ -72,7 +72,7 @@
             {% if(lista_asistencias|length > 0) %}
                 {% for asistencia in lista_asistencias %}
                     <tr>
-                        <td>{{ asistencia.alumno.Id }}</td>
+                        {# <td>{{ asistencia.alumno.Id }}</td> #}
                         <td>{{ asistencia.alumno.Apellido }}, {{ asistencia.alumno.Nombre }}</td>
                         <td>{# <input type="checkbox" name="l{{loop.index}}" id="l{{loop.index}}" class="form-check-input falserequired"><label for="l{{loop.index}}"></label> #}
                             <div class="form-check form-switch">
@@ -126,7 +126,7 @@
     ('asistencia/' ~ tomaasis.id)
 ]) }}"></div> #}
 
-{# seguro #}
+{# seguro 
 <div data-controller="mercureasistencia" data-mercureasistencia-audio-value="{{ asset('audio/not.wav') }}" data-mercureasistencia-source-value="{{
 mercure(
 ('asistencia/' ~ tomaasis.id),
@@ -134,5 +134,5 @@ mercure(
     subscribe: ('asistencia/' ~ tomaasis.id)
 }
 )
-}}"></div>
+}}"></div> #}
 {% endblock %}

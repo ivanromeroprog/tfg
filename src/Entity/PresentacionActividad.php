@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PresentacionActividadRepository::class)]
 class PresentacionActividad
 {
-        
+
     const ESTADO_INICIADO = 'Iniciado';
     const ESTADO_FINALIZADO = 'Finalizado';
     const ESTADO_ANULADO = 'Anulado';
@@ -45,7 +45,7 @@ class PresentacionActividad
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descripcion = null;
-    
+
     #[ORM\Column(length: 50)]
     private ?string $tipo = null;
 
@@ -177,5 +177,25 @@ class PresentacionActividad
         $this->tipo = $tipo;
 
         return $this;
+    }
+
+    public function getUrlEncoded(): ?string
+    {
+        return $this->base64_url_encode($this->id);
+    }
+
+    static public function urlDecode(string $encoded_url): ?string
+    {
+        return self::base64_url_decode($encoded_url);
+    }
+
+    private function base64_url_encode($input)
+    {
+        return strtr(base64_encode($input), '+/=', '._-');
+    }
+
+    static private function base64_url_decode($input)
+    {
+        return base64_decode(strtr($input, '._-', '+/='));
     }
 }

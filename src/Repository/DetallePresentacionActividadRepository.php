@@ -2,8 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Alumno;
 use App\Entity\DetallePresentacionActividad;
+use App\Entity\Interaccion;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -38,6 +41,7 @@ class DetallePresentacionActividadRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
 
 //    /**
 //     * @return DetallePresentacionActividad[] Returns an array of DetallePresentacionActividad objects
