@@ -59,7 +59,7 @@
 	<h3>Alumnos</h3>
 	<div class="form-text mb-0 help-text">
 		Puede ver la lista de alumnos de este curso y si resuelven correctamente cada uno de los puntos de esta actividad.
-        Puede ver la consgina de cada punto interactuando con el número de actividad.
+        Puede ver las consignas interactuando con el número de punto de la tabla.
 	</div>
 	<table class="table table-striped table-sm" id="tabla">
 		<thead>
@@ -79,7 +79,17 @@
 						<td>{{ alumno.Apellido }},
 							{{ alumno.Nombre }}</td>
 						{% for pregunta in lista_detalles_actividad_mostrar %}
-							<td> - </td>
+							<td id="respuesta_{{ pregunta.Id }}_{{ alumno.Id }}">
+							
+								{% if lista_interacciones[pregunta.Id][alumno.Id] is not defined or lista_interacciones[pregunta.Id][alumno.Id].Correcto is same as null %}
+									<span style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="No completado">⚪</span>
+								{% elseif lista_interacciones[pregunta.Id][alumno.Id].Correcto is same as false %}
+									<span style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="Incorrecto">❌</span>
+								{% elseif lista_interacciones[pregunta.Id][alumno.Id].Correcto is same as true %}
+									<span style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="Correcto">✔️</span>
+								{% endif %}					
+
+							</td>
 						{% endfor %}
 					</tr>
 				{% endfor %}

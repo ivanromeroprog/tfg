@@ -15,26 +15,29 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use function dump;
 
-class LoginAlumnoController extends AbstractController {
+class LoginAlumnoController extends AbstractController
+{
 
     private EntityManagerInterface $em;
     private TomaDeAsistenciaRepository $cr;
     private AlumnoRepository $arepo;
     private Session $session;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
         //$this->arepo = $this->em->getRepository(AlumnoRepository::class);
     }
 
-    #[Route('/l/a/{code}', name: 'app_login_alumno_asistencia')]
-    public function asistencia($code, Request $request): Response {
+    #[Route('/l/{destino}/{code}', name: 'app_login_alumno')]
+    public function asistencia($destino, $code, Request $request): Response
+    {
         $this->session = $request->getSession();
         if (!is_null($this->session->get('alumno', null))) {
             return $this->redirectToRoute('app_asistencia_alumno', ['code' => $code]);
         }
-                
+
         $idtomaasistencia = TomaDeAsistencia::urlDecode($code);
 
         if (is_numeric($idtomaasistencia)) {
@@ -50,10 +53,10 @@ class LoginAlumnoController extends AbstractController {
         }
 
         $curso = $tomaasitencia->getCurso();
-        
+
         $form = $this->createForm(LoginAlumnoType::class, null, ['curso' => $curso]);
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
             //dd($form->get('alumno')->getData()->getCua(), $form->get('cua')->getData(), $form->get('cua')->getData() === $form->get('alumno')->getData()->getCua());
             //dump($this->session->get('alumno'));
@@ -61,19 +64,21 @@ class LoginAlumnoController extends AbstractController {
             if (!is_null($alumno) && $form->get('cua')->getData() === $alumno->getCua() && $alumno->hasCurso($curso)) {
                 $this->session->set('alumno', $alumno);
                 //dd($this->session->get('alumno'));
-                return $this->redirectToRoute('app_asistencia_alumno', ['code' => $code]);
+                if ($destino === 'a')
+                    return $this->redirectToRoute('app_asistencia_alumno', ['code' => $code]);
+                else
+                    return $this->redirectToRoute('app_actividad_alumno', ['code' => $code]);
             } else {
                 $this->session->remove('alumno');
                 $this->addFlash('error', 'Los datos de acceso no son correctos, intentalo nuevamente.');
             }
         }
-        
 
-        
+
+
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('login_alumno/index.html.twig', [
-                    'form' => $form->createView()
+            'form' => $form->createView()
         ], $response);
     }
-
 }
