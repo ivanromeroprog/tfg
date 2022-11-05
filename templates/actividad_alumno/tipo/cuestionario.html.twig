@@ -1,0 +1,6 @@
+<h3>Preguntas</h3>
+<div data-controller="cuestionario" data-cuestionario-pregunta-value="{{ preguntatemplate|escape }}" data-cuestionario-respuesta-value="{{respuestatemplate|escape }}" data-cuestionario-nuevo-value="{{nuevo}}">
+	<div>{% if not view %}<input type="button" value="Agregar Pregunta" data-action="click->cuestionario#agregarpreguntaclick" class="btn btn-success">{% endif %}</div>
+{{detalleshtml|raw}}
+</div>
+<input type="hidden" id="detalle_eliminar" name="detalle[eliminar]" value="{{ detalles_eliminar }}"{% if view %} disabled="disabled"{% endif %}>  
