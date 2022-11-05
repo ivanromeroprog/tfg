@@ -144,7 +144,7 @@ Hope this help
         
         //dd($querry->getSQL());
         
-        $querry->setFetchMode(DetallePresentacionActividad::class, "detallesPresentacionActividad", ClassMetadata::FETCH_EAGER);
+        $querry->setFetchMode(DetallePresentacionActividad::class, "detallesPresentacionActividad"/*, ClassMetadata::FETCH_EAGER*/);
         
         return $querry->getOneOrNullResult();
     }

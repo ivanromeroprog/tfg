@@ -76,8 +76,8 @@
 				{% for alumno in lista_alumnos %}
 					<tr>
 						{# <td>{{ alumno.Id }}</td> #}
-						<td>{{ alumno.Apellido }},
-							{{ alumno.Nombre }}</td>
+						<td><span data-bs-toggle="tooltip" data-bs-placement="top" title="CUA: {{ alumno.Cua }}">{{ alumno.Apellido }},
+							{{ alumno.Nombre }}</span></td>
 						{% for pregunta in lista_detalles_actividad_mostrar %}
 							<td id="respuesta_{{ pregunta.Id }}_{{ alumno.Id }}">
 							

@@ -1,12 +1,23 @@
 {% extends 'base_students.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
 
-{% block title %}Edu-track - Asistencias
+{% block title %}Edu-track - {{presentacionactividad.Titulo}} ({{presentacionactividad.Tipo}})
 {% endblock %}
-{% block bodytitle %}Tomando Asistencia...
+{% block bodytitle %}{{presentacionactividad.Tipo}}
 {% endblock %}
 
 {% block body %}
-    <div class="alert alert-primary m-5 text-center" role="alert">
-<i class="bi bi-clock"></i> Mantenga esta página abierta mientras el docente toma asistencia.
-    </div>
+<h2 class="border-top pt-4">{{presentacionactividad.Titulo}}</h2>
+{{presentacionactividad.Descripcion}}
+
+{% if presentacionactividad.Tipo == "Cuestionario" %}
+        {{ include('actividad_alumno/tipo/cuestionario.html.twig', with_context = true) }}
+{% elseif presentacionactividad.Tipo == "Nube de Palabras" %}
+        {{ include('actividad_alumno/tipo/nube.html.twig', with_context = true) }}
+{% elseif presentacionactividad.Tipo == "Relacionar Conceptos" %}
+        {{ include('actividad_alumno/tipo/relacionar.html.twig', with_context = true) }}
+{% elseif presentacionactividad.Tipo == "Completar Texto" %}
+        {{ include('actividad_alumno/tipo/texto.html.twig', with_context = true) }}
+{% endif %}
+        
 {% endblock %}

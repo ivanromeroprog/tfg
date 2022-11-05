@@ -7,14 +7,11 @@
 
 	{% if tipo == "Cuestionario" %}
 		{{ include('actividad/tipo/cuestionario.html.twig', with_context = true) }}
-	{% endif %}
-	{% if tipo == "Nube de Palabras" %}
+	{% elseif tipo == "Nube de Palabras" %}
 		{{ include('actividad/tipo/nube.html.twig', with_context = true) }}
-	{% endif %}
-		{% if tipo == "Relacionar Conceptos" %}
+	{% elseif tipo == "Relacionar Conceptos" %}
 		{{ include('actividad/tipo/relacionar.html.twig', with_context = true) }}
-	{% endif %}
-		{% if tipo == "Completar Texto" %}
+	{% elseif tipo == "Completar Texto" %}
 		{{ include('actividad/tipo/texto.html.twig', with_context = true) }}
 	{% endif %}
 
