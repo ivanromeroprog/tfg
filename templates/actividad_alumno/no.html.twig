@@ -8,6 +8,6 @@
 {% block body %}
     <div class="alert alert-warning m-5 text-center" role="alert">
 <i class="bi bi-exclamation-diamond display-1"></i> <p>No puedes acceder con este link en este momento.</p>
-<p><a href="{{ path('app_asistencia_alumno',{'code': code}) }}" class="alert-link">¿Quieres reintentar?</a></p>
+<p><a href="{{ path('app_actividad_alumno',{'code': code}) }}" class="alert-link">¿Quieres reintentar?</a></p>
     </div>
 {% endblock %}

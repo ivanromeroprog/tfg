@@ -130,22 +130,22 @@ Hope this help
     {
         $builder = $this->createQueryBuilder('c');
         $builder->setParameter('id', $id)
-                ->addSelect('d')
-                ->leftJoin('c.detallesPresentacionActividad', 'd')
-                ->addSelect('i')
-                ->leftJoin('d.interacciones', 'i')
-                ->addSelect('a')
-                ->leftJoin('i.alumno', 'a')
-                ->where('c.id = :id');
-        
-        
-        
+            ->addSelect('d')
+            ->leftJoin('c.detallesPresentacionActividad', 'd')
+            ->addSelect('i')
+            ->leftJoin('d.interacciones', 'i')
+            ->addSelect('a')
+            ->leftJoin('i.alumno', 'a')
+            ->where('c.id = :id');
+
+
+
         $querry = $builder->getQuery();
-        
+
         //dd($querry->getSQL());
-        
-        $querry->setFetchMode(DetallePresentacionActividad::class, "detallesPresentacionActividad"/*, ClassMetadata::FETCH_EAGER*/);
-        
+
+        //$querry->setFetchMode(DetallePresentacionActividad::class, "detallesPresentacionActividad", ClassMetadata::FETCH_EAGER);
+
         return $querry->getOneOrNullResult();
     }
 }

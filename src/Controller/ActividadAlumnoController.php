@@ -2,42 +2,52 @@
 
 namespace App\Controller;
 
+use Exception;
+use function dump;
 use App\Entity\Actividad;
-use App\Entity\DetalleActividad;
+use App\Entity\Alumno;
 use App\Entity\Interaccion;
-use App\Entity\PresentacionActividad;
-use App\Repository\InteraccionRepository;
 use Doctrine\ORM\EntityManager;
+use App\Entity\DetalleActividad;
+use App\Entity\PresentacionActividad;
+use App\Repository\AlumnoRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Repository\InteraccionRepository;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Mercure\HubInterface;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use function dump;
 
-class ActividadAlumnoController extends AbstractController {
+class ActividadAlumnoController extends AbstractController
+{
 
     private EntityManager $em;
     private InteraccionRepository $ir;
+    private AlumnoRepository $ar;
 
-    public function __construct(EntityManagerInterface $em) {
+    public function __construct(EntityManagerInterface $em)
+    {
         $this->em = $em;
         $this->cr = $this->em->getRepository(PresentacionActividad::class);
         $this->ir = $this->em->getRepository(Interaccion::class);
+        $this->ar = $this->em->getRepository(Alumno::class);
     }
 
     #[Route('/c/{code}', name: 'app_actividad_alumno')]
-    public function index(string $code, Request $request, HubInterface $hub): Response {
+    public function index(string $code, Request $request, HubInterface $hub): Response
+    {
         $presentacionactividad = $this->validarAcceso($code, $request);
         $alumno = $this->obtenerAlumno($request);
-
-        if (is_null($alumno) || is_null($presentacionactividad)) {
+        if (is_null($presentacionactividad)) {
+            return $this->redirectToRoute('app_actividad_alumno_no', ['code' => $code]);
+        } elseif (is_null($alumno)) {
             return $this->redirectToRoute('app_login_alumno', ['destino' => 'c', 'code' => $code]);
         } else {
             if ($presentacionactividad->getTipo() == Actividad::TIPO_CUESTIONARIO) {
@@ -53,9 +63,18 @@ class ActividadAlumnoController extends AbstractController {
             }
         }
     }
+    #[Route('/c/cuestionario/fin/{url}', name: 'app_actividad_alumno_cuestionario_fin')]
+    public function fin(string $url): Response
+    {
+        return $this->render('actividad_alumno/fin.html.twig', [
+            'url' => base64_decode(urldecode($url))
+        ]);
+    }
 
     #[Route('/c/{code}/cuestionario/{pregunta}', name: 'app_actividad_alumno_cuestionario')]
-    public function cuestionario(Request $request, HubInterface $hub, string $code, int $pregunta = 0): Response {
+    public function cuestionario(Request $request, HubInterface $hub, string $code, int $pregunta = 0): Response
+    {
+
         $presentacionactividad = $this->validarAcceso($code, $request);
         $alumno = $this->obtenerAlumno($request);
 
@@ -76,40 +95,51 @@ class ActividadAlumnoController extends AbstractController {
                     $i++;
                     $lista_destalles['preguntas'][$i] = $detalle;
                 } else {
-                    $lista_destalles['respuestas'][$i][] = $detalle;
+                    $lista_destalles['respuestas'][$i][$detalle->getId()] = $detalle;
                 }
             }
+            unset($detalles);
 
             //Si el indice de pregunta pasado no se encuentra, error
-            if ($pregunta < 0 || $pregunta > count($lista_destalles['preguntas']) - 1) {
+            if ($pregunta < 0) {
                 throw new AccessDeniedHttpException();
             }
 
+            if ($pregunta > count($lista_destalles['preguntas']) - 1) {
+                return $this->redirectToRoute('app_actividad_alumno_cuestionario_fin', [
+                    'url' => urlencode(base64_encode(
+                        $this->generateUrl('app_actividad_alumno_cuestionario', ['code' => $code, 'pregunta' => $pregunta - 1])
+                    ))
+                ]);
+            }
+
             //Detalle Presentacion de la Pregunta Actual
-            $preguntadetalle = $lista_destalles['preguntas'][$pregunta];
+            $preguntadetalle_actual = $lista_destalles['preguntas'][$pregunta];
+            //Detalles Presentacion de las respuestas a la Pregunta Actual
+            $respuestasdetalle_actual = $lista_destalles['respuestas'][$pregunta];
 
             /*
              * INTERACCIONES DEL ALUMNO
              */
             //Si existen, Buscar las respuestas correspondientes a la pregunta actual
             $interacciones_respuestas = [];
-            $tmp = $this->ir->findByPregunta($alumno, $preguntadetalle, DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA);
+            $tmp = $this->ir->findByPregunta($alumno, $preguntadetalle_actual, DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA);
             foreach ($tmp as $interaccion) {
                 $interacciones_respuestas[$interaccion->getDetallePresentacionActividad()->getId()] = $interaccion;
             }
-            
+            unset($tmp);
+
 
             /*
              * FORM
              */
-
-            //Preparo las opciones de respuesta y guardo si ya hay respuesta del alumno
+            //Preparo las opciones de respuesta y guardo en marcadas si ya hay respuesta del alumno
             $choices = [];
             $marcadas = [];
             $correctas = 0;
-            foreach ($lista_destalles['respuestas'][$pregunta] as $respuesta) {
+            foreach ($respuestasdetalle_actual as $respuesta) {
                 $choices[$respuesta->getDato()] = $respuesta->getId();
-                if (isset($interacciones_respuestas[$respuesta->getId()])) {
+                if (isset($interacciones_respuestas[$respuesta->getId()]) && !is_null($interacciones_respuestas[$respuesta->getId()]->isCorrecto())) {
                     $marcadas[] = $respuesta->getId();
                 }
                 if ($respuesta->isCorrecto()) {
@@ -120,81 +150,155 @@ class ActividadAlumnoController extends AbstractController {
                 $marcadas[0] = '';
 
             //Armo el form para la pregunta actual
-            $defaultData = ['pregunta' => $preguntadetalle->getDato()];
+            $defaultData = ['pregunta' => $preguntadetalle_actual->getDato()];
             $builder = $this->createFormBuilder($defaultData);
-            $builder->add('pregunta', TextareaType::class,
-                    [
-                        'attr' => ['readonly' => 'readonly'],
-                        'label' => 'Pregunta º' . ($pregunta + 1)
-            ]);
+            $builder->add(
+                'pregunta',
+                TextareaType::class,
+                [
+                    'attr' => ['readonly' => 'readonly'],
+                    'label' => 'Pregunta º' . ($pregunta + 1)
+                ]
+            );
             $builder->add('respuestas', ChoiceType::class, [
                 'choices' => $choices,
                 'multiple' => ($correctas > 1),
                 'expanded' => true,
                 'data' => ($correctas > 1) ? $marcadas : $marcadas[0],
-                            'constraints' => [
-                new NotBlank()
-            ],
+                /*'constraints' => [
+                    new NotBlank()
+                ],*/
+                'required' => false,
+                'placeholder' => false,
+                'choice_attr' => function () {
+                    return ['class' => 'falserequired'];
+                }
             ]);
-            $builder->add('Submit', SubmitType::class,
-                    [
-                        'label' => ($pregunta >= count($lista_destalles['preguntas']) - 1) ? 'Finalizar' : 'Siguiente',
-                        'attr' => ['style' => 'float: right']
-                    ]
+            $builder->add(
+                'Submit',
+                SubmitType::class,
+                [
+                    'label' => ($pregunta >= count($lista_destalles['preguntas']) - 1) ? 'Finalizar' : 'Siguiente',
+                    'attr' => ['style' => 'float: right']
+                ]
             );
+
             $form = $builder->getForm();
             $form->handleRequest($request);
 
             /*
              * FORMULARIO ENVIADO
              */
-            //dump($alumno);
-            //dump($presentacionactividad);
-            //dump($interacciones_respuestas);
-            
             if ($form->isSubmitted() && $form->isValid()) {
                 //dump($form->getData());
 
-                //Si no existe la interaccion con esta pregunta la creamos
-                $interaccion_pregunta = $this->ir->findOneBy(['alumno' => $alumno, 'detallePresentacionActividad' => $preguntadetalle]);
-                if (is_null($interaccion_pregunta)) {
-                    //Si la interaccion de la pregunta no existe, nunca se respondio, crearla
-                    $interaccion_pregunta = new Interaccion(null, $alumno, $preguntadetalle);
-                    $this->em->persist($interaccion_pregunta);
-                }
+                $this->em->getConnection()->beginTransaction(); // suspend auto-commit
+                $error = '';
 
-                //Obtengo las respuestas enviadas por el form
-                $respuestas_form = $form->getData()['respuestas'];
-                if (!is_array($respuestas_form)) {
-                    $respuestas_form = [$respuestas_form];
-                }
+                try {
 
-                //TODO: Insertar/Eliminar usando transaccion
-                //Despues redireccionar a la siguiente pregunta
-                //Comparo las resp del form con las de la db para ver que eliminar/crear
-                $respuestas_db = [];
-                foreach ($interacciones_respuestas as $inter) {
-                    $respuestas_db[] = $inter->getDetallePresentacionActividad()->getId();
-                    if (!in_array($inter->getDetallePresentacionActividad()->getId(), $respuestas_form)) {
-                        dump('no esta ' . $inter->getDetallePresentacionActividad()->getId() . ' borrar');
+                    //Si no existe la interaccion con esta pregunta la creamos
+                    $interaccion_pregunta = $this->ir->findOneBy(['alumno' => $alumno, 'detallePresentacionActividad' => $preguntadetalle_actual]);
+                    if (is_null($interaccion_pregunta)) {
+                        //Si la interaccion de la pregunta no existe, nunca se respondio, crearla
+                        $interaccion_pregunta = new Interaccion(null, $alumno, $preguntadetalle_actual);
+                        $this->em->persist($interaccion_pregunta);
+                    }
+
+                    //Obtengo las respuestas enviadas por el form
+                    $respuestas_form = $form->getData()['respuestas'];
+                    if (!is_array($respuestas_form)) {
+                        $respuestas_form = [$respuestas_form];
+                    }
+
+                    //Comparo las resp del form con las de la db para ver que eliminar/crear
+                    $respuestas_db = [];
+
+                    foreach ($interacciones_respuestas as $inter) {
+
+                        $respuestas_db[] = $inter->getDetallePresentacionActividad()->getId();
+
+                        if (!in_array($inter->getDetallePresentacionActividad()->getId(), $respuestas_form) && !is_null($inter->isCorrecto())) {
+                            //$this->em->remove($inter);
+                            $inter->setCorrecto(null);
+                            //dump('no esta ' . $inter->getDetallePresentacionActividad()->getId() . ' establecer null', $inter);
+                        }
+                    }
+
+                    //dump($alumno);
+
+                    foreach ($respuestas_form as $resp) {
+                        if ($resp == '')
+                            continue;
+
+                        //Si no esta en el array de respiestas db crear nueva
+                        if (!in_array($resp, $respuestas_db)) {
+
+                            $inter = new Interaccion(
+                                null,
+                                $alumno,
+                                $respuestasdetalle_actual[$resp],
+                                $respuestasdetalle_actual[$resp]->isCorrecto()
+                                //si es correcta la respuesta de este detalle pres actividad, es correcta la inter
+                            );
+                            //$this->em->persist($alumno);
+                            $this->em->persist($inter);
+                            $this->em->flush();
+
+                            //->addInteraccion($inter);
+
+                            //dump('no esta ' . $resp . ' insertar', $inter);
+
+                            //Si ya esta solo modificar si es correcta o no
+                        } else {
+                            $interacciones_respuestas[$resp]->setCorrecto($respuestasdetalle_actual[$resp]->isCorrecto());
+                            //dump('esta ' . $resp . ' modificar', $interacciones_respuestas[$resp]);
+                        }
+                    }
+
+                    //Determinar si la pregunta esta respondida correctamente
+                    $todas_correctas = true;
+                    foreach ($respuestasdetalle_actual as $resp => $respuesta) {
+                        if ($respuesta->isCorrecto() && !in_array($resp, $respuestas_form)) {
+                            $todas_correctas = false;
+                            break;
+                        }
+                    }
+                    $interaccion_pregunta->setCorrecto($todas_correctas);
+
+                    // dump($interaccion_pregunta);
+
+                    //throw (new Exception());
+
+                    //Si todo salio bien hago el commit
+                    $this->em->flush();
+                    $this->em->getConnection()->commit();
+                } catch (Exception $e) {
+                    //TODO: quitar detalle de error en DB
+                    $this->em->getConnection()->rollBack();
+                    if ($error == '') {
+                        $error = 'Error al guardar en la base de datos. ' . $e->getMessage() . $e->getLine();
                     }
                 }
-                foreach ($respuestas_form as $resp) {
-                    if (!in_array($resp, $respuestas_db)) {
-                        dump('no esta ' . $resp . ' insertar');
-                    }
+                if ($error == '') {
+                    //Redireccionar a la siguiente pregunta
+                    return $this->redirectToRoute('app_actividad_alumno_cuestionario', ['code' => $code, 'pregunta' => $pregunta + 1]);
+                } else {
+                    $this->addFlash('error', $error);
                 }
             }
+        }
 
-            /*
+
+        /*
               $alumno = $this->session->get('alumno');
               $asistencia = $this->ar->findOneBy(['alumno' => $alumno, 'tomaDeAsistencia' => $tomaasitencia]);
               $asistencia->setPresente(true);
               //$this->em->persist($asistencia);
               $this->em->flush();
              */
-            //inseguro
-            /*
+        //inseguro
+        /*
               $update = new Update(
               'asistencia/' . $tomaasitencia->getId(),
               json_encode([
@@ -203,8 +307,8 @@ class ActividadAlumnoController extends AbstractController {
               ])
               );
              */
-            //Seguro
-            /*
+        //Seguro
+        /*
               $update = new Update(
               'asistencia/' . $tomaasitencia->getId(),
               json_encode([
@@ -216,17 +320,33 @@ class ActividadAlumnoController extends AbstractController {
 
               $hub->publish($update);
              */
-        }
+
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('actividad_alumno/index.html.twig', [
-                    'presentacionactividad' => $presentacionactividad,
-                    'form' => $form->createView(),
+            'presentacionactividad' => $presentacionactividad,
+            'form' => $form->createView(),
             'code' => $code,
-            'preguntaanterior' => $pregunta-1
-                        ], $response);
+            //'fin' => $fin,
+            'preguntaanterior' => $pregunta - 1
+        ], $response);
     }
 
-    private function validarAcceso(string $code, Request $request): PresentacionActividad {
+    #[Route('/noc/{code}', name: 'app_actividad_alumno_no')]
+    public function no(string $code): Response
+    {
+        $idpresentacionactividad = PresentacionActividad::urlDecode($code);
+
+        if (!is_numeric($idpresentacionactividad)) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return $this->render('actividad_alumno/no.html.twig', [
+            'code' => $code,
+        ]);
+    }
+
+    private function validarAcceso(string $code, Request $request): ?PresentacionActividad
+    {
 
         $this->session = $request->getSession();
         //TODO: usar https://github.com/nayzo/NzoUrlEncryptorBundle para encriptar urls
@@ -253,9 +373,15 @@ class ActividadAlumnoController extends AbstractController {
         return $presentacionactividad;
     }
 
-    private function obtenerAlumno($request) {
+    private function obtenerAlumno($request)
+    {
         $this->session = $request->getSession();
-        return $this->session->get('alumno', null);
+        $alumno = $this->session->get('alumno', null);
+        return
+            is_null($alumno)
+            ?
+            null
+            :
+            $this->ar->find($alumno->getId());
     }
-
 }

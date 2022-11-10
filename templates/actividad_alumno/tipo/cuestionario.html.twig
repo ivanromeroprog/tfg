@@ -1,8 +1,15 @@
 <div class="mt-4 border-top pt-1">
-{{ form(form) }}
+	{{ include('alert.html.twig', with_context = true) }}
+
+        <div data-controller="cuestionarioalumno">
+            {{ form(form) }}
+        </div>
+
     {% if preguntaanterior >= 0 %}
         <a href="{{ path('app_actividad_alumno_cuestionario', {'code': code, 'pregunta': preguntaanterior}) }}" class="btn btn-secondary">Volver</a>
     {% else %}
         <div style="height: 35px"></div>
     {% endif %}
+
+
 </div>

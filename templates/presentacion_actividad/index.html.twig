@@ -44,7 +44,7 @@
                 data-controller="orderheaders">
                 <th class="canorder">Id</th>
                 <th class="canorder">Título</th>
-                <th class="canorder">Descripción</th>
+                <th class="d-none d-md-table-cell" class="canorder">Descripción</th>
                 <th class="canorder">Tipo</th>
                 <th class="canorder">Estado</th>
                 <th class="canorder">Fecha</th>
@@ -58,7 +58,7 @@
                     <tr>
                         <td>{{ presentacion_actividad.Id }}</td>
                         <td>{{ presentacion_actividad.Titulo }}</td>
-                        <td>{{ presentacion_actividad.Descripcion|u.truncate(15, '...') }}</td>
+                        <td class="d-none d-md-table-cell">{{ presentacion_actividad.Descripcion|u.truncate(15, '...') }}</td>
                         <td>{{ presentacion_actividad.Tipo }}</td>
                         <td>{{ presentacion_actividad.Estado }}</td>
                         <td>{{ presentacion_actividad.Fecha|date("d/m/Y") }}</td>

@@ -113,7 +113,6 @@ class CursoController extends AbstractController
         $form->handleRequest($request);
 
         //TODO: Validar que el CUA no se repita en la organización
-        //TODO: Agregar la posibilidad de modificar el nombre/cua de un alumno una vez cargado
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('alumno_agregar')->isClicked()) {
                 $data = $request->request->all()['curso'];

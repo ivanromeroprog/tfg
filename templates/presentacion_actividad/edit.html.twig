@@ -53,8 +53,10 @@
 		<div class="col-sm">{{ form_row(form.curso) }}</div>
 		<div class="col-sm">{{ form_row(form.fecha) }}</div>
 	</div>
-
-	{{ form_row(form.actividad) }}
+	<div class="row">
+		<div class="col-sm">{{ form_row(form.titulo) }}</div>
+		<div class="col-sm">{{ form_row(form.tipo) }}</div>
+	</div>
 	{{ form_row(form.estado) }}
 	<h3>Alumnos</h3>
 	<div class="form-text mb-0 help-text">
@@ -67,7 +69,7 @@
 				{# <th>Id</th> #}
 				<th>Apellido y Nombre</th>
 				{% for pregunta in lista_detalles_actividad_mostrar %}
-					<th><span style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ pregunta.dato }}">.{{ loop.index }}</span> </th>
+					<th><span style="cursor: help;" data-bs-toggle="tooltip" title="{{ pregunta.dato }}">.{{ loop.index }}</span> </th>
 				{% endfor %}
 			</tr>
 		</thead>
@@ -106,7 +108,7 @@
 
 			¿Está seguro que quiere
 			{{ pregunta }}
-			este proceso de toma de asistencia?
+			esta presentación de actividad?
 		</div>
 	{% endif %}
 	{{ form_rest(form) }}
@@ -118,25 +120,25 @@
 
 			{% if presentacion_actividad.estado != 'Anulado' %}
 				<div class="col text-center">
-					<a href="{{ path('app_asistencia_edit',{'id':presentacion_actividad.id,'modal':'f','pregunta':'anular'}) }}" class="btn btn-danger">Anular</a>
+					<a href="{{ path('app_presentacion_actividad_edit',{'id':presentacion_actividad.id,'modal':'f','pregunta':'anular'}) }}" class="btn btn-danger">Anular</a>
 				</div>
 			{% endif %}
 
 			{% if presentacion_actividad.estado != 'Iniciado' %}
 				<div class="col{{ presentacion_actividad.estado == 'Finalizado' ? ' text-end' : ' text-center' }}">
-					<a href="{{ path('app_asistencia_edit',{'id':presentacion_actividad.id,'modal':'f','pregunta':'iniciar'}) }}" class="btn btn-success">Iniciar</a>
+					<a href="{{ path('app_presentacion_actividad_edit',{'id':presentacion_actividad.id,'modal':'f','pregunta':'iniciar'}) }}" class="btn btn-success">Iniciar</a>
 				</div>
 			{% endif %}
 
 			{% if presentacion_actividad.estado != 'Finalizado' %}
 				<div class="col text-end">
-					<a href="{{ path('app_asistencia_edit',{'id':presentacion_actividad.id,'modal':'f','pregunta':'finalizar'}) }}" class="btn btn-primary">Finalizar</a>
+					<a href="{{ path('app_presentacion_actividad_edit',{'id':presentacion_actividad.id,'modal':'f','pregunta':'finalizar'}) }}" class="btn btn-primary">Finalizar</a>
 				</div>
 			{% endif %}
 		</div>
 	{% else %}
 
-		<a href="{{ path('app_asistencia_edit',{'id':presentacion_actividad.id}) }}" class="btn btn-secondary">Cancelar</a>
+		<a href="{{ path('app_presentacion_actividad_edit',{'id':presentacion_actividad.id}) }}" class="btn btn-secondary">Cancelar</a>
 	{% endif %}
 
 

@@ -158,13 +158,10 @@ class PresentacionActividadController extends AbstractController
         /*
           Preparar valores necesarios
          */
-        //Toma de asistencia
-        //TODO: reemplazar con PresentacionActividadRepository::findWithDetails
         $presentacion_actividad = $this->cr->findWithDetails($id);
         if (is_null($presentacion_actividad) || $presentacion_actividad->getCurso()->getUsuario() != $this->getUser())
             throw new AccessDeniedHttpException();
 
-        //Url para compartir la toma de asistencia
         $code = $presentacion_actividad->getUrlEncoded();
         $url = $this->generateUrl(
             'app_actividad_alumno', //TODO: reemplazar con actividad_alumno

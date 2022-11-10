@@ -28,10 +28,12 @@ window.Swal = require('sweetalert2');
 
 //Eventos
 document.addEventListener('turbo:load', function () {
-  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
+  let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl, {boundary: document.body});
+    
   })
+  //console.log(tooltipList);
 });
 
 
@@ -48,6 +50,26 @@ window.PreguntarEliminar = function (texto, callBackF) {
     cancelButtonColor: '#6c757d',
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown animate__faster'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp animate__faster'
+    }
+  }).then((result) => {callBackF(result)})
+}
+
+window.PreguntarSiNo= function (texto, callBackF) {
+  Swal.fire({
+    title: '¿Está seguro?',
+    text: texto,
+    //icon: 'warning',
+    focusCancel: true,
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí',
+    cancelButtonText: 'No',
     showClass: {
       popup: 'animate__animated animate__fadeInDown animate__faster'
     },

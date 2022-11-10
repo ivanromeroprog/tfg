@@ -30,7 +30,8 @@ class Alumno
     #[ORM\OneToMany(mappedBy: 'alumno', targetEntity: Asistencia::class)]
     private Collection $asistencias;
 
-    public function __construct(?int $id = null, ?string $nombre = null, ?string $apellido = null, ?string $cua = null) {
+    public function __construct(?int $id = null, ?string $nombre = null, ?string $apellido = null, ?string $cua = null)
+    {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -96,8 +97,9 @@ class Alumno
 
         return $this;
     }
-    
-    public function hasCurso(Curso $curso): bool{
+
+    public function hasCurso(Curso $curso): bool
+    {
         return $this->cursos->contains($curso);
     }
 
@@ -107,9 +109,10 @@ class Alumno
 
         return $this;
     }
-    
-    public function __toString() {
-        return $this->apellido . ', ' . $this->nombre . ' ('. $this->cua .')';
+
+    public function __toString()
+    {
+        return $this->apellido . ', ' . $this->nombre . ' (' . $this->cua . ')';
     }
 
     /**

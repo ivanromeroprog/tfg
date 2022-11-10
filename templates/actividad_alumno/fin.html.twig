@@ -1,0 +1,17 @@
+{% extends 'base_students.html.twig' %}
+
+{% block title %}Edu-track
+{% endblock %}
+{% block bodytitle %}Actividad Finalizada
+{% endblock %}
+
+{% block body %}
+	<div class="alert alert-primary m-5 text-center" role="alert">
+		<i class="bi bi-check-lg"></i>
+		Finalizó la actividad.
+	</div>
+	<div class="text-center">
+		<a href="{{ url }}" class="btn btn-secondary">Volver a la actividad</a>
+	</div>
+
+{% endblock %}

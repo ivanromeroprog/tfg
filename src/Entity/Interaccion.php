@@ -23,13 +23,13 @@ class Interaccion
 
     #[ORM\Column(nullable: true)]
     private ?bool $correcto = null;
-    
+
     public function __construct(
-            ?int $id=null,
-            ?Alumno $alumno=null,
-            ?DetallePresentacionActividad $detallePresentacionActividad=null,
-            ?bool $correcto=null
-           ) {
+        ?int $id = null,
+        ?Alumno $alumno = null,
+        ?DetallePresentacionActividad $detallePresentacionActividad = null,
+        ?bool $correcto = null
+    ) {
         $this->id = $id;
         $this->alumno = $alumno;
         $this->detallePresentacionActividad = $detallePresentacionActividad;
@@ -70,7 +70,7 @@ class Interaccion
         return $this->correcto;
     }
 
-    public function setCorrecto(bool $correcto): self
+    public function setCorrecto(?bool $correcto): self
     {
         $this->correcto = $correcto;
 
