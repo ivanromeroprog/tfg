@@ -49,6 +49,7 @@ class ActividadType extends AbstractType
             $submitname = 'siguiente';
         } else {
 
+
             //Agregar un elemento invisible para mostrar el deshabilitado
             $builder->add('tipofake', TextType::class, ['label' => 'Tipo', 'disabled' => true, 'mapped' => false, 'data' => $options['tipo']]);
             $builder->add('tipo', HiddenType::class, ['label' => 'Tipo', 'disabled' => $options['view']]);
@@ -57,7 +58,7 @@ class ActividadType extends AbstractType
             $submitname = 'guardar';
         }
 
-        if (!$options['view']) {
+        if (!$options['view'] && (is_null($options['tipo']) || $options['tipo'] == 'Cuestionario')) { //HACK: no mostrar el boton si no esta implementado el tipo
             $builder->add($submitname, SubmitType::class, [
                 'label' => $submitlabel,
                 'attr' => [

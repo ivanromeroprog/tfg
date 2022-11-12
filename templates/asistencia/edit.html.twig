@@ -73,7 +73,11 @@
                 {% for asistencia in lista_asistencias %}
                     <tr>
                         {# <td>{{ asistencia.alumno.Id }}</td> #}
-                        <td>{{ asistencia.alumno.Apellido }}, {{ asistencia.alumno.Nombre }}</td>
+                        <td>
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="CUA: {{ asistencia.alumno.Cua }}">
+                        {{ asistencia.alumno.Apellido }}, {{ asistencia.alumno.Nombre }}
+                        </span>
+                        </td>
                         <td>{# <input type="checkbox" name="l{{loop.index}}" id="l{{loop.index}}" class="form-check-input falserequired"><label for="l{{loop.index}}"></label> #}
                             <div class="form-check form-switch">
                                 {{ include('asistencia/frameasistencia.html.twig', with_context = true) }}
