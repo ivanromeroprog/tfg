@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use function dump;
+
+use App\Entity\Alumno;
 use App\Entity\Asistencia;
 use App\Entity\TomaDeAsistencia;
 use App\Repository\AlumnoRepository;
@@ -65,7 +67,18 @@ class AsistenciaAlumnoController extends AbstractController
         if (!is_null($this->session->get('alumno', null))) {
             $alumno = $this->session->get('alumno');
             $asistencia = $this->ar->findOneBy(['alumno' => $alumno, 'tomaDeAsistencia' => $tomaasitencia]);
-            $asistencia->setPresente(true);
+
+            if (is_null($asistencia)) {
+
+                $alumno = $this->em->getRepository(Alumno::class)->find($alumno->getId());
+                $asistencia = new Asistencia(null, $alumno, true, $tomaasitencia);
+
+                $this->em->persist($asistencia);
+            } else {
+                $asistencia->setPresente(true);
+            }
+
+
             //$this->em->persist($asistencia);
             $this->em->flush();
 

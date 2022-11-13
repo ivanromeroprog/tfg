@@ -18,6 +18,20 @@ export default class extends Controller {
             //console.log(JSON.parse(event.data));
             let data = JSON.parse(event.data);
             let frame = document.getElementById('frameasistencia_' + data.id);
+
+            if(!frame){
+                audiof.volume = 0.2
+                audiof.play();
+                
+                let loc = window.location.toString();
+                let re = /\/true$/;
+                loc = loc.replace(re,'');
+
+                Turbo.visit(loc, { action: 'replace' });
+                
+                return;
+            }
+
             let ael = frame.getElementsByTagName('a')[0];
             let spanno = frame.getElementsByClassName('nolink')[0];
             let spansi = frame.getElementsByClassName('silink')[0];

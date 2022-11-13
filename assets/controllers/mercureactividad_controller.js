@@ -18,11 +18,24 @@ export default class extends Controller {
             console.log(JSON.parse(event.data));
             let data = JSON.parse(event.data);
             let name = 'respuesta_' + data.idpregunta + '_' + data.idalumno;
-            console.log(name);
+            //console.log(name);
             let td = document.getElementById(name);
-            console.log(td);
-            let span = td.getElementsByTagName('span')[0];
+            //console.log(td);
 
+            if(!td){
+                audiof.volume = 0.2
+                audiof.play();
+                
+                let loc = window.location.toString();
+                let re = /\/true$/;
+                loc = loc.replace(re,'');
+
+                Turbo.visit(loc, { action: 'replace' });
+                
+                return;
+            }
+
+            let span = td.getElementsByTagName('span')[0];
 
             if (data.correcto) {
                 span.innerHTML = '✔️';

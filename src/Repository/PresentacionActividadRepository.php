@@ -136,7 +136,8 @@ Hope this help
             ->leftJoin('d.interacciones', 'i')
             ->addSelect('a')
             ->leftJoin('i.alumno', 'a')
-            ->where('c.id = :id');
+            ->where('c.id = :id')
+            ->orderBy('a.apellido', 'ASC');
 
 
 

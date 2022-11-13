@@ -2,18 +2,19 @@
 
 namespace App\Controller;
 
-use App\Entity\TomaDeAsistencia;
-use App\Form\LoginAlumnoType;
-use App\Repository\AlumnoRepository;
-use App\Repository\TomaDeAsistenciaRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 use function dump;
+use App\Form\LoginAlumnoType;
+use App\Entity\TomaDeAsistencia;
+use App\Repository\AlumnoRepository;
+use App\Entity\PresentacionActividad;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use App\Repository\TomaDeAsistenciaRepository;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class LoginAlumnoController extends AbstractController
 {
@@ -27,32 +28,60 @@ class LoginAlumnoController extends AbstractController
     {
         $this->em = $em;
         $this->cr = $this->em->getRepository(TomaDeAsistencia::class);
-        //$this->arepo = $this->em->getRepository(AlumnoRepository::class);
+        $this->pa = $this->em->getRepository(PresentacionActividad::class);
     }
 
     #[Route('/l/{destino}/{code}', name: 'app_login_alumno')]
     public function asistencia($destino, $code, Request $request): Response
     {
         $this->session = $request->getSession();
-        if (!is_null($this->session->get('alumno', null))) {
-            return $this->redirectToRoute('app_asistencia_alumno', ['code' => $code]);
-        }
+        if ($destino == 'a') {
 
-        $idtomaasistencia = TomaDeAsistencia::urlDecode($code);
+            if (!is_null($this->session->get('alumno', null))) {
+                return $this->redirectToRoute('app_asistencia_alumno', ['code' => $code]);
+            }
 
-        if (is_numeric($idtomaasistencia)) {
-            $idtomaasistencia = intval($idtomaasistencia);
+            $idtomaasistencia = TomaDeAsistencia::urlDecode($code);
+
+            if (is_numeric($idtomaasistencia)) {
+                $idtomaasistencia = intval($idtomaasistencia);
+            } else {
+                throw new AccessDeniedHttpException();
+            }
+
+            $tomaasitencia = $this->cr->find($idtomaasistencia);
+            if (is_null($tomaasitencia)) {
+                $this->session->remove('alumno');
+                throw new AccessDeniedHttpException();
+            } elseif ($tomaasitencia->getEstado() != TomaDeAsistencia::ESTADO_INICIADO) {
+                return $this->redirectToRoute('app_asistencia_alumno_no', ['code' => $code]);
+            }
+
+            $curso = $tomaasitencia->getCurso();
         } else {
-            throw new AccessDeniedHttpException();
-        }
+            if (!is_null($this->session->get('alumno', null))) {
+                return $this->redirectToRoute('app_actividad_alumno', ['code' => $code]);
+            }
 
-        $tomaasitencia = $this->cr->find($idtomaasistencia);
-        if (is_null($tomaasitencia) || $tomaasitencia->getEstado() != TomaDeAsistencia::ESTADO_INICIADO) {
-            $this->session->remove('alumno');
-            throw new AccessDeniedHttpException();
-        }
+            $idpresentacionactividad = PresentacionActividad::urlDecode($code);
 
-        $curso = $tomaasitencia->getCurso();
+            if (is_numeric($idpresentacionactividad)) {
+                $idpresentacionactividad = intval($idpresentacionactividad);
+            } else {
+                $this->session->remove('alumno');
+                throw new AccessDeniedHttpException();
+            }
+
+            $presentacionactividad = $this->pa->find($idpresentacionactividad);
+            if (is_null($presentacionactividad)) {
+                $this->session->remove('alumno');
+                throw new AccessDeniedHttpException();
+            } elseif ($presentacionactividad->getEstado() != PresentacionActividad::ESTADO_INICIADO) {
+                return $this->redirectToRoute('app_actividad_alumno_no', ['code' => $code]);
+            }
+
+            $curso = $presentacionactividad->getCurso();
+        }
 
         $form = $this->createForm(LoginAlumnoType::class, null, ['curso' => $curso]);
         $form->handleRequest($request);
