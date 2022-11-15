@@ -162,7 +162,7 @@ class PresentacionActividadController extends AbstractController
         if (is_null($presentacion_actividad) || $presentacion_actividad->getCurso()->getUsuario() != $this->getUser())
             throw new AccessDeniedHttpException();
 
-        dump($presentacion_actividad);
+        //dump($presentacion_actividad);
 
         $code = $presentacion_actividad->getUrlEncoded();
         $url = $this->generateUrl(
