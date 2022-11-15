@@ -137,9 +137,11 @@ Hope this help
             ->addSelect('a')
             ->leftJoin('i.alumno', 'a')
             ->where('c.id = :id')
-            ->orderBy('a.apellido', 'ASC');
 
 
+            ->addOrderBy('d.relacion', 'ASC')
+            ->addOrderBy('d.id', 'ASC')
+            ->addOrderBy('a.apellido', 'ASC');
 
         $querry = $builder->getQuery();
 

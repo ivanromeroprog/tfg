@@ -50,7 +50,7 @@ class PresentacionActividad
     private ?string $tipo = null;
 
     #[ORM\OneToMany(mappedBy: 'presentacionActividad', targetEntity: DetallePresentacionActividad::class, orphanRemoval: true)]
-    #[ORM\OrderBy(['relacion'=>'ASC','id'=>'ASC'])]
+    //#[ORM\OrderBy(['relacion'=>'ASC','id'=>'ASC'])]
     private Collection $detallesPresentacionActividad;
 
     public function __construct()
