@@ -54,6 +54,7 @@ class Actividad
     private ?Usuario $usuario = null;
 
     #[ORM\OneToMany(mappedBy: 'actividad', targetEntity: DetalleActividad::class, orphanRemoval: true)]
+    #[ORM\OrderBy(['relacion' => 'ASC', 'id' => 'ASC'])]
     private Collection $detallesactividad;
 
     public function __construct()
@@ -158,8 +159,9 @@ class Actividad
 
         return $this;
     }
-    
-    public function __toString() {
-        return $this->getTitulo(). ' (' . $this->getTipo() . ')';
+
+    public function __toString()
+    {
+        return $this->getTitulo() . ' (' . $this->getTipo() . ')';
     }
 }

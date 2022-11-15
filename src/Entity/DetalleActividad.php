@@ -11,7 +11,7 @@ class DetalleActividad
 {
     const TIPO_CUESTIONARIO_PREGUNTA = 'Pregunta';
     const TIPO_CUESTIONARIO_RESPUESTA = 'Respuesta';
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -33,7 +33,8 @@ class DetalleActividad
     #[ORM\JoinColumn(nullable: false)]
     private ?Actividad $actividad = null;
 
-    public function __construct(?int $id = null, ?string $dato = null, ?string $tipo = null, ?int $relacion = null, ?bool $correcto = null, ?Actividad $actividad = null) {
+    public function __construct(?int $id = null, ?string $dato = null, ?string $tipo = null, ?int $relacion = null, ?bool $correcto = null, ?Actividad $actividad = null)
+    {
         $this->id = $id;
         $this->dato = $dato;
         $this->tipo = $tipo;
@@ -42,7 +43,7 @@ class DetalleActividad
         $this->actividad = $actividad;
     }
 
-        public function getId(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
