@@ -18,9 +18,10 @@ class Actividad
     const TIPO_COMPLETAR_TEXTO = 'Completar Texto';
     const TIPOS = [
         self::TIPO_CUESTIONARIO => self::TIPO_CUESTIONARIO,
-        self::TIPO_NUBE_DE_PALABRAS => self::TIPO_NUBE_DE_PALABRAS,
-        self::TIPO_RELACIONAR_CONCEPTOS => self::TIPO_RELACIONAR_CONCEPTOS,
-        self::TIPO_COMPLETAR_TEXTO => self::TIPO_COMPLETAR_TEXTO,
+        //HACK: solo dejar tipos implementados
+        //self::TIPO_NUBE_DE_PALABRAS => self::TIPO_NUBE_DE_PALABRAS,
+        //self::TIPO_RELACIONAR_CONCEPTOS => self::TIPO_RELACIONAR_CONCEPTOS,
+        //self::TIPO_COMPLETAR_TEXTO => self::TIPO_COMPLETAR_TEXTO,
     ];
     /*
     const ESTADO_INICIADO = 'Iniciado';

@@ -12,14 +12,17 @@ export default class extends Controller {
         //inseguro
         //this.es = new EventSource(this.sourceValue);
         //seguro
-        this.es = new EventSource(this.sourceValue,{withCredentials: true});
+        this.es = new EventSource(this.sourceValue, { withCredentials: true });
 
         this.es.onmessage = event => {
-            //console.log(JSON.parse(event.data));
+            console.log(JSON.parse(event.data));
             let data = JSON.parse(event.data);
-            let frame = document.getElementById('frameasistencia_' + data.id);
+            let name = 'respuesta_' + data.idpregunta + '_' + data.idalumno;
+            //console.log(name);
+            let td = document.getElementById(name);
+            //console.log(td);
 
-            if(!frame){
+            if(!td){
                 audiof.volume = 0.2
                 audiof.play();
                 
@@ -32,6 +35,25 @@ export default class extends Controller {
                 return;
             }
 
+            let span = td.getElementsByTagName('span')[0];
+
+            if (data.correcto) {
+                span.innerHTML = '✔️';
+                span.setAttribute('title', 'Correcto');
+            }
+            else {
+                span.innerHTML = '❌';
+                span.setAttribute('title', 'Incorrecto');
+            }
+            animateCSS.animateCSS(span, 'flash');
+            audiof.volume = 0.2
+            audiof.play();
+            
+            new bootstrap.Tooltip(span, {boundary: document.body});
+
+            /*
+            let data = JSON.parse(event.data);
+            let frame = document.getElementById('frameasistencia_' + data.id);
             let ael = frame.getElementsByTagName('a')[0];
             let spanno = frame.getElementsByClassName('nolink')[0];
             let spansi = frame.getElementsByClassName('silink')[0];
@@ -50,6 +72,8 @@ export default class extends Controller {
                 spanno.setAttribute('class', 'nolink');
                 spansi.setAttribute('class', 'silink d-none');
             }
+            */
+
         }
     }
     disconnect() {

@@ -116,11 +116,16 @@ class CursoController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('alumno_agregar')->isClicked()) {
                 $data = $request->request->all()['curso'];
+                $cuacheck = $this->ar->checkCUA($curso->getOrganizacion(), $data['alumno_cua']);
 
                 if (
                     strlen($data['alumno_nombre']) < 2 || strlen($data['alumno_apellido']) < 2 || strlen($data['alumno_cua']) < 2
                 ) {
                     $this->addFlash('error', 'Completa todos los datos del alumno.');
+                } elseif (
+                    !is_null($cuacheck)
+                ) {
+                    $this->addFlash('error', 'El CUA ingresado ya existe en la organización de este curso.');
                 } else {
 
                     $alumno = new Alumno(
@@ -144,7 +149,7 @@ class CursoController extends AbstractController
 
                 //Cargar el alumno a modificar
                 $idalumno = $data['alumno_mod_id'];
-
+                $cuacheck = $this->ar->checkCUA($curso->getOrganizacion(), $data['alumno_cua']);
 
                 if (is_numeric($idalumno)) {
                     $idalumno = intval($idalumno);
@@ -157,6 +162,10 @@ class CursoController extends AbstractController
                         strlen($data['alumno_mod_cua']) < 2
                     ) {
                         $this->addFlash('error', 'Completa todos los datos del alumno.');
+                    } elseif (
+                        !is_null($cuacheck) && $cuacheck->getId() != $idalumno
+                    ) {
+                        $this->addFlash('error', 'El CUA ingresado ya existe en la organización de este curso.');
                     } else {
 
                         $alumno->setNombre($data['alumno_mod_nombre']);

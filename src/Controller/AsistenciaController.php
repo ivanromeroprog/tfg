@@ -130,7 +130,7 @@ class AsistenciaController extends AbstractController
         );
 
         //Lista de asistencias de alumnos de esta toma de asistencia
-        $lista_asistencias = $tomaasis->getAsistencias();
+        $lista_asistencias = $this->ar->findSorted($tomaasis);
 
         //Pregunta para el usuario, filtrar para solo aceptar los valores válidos
         $pregunta = (in_array($pregunta, ['anular', 'iniciar', 'finalizar']) ? $pregunta : 'f');

@@ -4,13 +4,15 @@ namespace App\Controller;
 
 use Exception;
 use function dump;
-use App\Entity\Actividad;
 use App\Entity\Alumno;
+use App\Entity\Actividad;
 use App\Entity\Interaccion;
 use Doctrine\ORM\EntityManager;
 use App\Entity\DetalleActividad;
-use App\Entity\PresentacionActividad;
+use Symfony\Component\Form\Form;
 use App\Repository\AlumnoRepository;
+use App\Entity\PresentacionActividad;
+use Symfony\Component\Mercure\Update;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\InteraccionRepository;
 use Symfony\Component\Mercure\HubInterface;
@@ -22,7 +24,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Form;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ActividadAlumnoController extends AbstractController
@@ -270,6 +271,36 @@ class ActividadAlumnoController extends AbstractController
 
                     //throw (new Exception());
 
+                    //Mercure
+                    //inseguro
+                    /*
+              $update = new Update(
+              'asistencia/' . $tomaasitencia->getId(),
+              json_encode([
+              'id' => $asistencia->getId(),
+              'estado' => $asistencia->isPresente()
+              ])
+              );
+             */
+                    //Seguro
+
+                    $update = new Update(
+                        'actividad/' . $presentacionactividad->getId(),
+                        json_encode([
+                            'idpregunta' => $preguntadetalle_actual->getId(),
+                            'idalumno' => $alumno->getId(),
+                            'correcto' => $interaccion_pregunta->isCorrecto()
+                        ]),
+                        true
+                    );
+
+                    $hub->publish($update);
+
+                    // dump('actividad/' . $presentacionactividad->getId(), json_encode([
+                    //     'id' => $interaccion_pregunta->getId(),
+                    //     'estado' => $interaccion_pregunta->isCorrecto()
+                    // ]));
+
                     //Si todo salio bien hago el commit
                     $this->em->flush();
                     $this->em->getConnection()->commit();
@@ -288,38 +319,6 @@ class ActividadAlumnoController extends AbstractController
                 }
             }
         }
-
-
-        /*
-              $alumno = $this->session->get('alumno');
-              $asistencia = $this->ar->findOneBy(['alumno' => $alumno, 'tomaDeAsistencia' => $tomaasitencia]);
-              $asistencia->setPresente(true);
-              //$this->em->persist($asistencia);
-              $this->em->flush();
-             */
-        //inseguro
-        /*
-              $update = new Update(
-              'asistencia/' . $tomaasitencia->getId(),
-              json_encode([
-              'id' => $asistencia->getId(),
-              'estado' => $asistencia->isPresente()
-              ])
-              );
-             */
-        //Seguro
-        /*
-              $update = new Update(
-              'asistencia/' . $tomaasitencia->getId(),
-              json_encode([
-              'id' => $asistencia->getId(),
-              'estado' => $asistencia->isPresente()
-              ]),
-              true
-              );
-
-              $hub->publish($update);
-             */
 
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('actividad_alumno/index.html.twig', [
