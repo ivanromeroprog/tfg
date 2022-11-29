@@ -1,0 +1,28 @@
+{% extends 'base_users.html.twig' %}
+
+{% block title %}Edu-track - Reportes
+{% endblock %}
+{% block bodytitle %}Mi Cuenta
+{% endblock %}
+
+{% block body %}
+	<h3>Reportes de Rendimiento</h3>
+	<div class="row mb-5">
+
+		<div class="col d-flex justify-content-center">
+			<a href="{{ path('app_reporte_alumno') }}" class="btn btn-primary">Por alumno</a>
+		</div>
+		<div class="col d-flex justify-content-center">
+			<a href="#" class="btn btn-primary disabled">Promedio por Curso</a>
+		</div>
+		<div class="col d-flex justify-content-center">
+			<a href="#" class="btn btn-primary disabled">Promedio General</a>
+		</div>
+	</div>
+	<div class="row">
+		<h3>Reportes de Asistencia</h3>
+		<div class="col d-flex justify-content-center">
+			<a href="#" class="btn btn-primary disabled">Por Curso</a>
+		</div>
+	</div>
+{% endblock %}

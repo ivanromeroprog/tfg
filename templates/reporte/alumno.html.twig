@@ -1,0 +1,25 @@
+{% extends 'base_users.html.twig' %}
+{% form_theme form 'bootstrap_5_horizontal_layout.html.twig' %}
+
+{% block title %}Edu-track - Reportes
+{% endblock %}
+{% block bodytitle %}Reporte de Rendimiento por Alumno
+{% endblock %}
+
+{% block body %}
+{{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <div class="row">
+        <div class="col-md-5">{{ form_row(form.id_curso) }}</div>
+        <div class="col-md-5">{{ form_row(form.id_alumno) }}</div>
+        <div class="col-md-2">{{ form_row(form.submit)}}</div>
+    </div>
+    
+    
+    
+{{ form_end(form) }}
+
+{{ render_chart(chart) }}
+{% endblock %}
+

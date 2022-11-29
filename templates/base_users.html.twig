@@ -1,66 +1,71 @@
 {% extends 'base.html.twig' %}
 {% block menu %}
-        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{{ path('app_inicio_general') }}">
-                    👨‍🏫
-                    Edu-track</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                        {% if not is_granted('ROLE_USER') %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_general' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_general') }}">Inicio</a>
-                            </li>
-                        {% endif %}
-                        {% if is_granted('ROLE_DOCENTE') %}
-                            <li class="nav-item">
-                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_docente' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_docente') }}">Inicio</a>
-                            </li>
-                            
-                            <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_curso' %} active{% endif %}" href="{{ path('app_curso') }}">Cursos</a>
-                            </li>
-                            <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_asistencia' %} active{% endif %}" href="{{ path('app_asistencia') }}">Asistencias</a>
-                            </li>
-                            <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_actividad' %} active{% endif %}" href="{{ path('app_actividad') }}">Actividades</a>
-                            </li>
-                            <li class="nav-item">
-                                    <a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_presentacion_actividad' %} active{% endif %}" href="{{ path('app_presentacion_actividad') }}">Presentar Actividades</a>
-                            </li>
-                            {#
-                            <li class="nav-item">
-                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_usuario' %} active{% endif %}" href="{{ path('app_usuario') }}">Usuarios</a>
-                            </li>
-                            #}
-                        {% endif %}
+	<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="{{ path('app_inicio_general') }}">
+				👨‍🏫
+				                    Edu-track</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav me-auto mb-2 mb-md-0">
+					{% if not is_granted('ROLE_USER') %}
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_general' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_general') }}">Inicio</a>
+						</li>
+					{% endif %}
+					{% if is_granted('ROLE_DOCENTE') %}
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_inicio_docente' %} active{% endif %}" aria-current="page" href="{{ path('app_inicio_docente') }}">Inicio</a>
+						</li>
 
-                        <li class="nav-item">
-                            <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_about' %} active{% endif %}" href="{{ path('app_about') }}">Acerca de...</a>
-                        </li>
-                    </ul>
-                    {% if is_granted('ROLE_USER') %}
-                        <ul class="nav navbar-nav navbar-right">
-                            <li class="nav-item disabled">
-                                    <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_mi_cuenta' %} active{% endif %}" href="{{ path('app_mi_cuenta') }}" title="Mis Cuenta"><i class="bi bi-person-fill "></i> {{ app.user.username }}</a>
-                            </li>
-                            <li class="nav-item">
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_curso' %} active{% endif %}" href="{{ path('app_curso') }}">Cursos</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_asistencia' %} active{% endif %}" href="{{ path('app_asistencia') }}">Asistencias</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_actividad' %} active{% endif %}" href="{{ path('app_actividad') }}">Actividades</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_presentacion_actividad' %} active{% endif %}" href="{{ path('app_presentacion_actividad') }}">Presentar Actividades</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get('_route') starts with 'app_reporte' %} active{% endif %}" href="{{ path('app_reporte') }}">Reportes</a>
+						</li>
+						{#
+						                            <li class="nav-item">
+						                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_usuario' %} active{% endif %}" href="{{ path('app_usuario') }}">Usuarios</a>
+						                            </li>
+						                            #}
+					{% endif %}
 
-                                <a class="nav-link" href="{{ path('app_logout') }}">Salir</a>
-                            </li>
-                        </ul>
-                    {% else %}
-                        <ul class="nav navbar-nav navbar-right">
-                            <li class="nav-item">
-                                <a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_login' %} active{% endif %}" href="{{ path('app_login') }}">Iniciar Sesión</a>
-                            </li>
-                        </ul>
-                    {% endif %}
-                </div>
-            </div>
-        </nav>
+					<li class="nav-item">
+						<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_about' %} active{% endif %}" href="{{ path('app_about') }}">Acerca de...</a>
+					</li>
+				</ul>
+				{% if is_granted('ROLE_USER') %}
+					<ul class="nav navbar-nav navbar-right">
+						<li class="nav-item disabled">
+							<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_mi_cuenta' %} active{% endif %}" href="{{ path('app_mi_cuenta') }}" title="Mis Cuenta">
+								<i class="bi bi-person-fill "></i>
+								{{ app.user.username }}</a>
+						</li>
+						<li class="nav-item">
+
+							<a class="nav-link" href="{{ path('app_logout') }}">Salir</a>
+						</li>
+					</ul>
+				{% else %}
+					<ul class="nav navbar-nav navbar-right">
+						<li class="nav-item">
+							<a class="nav-link{% if app.request.attributes.get( '_route' ) starts with 'app_login' %} active{% endif %}" href="{{ path('app_login') }}">Iniciar Sesión</a>
+						</li>
+					</ul>
+				{% endif %}
+			</div>
+		</div>
+	</nav>
 {% endblock %}

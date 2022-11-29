@@ -2,10 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Curso;
 use App\Entity\Alumno;
 use App\Entity\Organizacion;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Alumno>
@@ -62,6 +63,38 @@ class AlumnoRepository extends ServiceEntityRepository
 
         return $querry->getOneOrNullResult();
     }
+
+
+    public function getDatosReporte(Curso $curso)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT
+
+        alumno.id AS id_alumno, alumno.nombre, alumno.apellido,
+        presentacion_actividad.id AS id_presentacion_actividad, presentacion_actividad.titulo,
+        presentacion_actividad.fecha,
+        SUM(interaccion.correcto) AS correctos,
+        COUNT(interaccion.id) AS cantidad
+        
+        FROM presentacion_actividad
+        
+        LEFT JOIN detalle_presentacion_actividad ON presentacion_actividad.id = detalle_presentacion_actividad.presentacion_actividad_id
+        LEFT JOIN interaccion ON interaccion.detalle_presentacion_actividad_id = detalle_presentacion_actividad.id
+        LEFT JOIN alumno ON alumno.id = interaccion.alumno_id
+        
+        WHERE presentacion_actividad.curso_id = ? AND detalle_presentacion_actividad.tipo = 'Pregunta'
+        
+        GROUP BY presentacion_actividad.id, alumno.id
+        
+        ORDER BY presentacion_actividad.fecha ASC";
+
+
+        $statement = $conn->prepare($sql);
+        $statement->bindValue(1, $curso->getId());
+        return $statement->executeQuery()->fetchAllAssociative();
+    }
+
     //    /**
     //     * @return Alumno[] Returns an array of Alumno objects
     //     */
