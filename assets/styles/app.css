@@ -170,13 +170,13 @@ textarea .falsedisabled {
     justify-content: center !important;
 }
 
-.ts-control .item {
+#formcurso .ts-control .item {
     display: block !important;
     width: 100% !important;
     margin-right: 35px !important;
 }
 
-.ts-control .item .remove {
+#formcurso .ts-control .item .remove {
     float: right
 }
 

@@ -167,12 +167,10 @@ class ActividadController extends AbstractController
             if ($error == '') {
                 $this->addFlash('success', 'Se modificó la actividad correctamente.');
                 return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                //return $this->redirectToRoute('app_actividad_new');
             } else {
                 $this->addFlash('error', $error);
             }
         }
-
 
         //Generar HTML de preguntas enviadas por Post y de la DB
         $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
@@ -495,10 +493,9 @@ class ActividadController extends AbstractController
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
 
-            //TODO: sacar detalles de error
             $this->em->getConnection()->rollBack();
             if ($error == '') {
-                $error = 'Error al guardar en la base de datos. ' . $e->getMessage();
+                $error = 'Error al guardar en la base de datos. '; //. $e->getMessage();
             }
         }
 

@@ -9,7 +9,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
-                    
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0"></ul>
                     {#
                     {% if is_granted('ROLE_USER') %}
                         <ul class="nav navbar-nav navbar-right">
@@ -29,6 +29,11 @@
                         </ul>
                     {% endif %}
                     #}
+                    <ul class="nav navbar-nav navbar-right">
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('app_login_alumno_logout') }}">Salir</a>
+						</li>
+					</ul>
                     
                 </div>
             </div>

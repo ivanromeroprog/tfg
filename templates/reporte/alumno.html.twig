@@ -7,19 +7,24 @@
 {% endblock %}
 
 {% block body %}
-{{ form_start(form) }}
-    {{ form_errors(form) }}
+	{{ form_start(form,{'attr': {'data-controller': 'chartform'}}) }}
+	{{ form_errors(form) }}
 
-    <div class="row">
-        <div class="col-md-5">{{ form_row(form.id_curso) }}</div>
-        <div class="col-md-5">{{ form_row(form.id_alumno) }}</div>
-        <div class="col-md-2">{{ form_row(form.submit)}}</div>
-    </div>
-    
-    
-    
-{{ form_end(form) }}
+	<div class="row">
+		<div class="col-md">{{ form_row(form.id_curso) }}</div>
+		<div class="col-md">{{ form_row(form.id_alumno) }}</div>
+	</div>
 
-{{ render_chart(chart) }}
+
+	{{ form_end(form) }}
+
+	{{ render_chart(chart,{'data-controller': 'graficoalumno'}) }}
+
+	<div class="alert alert-info mt-3">
+		<h4 class="alert-heading">Referencias</h5>
+		<ul>
+			<li>Eje vertical: porcentaje de aciertos en cada actividad.</li>
+			<li>Eje horizontal: actividades realizadas.</li>
+		</ul>
+	</div>
 {% endblock %}
-

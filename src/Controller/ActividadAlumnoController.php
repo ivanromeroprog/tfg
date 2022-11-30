@@ -305,10 +305,9 @@ class ActividadAlumnoController extends AbstractController
                     $this->em->flush();
                     $this->em->getConnection()->commit();
                 } catch (Exception $e) {
-                    //TODO: quitar detalle de error en DB
                     $this->em->getConnection()->rollBack();
                     if ($error == '') {
-                        $error = 'Error al guardar en la base de datos. ' . $e->getMessage() . $e->getLine();
+                        $error = 'Error al guardar en la base de datos. '; // . $e->getMessage() . $e->getLine();
                     }
                 }
                 if ($error == '') {
@@ -348,7 +347,7 @@ class ActividadAlumnoController extends AbstractController
     {
 
         $this->session = $request->getSession();
-        //TODO: usar https://github.com/nayzo/NzoUrlEncryptorBundle para encriptar urls
+
         $idpresentacionactividad = PresentacionActividad::urlDecode($code);
 
         if (is_numeric($idpresentacionactividad)) {

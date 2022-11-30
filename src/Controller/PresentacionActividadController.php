@@ -130,10 +130,10 @@ class PresentacionActividadController extends AbstractController
 
                 $this->em->getConnection()->commit();
             } catch (Exception $e) {
-                //TODO: quitar detalle de error en DB
+
                 $this->em->getConnection()->rollBack();
                 if ($error == '') {
-                    $error = 'Error al guardar en la base de datos. ' . $e->getMessage();
+                    $error = 'Error al guardar en la base de datos. '; // . $e->getMessage();
                 }
             }
             if ($error == '') {
@@ -166,7 +166,7 @@ class PresentacionActividadController extends AbstractController
 
         $code = $presentacion_actividad->getUrlEncoded();
         $url = $this->generateUrl(
-            'app_actividad_alumno', //TODO: reemplazar con actividad_alumno
+            'app_actividad_alumno',
             ['code' => $code],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
@@ -295,7 +295,7 @@ class PresentacionActividadController extends AbstractController
       ]);
       $form->handleRequest($request);
 
-      //TODO: Validar que el CUA no se repita en la organización
+   
       if ($form->isSubmitted() && $form->isValid()) {
       if ($form->get('alumno_agregar')->isClicked()) {
       $data = $request->request->all()['presentacion_actividad'];

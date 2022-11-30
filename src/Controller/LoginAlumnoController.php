@@ -110,4 +110,11 @@ class LoginAlumnoController extends AbstractController
             'form' => $form->createView()
         ], $response);
     }
+    #[Route('/lo', name: 'app_login_alumno_logout')]
+    public function logout(Request $request): Response
+    {
+        $this->session = $request->getSession();
+        $this->session->remove('alumno');
+        return $this->redirectToRoute('app_inicio_general');
+    }
 }

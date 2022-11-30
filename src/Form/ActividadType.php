@@ -49,7 +49,6 @@ class ActividadType extends AbstractType
             $submitname = 'siguiente';
         } else {
 
-
             //Agregar un elemento invisible para mostrar el deshabilitado
             $builder->add('tipofake', TextType::class, ['label' => 'Tipo', 'disabled' => true, 'mapped' => false, 'data' => $options['tipo']]);
             $builder->add('tipo', HiddenType::class, ['label' => 'Tipo', 'disabled' => $options['view']]);

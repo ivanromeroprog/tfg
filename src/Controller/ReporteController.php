@@ -9,14 +9,13 @@ use App\Repository\CursoRepository;
 use Symfony\UX\Chartjs\Model\Chart;
 use App\Repository\AlumnoRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\FormBuilder;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ReporteController extends AbstractController
 {
@@ -40,16 +39,39 @@ class ReporteController extends AbstractController
         ]);
     }
     #[Route('/reporte/alumno', name: 'app_reporte_alumno')]
-    public function alumno(ChartBuilderInterface $chartBuilder): Response
+    public function alumno(ChartBuilderInterface $chartBuilder, Request $request): Response
     {
-
-
-
+        //Cargar listado de cursos de este usuario
         $usuario = $this->getUser();
-        $cursos = $this->cr->findBy(['usuario' => $this->getUser()]);
-        $curso = $cursos[0];
-        $datos = $this->ar->getDatosReporte($curso);
+        $cursos  = $this->cr->findBy(['usuario' => $this->getUser()]);
+
+        //Cargar el curso actual. Por defecto o el seleccionado por form
+        $formdata = $request->request->all();
+        $curso = null;
+        if (isset($formdata['form']['id_curso']) && is_numeric($formdata['form']['id_curso'])) {
+            $curso = $this->cr->find(intval($formdata['form']['id_curso']));
+            //dump($curso);
+        }
+        $curso = is_null($curso) ? $cursos[0] : $curso;
+
+        //Cargar alumnos de este curso
         $alumnos = $curso->getAlumnos();
+
+        //Cargar el alumno actual si se envió
+        $alumno = null;
+        if (isset($formdata['form']['id_alumno']) && is_numeric($formdata['form']['id_alumno'])) {
+            $aid = intval($formdata['form']['id_alumno']);
+            foreach ($alumnos as $a) {
+                //dump($a, $aid);
+                if ($a->getId() == $aid) {
+                    $alumno = $a;
+                    break;
+                }
+            }
+        }
+
+        //Obtener datos para el gráfico
+        $datos = $this->ar->getDatosReporte($curso, $alumno);
 
         //Preparar campos del formulario
         $formBuilder = $this->createFormBuilder();
@@ -58,36 +80,35 @@ class ReporteController extends AbstractController
             'label' => 'Curso',
             'multiple' => false,
             'required' => true,
-            'autocomplete' => false,
+            'autocomplete' => true,
             'query_builder' => function (CursoRepository $er) use ($usuario) {
                 return $er->createQueryBuilder('c')
                     ->innerJoin('c.usuario', 'u')
                     ->setParameter('usuario', $usuario)
                     ->where('u = :usuario');
-            }
+            },
+            'attr' => [
+                'data-action' => 'change->chartform#submitForm'
+            ]
         ]);
-
         $formBuilder->add('id_alumno', EntityType::class, [
             'class' => Alumno::class,
             'label' => 'Alumno',
             'multiple' => false,
             'required' => false,
             'autocomplete' => true,
-            /*'query_builder' => function (AlumnoRepository $er) use ($curso) {
-                return $er->createQueryBuilder('c')
-                    ->innerJoin('c.curso', 'u')
-                    ->setParameter('curso', $curso)
-                    ->where('u = :curso');
-                    }*/
             'choices' => $alumnos,
-            'empty_data' => '[Todos]',
-            'data' => null
+            'empty_data' => null,
+            'data' => null,
+            'placeholder' => '- Todos -',
+            'attr' => [
+                'data-action' => 'change->chartform#submitForm'
+            ]
 
         ]);
-
-        $formBuilder->add('submit', SubmitType::class, ['label' => 'Filtrar']);
-
+        //$formBuilder->add('submit', SubmitType::class, ['label' => 'Filtrar']);
         $form = $formBuilder->getForm();
+        $form->handleRequest($request);
 
         //Preparar datos para el gráfico
         $datoschart = [];
@@ -104,13 +125,14 @@ class ReporteController extends AbstractController
             $v['correctos'] = is_null($v['correctos']) ? 0 : $v['correctos'];
             $datoschart[$v['id_alumno']]['label']           = $v['apellido'] . ', ' . $v['nombre'];
             $datoschart[$v['id_alumno']]['backgroundColor'] = $color;
-            $datoschart[$v['id_alumno']]['borderColor']     = ColorsHelper::adjustBrightness($color, -0.5);
+            $datoschart[$v['id_alumno']]['borderColor']     = ColorsHelper::adjustBrightness($color, -0.1);
 
             if ($v['cantidad'] == 0 || $v['correctos'] == 0)
-                $datoschart[$v['id_alumno']]['data'][$v['id_presentacion_actividad']] = 0;
+                $tmpdata = 0;
             else
-                $datoschart[$v['id_alumno']]['data'][$v['id_presentacion_actividad']] = $v['correctos'] / $v['cantidad'] * 100;
+                $tmpdata = $v['correctos'] / $v['cantidad'] * 100;
 
+            $datoschart[$v['id_alumno']]['data'][$v['id_presentacion_actividad']] = ['x' => date('d/m/Y', strtotime($v['fecha'])) . ' - ' . $v['titulo'], 'y' => $tmpdata];
             $labels[$v['id_presentacion_actividad']] = $v['titulo'];
         }
 
@@ -124,7 +146,7 @@ class ReporteController extends AbstractController
         //Crear grafico
         $chart = $chartBuilder->createChart(Chart::TYPE_LINE);
         $tmp = [
-            'labels' => $labels,
+            //'labels' => $labels,
             /*
                 'datasets' => [
                     [
@@ -136,7 +158,6 @@ class ReporteController extends AbstractController
                 ]*/
             'datasets' => $datoschart
         ];
-
         $chart->setData($tmp);
         $chart->setOptions([
             'scales' => [
@@ -147,9 +168,10 @@ class ReporteController extends AbstractController
             ],
         ]);
 
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
         return $this->render('reporte/alumno.html.twig', [
             'chart' => $chart,
             'form' => $form->createView(),
-        ]);
+        ], $response);
     }
 }

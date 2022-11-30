@@ -43,7 +43,6 @@ class AsistenciaAlumnoController extends AbstractController
         $this->session = $request->getSession();
         //$this->session->remove('alumno');
 
-        //TODO: usar https://github.com/nayzo/NzoUrlEncryptorBundle para encriptar urls
         $idtomaasistencia = TomaDeAsistencia::urlDecode($code);
 
         if (is_numeric($idtomaasistencia)) {

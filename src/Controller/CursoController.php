@@ -108,11 +108,13 @@ class CursoController extends AbstractController
         $form = $this->createForm(CursoType::class, $curso, [
             'modify' => true,
             'usuario' => $this->getUser(),
-            'organizacion' => $curso->getOrganizacion()
+            'organizacion' => $curso->getOrganizacion(),
+            'attr' => [
+                'id' => 'formcurso'
+            ]
         ]);
         $form->handleRequest($request);
 
-        //TODO: Validar que el CUA no se repita en la organización
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('alumno_agregar')->isClicked()) {
                 $data = $request->request->all()['curso'];
@@ -210,7 +212,10 @@ class CursoController extends AbstractController
         $form = $this->createForm(CursoType::class, $curso, [
             'view' => true,
             'usuario' => $this->getUser(),
-            'organizacion' => $curso->getOrganizacion()
+            'organizacion' => $curso->getOrganizacion(),
+            'attr' => [
+                'id' => 'formcurso'
+            ]
         ]);
 
         return $this->render('curso/new.html.twig', [
@@ -232,7 +237,10 @@ class CursoController extends AbstractController
         $form = $this->createForm(CursoType::class, $curso, [
             'view' => true,
             'usuario' => $this->getUser(),
-            'organizacion' => $curso->getOrganizacion()
+            'organizacion' => $curso->getOrganizacion(),
+            'attr' => [
+                'id' => 'formcurso'
+            ]
         ]);
 
         return $this->render('curso/delete.html.twig', [

@@ -4,7 +4,9 @@ namespace App\Repository;
 
 use App\Entity\Curso;
 use App\Entity\Alumno;
+use App\Entity\DetalleActividad;
 use App\Entity\Organizacion;
+use App\Entity\PresentacionActividad;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
@@ -65,9 +67,11 @@ class AlumnoRepository extends ServiceEntityRepository
     }
 
 
-    public function getDatosReporte(Curso $curso)
+    public function getDatosReporte(Curso $curso, Alumno $alumno = null)
     {
         $conn = $this->getEntityManager()->getConnection();
+
+        $optsql = (is_null($alumno)) ? '' : " AND alumno.id = ?";
 
         $sql = "SELECT
 
@@ -83,15 +87,23 @@ class AlumnoRepository extends ServiceEntityRepository
         LEFT JOIN interaccion ON interaccion.detalle_presentacion_actividad_id = detalle_presentacion_actividad.id
         LEFT JOIN alumno ON alumno.id = interaccion.alumno_id
         
-        WHERE presentacion_actividad.curso_id = ? AND detalle_presentacion_actividad.tipo = 'Pregunta'
+        WHERE presentacion_actividad.curso_id = ?
+        AND presentacion_actividad.estado <> ?
+        AND detalle_presentacion_actividad.tipo = ?
+        
+        $optsql
         
         GROUP BY presentacion_actividad.id, alumno.id
-        
-        ORDER BY presentacion_actividad.fecha ASC";
-
+        ORDER BY presentacion_actividad.fecha ASC, alumno.apellido ASC";
 
         $statement = $conn->prepare($sql);
+
         $statement->bindValue(1, $curso->getId());
+        $statement->bindValue(2, PresentacionActividad::ESTADO_ANULADO);
+        $statement->bindValue(3, DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA);
+        if (!is_null($alumno))
+            $statement->bindValue(4, $alumno->getId());
+
         return $statement->executeQuery()->fetchAllAssociative();
     }
 
