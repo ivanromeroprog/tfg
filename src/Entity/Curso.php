@@ -28,7 +28,7 @@ class Curso
     private ?int $anio = null;
 
     #[ORM\ManyToMany(targetEntity: Alumno::class, mappedBy: 'cursos')]
-    #[ORM\OrderBy(['apellido'=>'ASC'])]
+    #[ORM\OrderBy(['apellido' => 'ASC'])]
     private Collection $alumnos;
 
     #[ORM\ManyToOne(inversedBy: 'cursos')]
@@ -127,6 +127,16 @@ class Curso
         return $this;
     }
 
+    public function hasAlumno(Alumno $alumno)
+    {
+        foreach ($this->alumnos as $a) {
+            if ($alumno->getId() == $a->getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function getUsuario(): ?Usuario
     {
         return $this->usuario;
@@ -180,8 +190,9 @@ class Curso
 
         return $this;
     }
-    
-    public function __toString():string {
+
+    public function __toString(): string
+    {
         return $this->grado . 'º ' . $this->division . ' - ' . $this->materia . ' - ' . $this->anio;
     }
 }

@@ -24,7 +24,10 @@ export default class extends Controller {
                 {
                     ticks: {
                         callback: function (value, index, values) {
-                            return value + " %";
+                            if(value <= 100)
+                                return value + " %";
+                            else
+                                return "";
                         },
                     },
                     suggestedMin: 0,

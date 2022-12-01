@@ -274,14 +274,14 @@ class ActividadAlumnoController extends AbstractController
                     //Mercure
                     //inseguro
                     /*
-              $update = new Update(
-              'asistencia/' . $tomaasitencia->getId(),
-              json_encode([
-              'id' => $asistencia->getId(),
-              'estado' => $asistencia->isPresente()
-              ])
-              );
-             */
+                    $update = new Update(
+                    'asistencia/' . $tomaasitencia->getId(),
+                    json_encode([
+                    'id' => $asistencia->getId(),
+                    'estado' => $asistencia->isPresente()
+                    ])
+                    );
+                    */
                     //Seguro
 
                     $update = new Update(
@@ -360,6 +360,12 @@ class ActividadAlumnoController extends AbstractController
         $presentacionactividad = $this->cr->find($idpresentacionactividad);
         if (is_null($presentacionactividad)) {
             $this->session->remove('alumno');
+            throw new AccessDeniedHttpException();
+        }
+
+        $alumno = $this->session->get('alumno', null);
+        $curso = $presentacionactividad->getCurso();
+        if (!is_null($alumno) && !$curso->hasAlumno($alumno)) {
             throw new AccessDeniedHttpException();
         }
 

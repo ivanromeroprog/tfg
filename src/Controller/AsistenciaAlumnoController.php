@@ -65,6 +65,12 @@ class AsistenciaAlumnoController extends AbstractController
 
         if (!is_null($this->session->get('alumno', null))) {
             $alumno = $this->session->get('alumno');
+            $curso = $tomaasitencia->getCurso();
+
+            if (!$curso->hasAlumno($alumno)) {
+                throw new AccessDeniedHttpException();
+            }
+
             $asistencia = $this->ar->findOneBy(['alumno' => $alumno, 'tomaDeAsistencia' => $tomaasitencia]);
 
             if (is_null($asistencia)) {
