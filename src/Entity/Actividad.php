@@ -20,19 +20,10 @@ class Actividad
         self::TIPO_CUESTIONARIO => self::TIPO_CUESTIONARIO,
         //HACK: solo dejar tipos implementados
         //self::TIPO_NUBE_DE_PALABRAS => self::TIPO_NUBE_DE_PALABRAS,
-        //self::TIPO_RELACIONAR_CONCEPTOS => self::TIPO_RELACIONAR_CONCEPTOS,
+        self::TIPO_RELACIONAR_CONCEPTOS => self::TIPO_RELACIONAR_CONCEPTOS,
         //self::TIPO_COMPLETAR_TEXTO => self::TIPO_COMPLETAR_TEXTO,
     ];
-    /*
-    const ESTADO_INICIADO = 'Iniciado';
-    const ESTADO_FINALIZADO = 'Finalizado';
-    const ESTADO_ANULADO = 'Anulado';
-    const ESTADOS = [
-        self::ESTADO_INICIADO => self::ESTADO_INICIADO,
-        self::ESTADO_FINALIZADO => self::ESTADO_FINALIZADO,
-        self::ESTADO_ANULADO => self::ESTADO_ANULADO,
-    ];
-    */
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -46,10 +37,7 @@ class Actividad
 
     #[ORM\Column(length: 50)]
     private ?string $tipo = null;
-    /*
-    #[ORM\Column(length: 50)]
-    private ?string $estado = null;
-*/
+
     #[ORM\ManyToOne(inversedBy: 'actividades')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Usuario $usuario = null;
@@ -106,19 +94,7 @@ class Actividad
 
         return $this;
     }
-    /*
-    public function getEstado(): ?string
-    {
-        return $this->estado;
-    }
 
-    public function setEstado(string $estado): self
-    {
-        $this->estado = $estado;
-
-        return $this;
-    }
-*/
     public function getUsuario(): ?Usuario
     {
         return $this->usuario;

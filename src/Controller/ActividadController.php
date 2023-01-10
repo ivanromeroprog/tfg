@@ -14,6 +14,7 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -89,45 +90,31 @@ class ActividadController extends AbstractController
             $detalles = null;
         }
 
-        //Gestion normal del form
+        //Gestión normal del form
         $actividad = new Actividad();
         $actividad->setUsuario($this->getUser());
         $form = $this->createForm(ActividadType::class, $actividad, [
             'tipo' => $tipo
         ]);
 
-        //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
-        //Guardar la nueva actividad y terminar
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
-            $error = $this->guardarCuestionario($actividad, $detalles);
-            if ($error == '') {
-                $this->addFlash('success', 'Se guardó la actividad correctamente.');
-                return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                //return $this->redirectToRoute('app_actividad_new');
-            } else {
-                $this->addFlash('error', $error);
-            }
+        switch ($tipo) {
+            case Actividad::TIPO_RELACIONAR_CONCEPTOS:
+                return $this->gestionarNuevoRelacionarConceptos($form, $request, $detalles, $actividad);
+                break;
+            case Actividad::TIPO_CUESTIONARIO:
+                return $this->gestionarNuevoCuestionario($form, $request, $detalles, $actividad);
+                break;
+            default:
+                //Respuesta si no hay tipo de dato definido
+                $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+                return $this->render('actividad/new.html.twig', [
+                    'form' => $form->createView(),
+                    'tipo' => null,
+                    'view' => false,
+                    'nuevo' => 1,
+                    'nocache' => true
+                ], $response);
         }
-
-        //Generar HTML de preguntas enviadas por Post
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
-        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
-
-        //Respuesta
-        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
-        return $this->render('actividad/new.html.twig', [
-            'form' => $form->createView(),
-            'tipo' => $tipo,
-            'view' => false,
-            'respuestatemplate' => $respuestatemplate,
-            'preguntatemplate' => $preguntatemplate,
-            'detalleshtml' => $detalleshtml,
-            'nuevo' => empty($detalleshtml) ? 1 : 0,
-            'nocache' => true,
-            'detalles_eliminar' => '',
-        ], $response);
     }
 
     #[Route('/actividad/editar/{id}', name: 'app_actividad_edit')]
@@ -304,6 +291,88 @@ class ActividadController extends AbstractController
             $this->addFlash('error', 'No se puede eliminar la actividad. Ya se utilizó.');
         }
         return $this->redirectToRoute('app_actividad');
+    }
+
+    /**
+     * Gestiona la creación de una nueva actividad cuando el tipo es Relacionbar Conceptos
+     *
+     * @return void
+     */
+    private function gestionarNuevoRelacionarConceptos(FormInterface $form, Request $request, ?array $detalles, Actividad $actividad): Response
+    {
+        //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
+        //Guardar la nueva actividad y terminar
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
+            $error = $this->guardarCuestionario($actividad, $detalles);
+            if ($error == '') {
+                $this->addFlash('success', 'Se guardó la actividad correctamente.');
+                //return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
+                return $this->redirectToRoute('app_actividad_new');
+            } else {
+                $this->addFlash('error', $error);
+            }
+        }
+
+        //Generar HTML de preguntas enviadas por Post
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
+        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+
+        //Respuesta
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+        return $this->render('actividad/new.html.twig', [
+            'form' => $form->createView(),
+            'tipo' => Actividad::TIPO_RELACIONAR_CONCEPTOS,
+            'view' => false,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => empty($detalleshtml) ? 1 : 0,
+            'nocache' => true,
+            'detalles_eliminar' => '',
+        ], $response);
+    }
+
+    /**
+     * Gestiona la creación de una nueva actividad cuando el tipo es Cuestionario
+     *
+     * @return void
+     */
+    private function gestionarNuevoCuestionario(FormInterface $form, Request $request, ?array $detalles, Actividad $actividad): Response
+    {
+        //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
+        //Guardar la nueva actividad y terminar
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
+            $error = $this->guardarCuestionario($actividad, $detalles);
+            if ($error == '') {
+                $this->addFlash('success', 'Se guardó la actividad correctamente.');
+                return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
+                //return $this->redirectToRoute('app_actividad_new');
+            } else {
+                $this->addFlash('error', $error);
+            }
+        }
+
+        //Generar HTML de preguntas enviadas por Post
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
+        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+
+        //Respuesta
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+        return $this->render('actividad/new.html.twig', [
+            'form' => $form->createView(),
+            'tipo' => Actividad::TIPO_CUESTIONARIO,
+            'view' => false,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => empty($detalleshtml) ? 1 : 0,
+            'nocache' => true,
+            'detalles_eliminar' => '',
+        ], $response);
     }
 
     /*

@@ -57,7 +57,7 @@ class ActividadType extends AbstractType
             $submitname = 'guardar';
         }
 
-        if (!$options['view'] && (is_null($options['tipo']) || $options['tipo'] == 'Cuestionario')) { //HACK: no mostrar el boton si no esta implementado el tipo
+        if (!$options['view'] && (is_null($options['tipo']) || $options['tipo'] == 'Cuestionario' || $options['tipo'] == 'Relacionar Conceptos')) { //HACK: no mostrar el botón si no esta implementado el tipo
             $builder->add($submitname, SubmitType::class, [
                 'label' => $submitlabel,
                 'attr' => [
