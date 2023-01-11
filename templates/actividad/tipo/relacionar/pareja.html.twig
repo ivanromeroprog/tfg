@@ -1,22 +1,23 @@
 <div class="pareja_div" id="pareja_div_%_pid_%">
-	{% if not view %}
-		<a id="eliminar_pareja_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar pareja" data-action="click->cuestionario#eliminarparejaclick" data-cuestionario-pid-param="%_pid_%">
-			<i class="bi bi-trash-fill"></i>
-		</a> 
-	{% endif %}
-	<label class="form-label mt-2" for="detalle_parejas_%_pid_%">pareja</label>
-	<textarea name="detalle[parejas][%_pid_%]" id="detalle_parejas_%_pid_%" class="form-control" rows="4" {% if view %} disabled="disabled" {% endif %}>%_ptext_%</textarea>
-	<div class="row">
-		<div class="{% if view %}col-9{% else %}col-{% endif %}">Respuesta</div>
-		<div class="col-3">Correcta</div>
-		{% if not view %}
-			<div class="col-2"></div>
-		{% endif %}
-	</div>
-	%_resp_%
-</div>
+	<div class="row mb-3">
+		<div class="col">
+			{% if not view %}
+				<a id="eliminar_pareja_%_pid_%" class="btn btn-danger btn-sm" title="Eliminar pareja"
+				data-action="click->relacionar#eliminarparejaclick"
+				data-relacionar-pid-param="%_pid_%"
+				data-relacionar-rid-param="%_rid_%">
+					<i class="bi bi-trash-fill"></i>
+				</a>
+			{% endif %}
 
-<div class="text-center mt-2 mb-3">
-	{% if not view %}<input type="button" value="Agregar Respuesta" data-action="click->cuestionario#agregarrespuestaclick" id="btn_agregar_respuesta_%_pid_%" data-cuestionario-pid-param="%_pid_%" class="btn btn-success">
-	{% endif %}
+			<label class="form-label mt-2 ms-1" for="detalle_parejas_%_pid_%">Concepto</label>
+			<textarea name="detalle[parejas][%_pid_%][%_pid_%]" id="detalle_parejas_%_pid_%" class="form-control" rows="4" {% if view %} disabled="disabled" {% endif %}>
+				%_ptext_%</textarea>
+		</div>
+		<div class="col">
+			<label class="form-label mt-2" for="detalle_parejas_%_rid_%">Concepto Relacionado</label>
+			<textarea name="detalle[parejas][%_pid_%][%_rid_%]" id="detalle_parejas_%_rid_%" class="form-control" rows="4" {% if view %} disabled="disabled" {% endif %}>
+				%_rtext_%</textarea>
+		</div>
+	</div>
 </div>

@@ -1,5 +1,5 @@
 <h3>Conceptos</h3>
-<div data-controller="relacionar" data-relacionar-pareja-value="{{ preguntatemplate|escape }}" data-relacionar-nuevo-value="{{nuevo}}">
+<div data-controller="relacionar" data-relacionar-pareja-value="{{ parejatemplate|escape }}" data-relacionar-nuevo-value="{{nuevo}}">
 	<div>{% if not view %}<input type="button" value="Agregar Pareja" data-action="click->relacionar#agregarparejaclick" class="btn btn-success">{% endif %}</div>
 {{detalleshtml|raw}}
 </div>
