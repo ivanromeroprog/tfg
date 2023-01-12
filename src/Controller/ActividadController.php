@@ -200,24 +200,22 @@ class ActividadController extends AbstractController
             'view' => true,
         ]);
 
-        //Detalles de la base de datos      
-        $detalles = $this->formatearPreguntasDB($actividad);
 
-        //Generar HTML de preguntas enviadas por Post y de la DB
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => true]));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => true]));
-        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+        //Seleccionar tipo de actividad y gestionar
+        switch ($tipo) {
+            case Actividad::TIPO_RELACIONAR_CONCEPTOS:
 
-        return $this->render('actividad/edit.html.twig', [
-            'form' => $form->createView(),
-            'tipo' => $tipo,
-            'respuestatemplate' => $respuestatemplate,
-            'preguntatemplate' => $preguntatemplate,
-            'detalleshtml' => $detalleshtml,
-            'nuevo' => 0,
-            'detalles_eliminar' => '',
-            'view' => true
-        ]);
+                //Detalles de la base de datos      
+                $detalles = $this->formatearParejasDB($actividad);
+                return $this->gestionarNuevoRelacionarConceptos($form, null, $detalles, $actividad, true);
+                break;
+            case Actividad::TIPO_CUESTIONARIO:
+
+                //Detalles de la base de datos      
+                $detalles = $this->formatearPreguntasDB($actividad);
+                return $this->gestionarNuevoCuestionario($form, null, $detalles, $actividad, true);
+                break;
+        }
     }
 
     #[Route('/actividad/eliminar/{id}', name: 'app_actividad_delete', methods: ['GET', 'HEAD'])]
@@ -299,28 +297,33 @@ class ActividadController extends AbstractController
      *
      * @return Response respuesta
      */
-    private function gestionarNuevoRelacionarConceptos(FormInterface $form, Request $request, ?array $detalles, Actividad $actividad): Response
-    {
+    private function gestionarNuevoRelacionarConceptos(
+        FormInterface $form,
+        ?Request $request,
+        ?array $detalles,
+        Actividad $actividad,
+        bool $view = false
+    ): Response {
         //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
         //Guardar la nueva actividad y terminar
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
 
-            dd($detalles);
-            die();
+        if (!$view) {
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
 
-            $error = $this->guardarRelacionarConceptos($actividad, $detalles);
-            if ($error == '') {
-                $this->addFlash('success', 'Se guardó la actividad correctamente.');
-                //return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                return $this->redirectToRoute('app_actividad_new');
-            } else {
-                $this->addFlash('error', $error);
+                $error = $this->guardarRelacionarConceptos($actividad, $detalles);
+                if ($error == '') {
+                    $this->addFlash('success', 'Se guardó la actividad correctamente.');
+                    //return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
+                    return $this->redirectToRoute('app_actividad');
+                } else {
+                    $this->addFlash('error', $error);
+                }
             }
         }
 
         //Generar HTML de parejas enviadas por Post
-        $parejatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/relacionar/pareja.html.twig', ['view' => false]));
+        $parejatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/relacionar/pareja.html.twig', ['view' => $view]));
         $detalleshtml = $this->generarParejasHtml($detalles, $parejatemplate);
 
         //Respuesta
@@ -328,11 +331,11 @@ class ActividadController extends AbstractController
         return $this->render('actividad/new.html.twig', [
             'form' => $form->createView(),
             'tipo' => Actividad::TIPO_RELACIONAR_CONCEPTOS,
-            'view' => false,
+            'view' => $view,
             'parejatemplate' => $parejatemplate,
             'detalleshtml' => $detalleshtml,
             'nuevo' => empty($detalleshtml) ? 1 : 0,
-            'nocache' => true,
+            'nocache' => !$view,
             'detalles_eliminar' => '',
         ], $response);
     }
@@ -342,25 +345,32 @@ class ActividadController extends AbstractController
      *
      * @return Response respuesta
      */
-    private function gestionarNuevoCuestionario(FormInterface $form, Request $request, ?array $detalles, Actividad $actividad): Response
-    {
+    private function gestionarNuevoCuestionario(
+        FormInterface $form,
+        ?Request $request,
+        ?array $detalles,
+        Actividad $actividad,
+        bool $view = false
+    ): Response {
         //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
         //Guardar la nueva actividad y terminar
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
-            $error = $this->guardarCuestionario($actividad, $detalles);
-            if ($error == '') {
-                $this->addFlash('success', 'Se guardó la actividad correctamente.');
-                return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                //return $this->redirectToRoute('app_actividad_new');
-            } else {
-                $this->addFlash('error', $error);
+        if (!$view) {
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
+                $error = $this->guardarCuestionario($actividad, $detalles);
+                if ($error == '') {
+                    $this->addFlash('success', 'Se guardó la actividad correctamente.');
+                    return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
+                    //return $this->redirectToRoute('app_actividad_new');
+                } else {
+                    $this->addFlash('error', $error);
+                }
             }
         }
 
         //Generar HTML de preguntas enviadas por Post
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => $view]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => $view]));
         $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
 
         //Respuesta
@@ -368,12 +378,12 @@ class ActividadController extends AbstractController
         return $this->render('actividad/new.html.twig', [
             'form' => $form->createView(),
             'tipo' => Actividad::TIPO_CUESTIONARIO,
-            'view' => false,
+            'view' => $view,
             'respuestatemplate' => $respuestatemplate,
             'preguntatemplate' => $preguntatemplate,
             'detalleshtml' => $detalleshtml,
             'nuevo' => empty($detalleshtml) ? 1 : 0,
-            'nocache' => true,
+            'nocache' => !$view,
             'detalles_eliminar' => '',
         ], $response);
     }
@@ -478,110 +488,97 @@ class ActividadController extends AbstractController
             $this->em->persist($actividad);
             $this->em->flush();
 
-            if (!$detalles || !isset($detalles['preguntas']) || count($detalles['preguntas']) < 1) {
-                $error = 'No se recibieron preguntas para guardar.';
+            if (!$detalles || !isset($detalles['parejas']) || count($detalles['parejas']) < 1) {
+                $error = 'No se recibieron parejas para guardar.';
                 throw new \Exception();
             }
 
-            //Pregunta
-            foreach ($detalles['preguntas'] as $k => $preg) {
 
-                if (strlen($preg) < 1) {
-                    $error = 'Las preguntas no pueden estar vacías.';
+
+            //Parejas
+            foreach ($detalles['parejas'] as $pid => $pareja) {
+
+                dump($pareja);
+
+                //Obtener texto e id de cada concepto de la pareja
+                $rid = null;
+                $rtext = '';
+                $ptext = '';
+                foreach ($pareja as $id => $texto) {
+                    if ($pid != $id) {
+                        $rid = $id;
+                        $rtext = $texto;
+                    } else {
+                        $ptext = $texto;
+                    }
+                }
+
+                if (strlen($ptext) < 1 || strlen($rtext) < 1) {
+                    $error = 'Los conceptos no pueden estar vacíos.';
                     throw new \Exception();
                 }
 
-                //Si es nueva pregunta
-                if ($k < 0) {
-                    $detallepregunta = new DetalleActividad(
+                //dump($pid, $ptext, $rid, $rtext);
+
+                //Si es nueva pareja
+                if ($pid < 0) {
+
+                    //Guardar concepto A
+                    $detalle_concepto_a = new DetalleActividad(
                         null,
-                        $preg,
-                        DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
+                        $ptext,
+                        DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A,
                         null,
                         null,
                         $actividad
                     );
-                    $this->em->persist($detallepregunta);
+                    $this->em->persist($detalle_concepto_a);
                     $this->em->flush();
-                    $relacion = $detallepregunta->getId();
-                    $detallepregunta->setRelacion($detallepregunta->getId($relacion));
+
+                    //Guardar concepto B
+                    $detalle_concepto_b = new DetalleActividad(
+                        null,
+                        $rtext,
+                        DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_B,
+                        null,
+                        null,
+                        $actividad
+                    );
+                    $this->em->persist($detalle_concepto_b);
+                    $this->em->flush();
+
+                    //Agregar relación entre los dos
+                    $detalle_concepto_a->setRelacion($detalle_concepto_b->getId());
+                    $detalle_concepto_b->setRelacion($detalle_concepto_a->getId());
                     $this->em->flush();
                 } else {
                     //Si estamos modificando
-                    //$da = new ArrayCollection();
 
                     //TODO: esto funciona acá pero no en eliminar... tener cuidado
                     //sino usar bucle y listo
-                    $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $k));
+
+                    //A
+                    $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $pid));
                     $cp = $da->matching($criteria);
-                    $detallepregunta = $cp->first();
+                    $detalle_concepto = $cp->first();
+                    //Solo modifico el texto
+                    $detalle_concepto->setDato($ptext);
 
-
-                    //Solo modifico el texto de la pregunta
-                    $detallepregunta->setDato($preg);
-
-                    $this->em->flush();
-                    $relacion = $detallepregunta->getId();
-                }
-                //guardo el id de la pregunta
-                $ids_guardados[] = $relacion;
-
-
-                //Respuestas de esta pregunta
-                if (!isset($detalles['respuestas'][$k]) || count($detalles['respuestas'][$k]) < 2) {
-                    $error = 'No se recibieron respuestas para guardar.';
-                    throw new \Exception();
-                }
-
-                $correctos = 0;
-                foreach ($detalles['respuestas'][$k] as $kk => $resp) {
-
-                    if (strlen($resp['texto']) < 1) {
-                        $error = 'Las respuestas no pueden estar vacías.';
-                        throw new \Exception();
-                    }
-
-                    $correcto = isset($resp['correcta']);
-                    if ($correcto) {
-                        $correctos++;
-                    }
-
-                    //Nueva respuesta
-                    if ($kk < 0) {
-                        $detallerespuesta = new DetalleActividad(
-                            null,
-                            $resp['texto'],
-                            DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA,
-                            $relacion,
-                            $correcto,
-                            $actividad
-                        );
-                        $this->em->persist($detallerespuesta);
-                    } else {
-                        //Modificamos respuesta
-                        //$cp = new ArrayCollection();
-
-                        $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $kk));
-                        $cp = $da->matching($criteria);
-                        $detallerespuesta = $cp->first();
-                        $detallerespuesta->setDato($resp['texto']);
-                        $detallerespuesta->setCorrecto($correcto);
-                    }
+                    //B
+                    $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $rid));
+                    $cp = $da->matching($criteria);
+                    $detalle_concepto = $cp->first();
+                    //Solo modifico el texto
+                    $detalle_concepto->setDato($rtext);
 
                     $this->em->flush();
-
-                    //guardo el id de la respuesta
-                    $ids_guardados[] = $detallerespuesta->getId();
                 }
 
-                if ($correctos < 1) {
-                    $error = 'Cada pregunta debe tener al menos una respuesta correcta.';
-                    throw new \Exception();
-                } elseif ($correctos >= count($detalles['respuestas'][$k])) {
-                    $error = 'Todas las respuestas de una pregunta no pueden ser correctas.';
-                    throw new \Exception();
-                }
+                $ids_guardados[] = $pid;
+                $ids_guardados[] = $rid;
             }
+
+            //dd($detalles);
 
             //Eliminar si hay algo para eliminar
             //Solo elimino preguntas / respuestas que no se pasaron por post
@@ -595,7 +592,7 @@ class ActividadController extends AbstractController
 
                         //TODO: No funciona matching en este punto? porque?
                         foreach ($da as $det) {
-                            if ($det->getId() == $elid || $det->getRelacion() == $elid) {
+                            if ($det->getId() == $elid) {
                                 $actividad->removeDetallesactividad($det);
                             }
                         }
@@ -651,7 +648,7 @@ class ActividadController extends AbstractController
 
                 //Si es nueva pregunta
                 if ($k < 0) {
-                    $detallepregunta = new DetalleActividad(
+                    $detalle_concepto = new DetalleActividad(
                         null,
                         $preg,
                         DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
@@ -659,10 +656,10 @@ class ActividadController extends AbstractController
                         null,
                         $actividad
                     );
-                    $this->em->persist($detallepregunta);
+                    $this->em->persist($detalle_concepto);
                     $this->em->flush();
-                    $relacion = $detallepregunta->getId();
-                    $detallepregunta->setRelacion($detallepregunta->getId($relacion));
+                    $relacion = $detalle_concepto->getId();
+                    $detalle_concepto->setRelacion($detalle_concepto->getId($relacion));
                     $this->em->flush();
                 } else {
                     //Si estamos modificando
@@ -672,14 +669,14 @@ class ActividadController extends AbstractController
                     //sino usar bucle y listo
                     $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $k));
                     $cp = $da->matching($criteria);
-                    $detallepregunta = $cp->first();
+                    $detalle_concepto = $cp->first();
 
 
                     //Solo modifico el texto de la pregunta
-                    $detallepregunta->setDato($preg);
+                    $detalle_concepto->setDato($preg);
 
                     $this->em->flush();
-                    $relacion = $detallepregunta->getId();
+                    $relacion = $detalle_concepto->getId();
                 }
                 //guardo el id de la pregunta
                 $ids_guardados[] = $relacion;
@@ -805,6 +802,33 @@ class ActividadController extends AbstractController
                 if ($d->isCorrecto() === true) {
                     $ad['respuestas'][$d->getRelacion()][$d->getId()]['correcta'] = 'si';
                 }
+            }
+        }
+
+        return $ad;
+    }
+
+    /*
+     * Toma los datos de la db y les dá el formato de Post para unificar
+     * $detalles[
+        * 'parejas' => [
+        *      pid => 'texto concepto a'
+        *      rid => 'texto concepto b
+        * ]
+     * ]
+     * 
+     */
+
+    private function formatearParejasDB(Actividad $actividad)
+    {
+        $det = $actividad->getDetallesactividad();
+        $d = new DetalleActividad();
+        $ad = [];
+        foreach ($det as $d) {
+            if ($d->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A) {
+                $ad['parejas'][$d->getId()][$d->getId()]  = $d->getDato();
+            } elseif ($d->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_B) {
+                $ad['parejas'][$d->getRelacion()][$d->getId()] = $d->getDato();
             }
         }
 

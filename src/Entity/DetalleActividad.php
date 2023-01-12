@@ -11,6 +11,8 @@ class DetalleActividad
 {
     const TIPO_CUESTIONARIO_PREGUNTA = 'Pregunta';
     const TIPO_CUESTIONARIO_RESPUESTA = 'Respuesta';
+    const TIPO_RELACIONAR_CONCEPTOS_A = 'Concepto A';
+    const TIPO_RELACIONAR_CONCEPTOS_B = 'Concepto B';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
