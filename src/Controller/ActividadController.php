@@ -100,10 +100,10 @@ class ActividadController extends AbstractController
         //Seleccionar tipo de actividad y gestionar
         switch ($tipo) {
             case Actividad::TIPO_RELACIONAR_CONCEPTOS:
-                return $this->gestionarNuevoRelacionarConceptos($form, $request, $detalles, $actividad);
+                return $this->gestionarRelacionarConceptos($form, $request, $detalles, $actividad);
                 break;
             case Actividad::TIPO_CUESTIONARIO:
-                return $this->gestionarNuevoCuestionario($form, $request, $detalles, $actividad);
+                return $this->gestionarCuestionario($form, $request, $detalles, $actividad);
                 break;
             default:
                 //Respuesta si no hay tipo de dato definido
@@ -142,6 +142,32 @@ class ActividadController extends AbstractController
 
         //Crear formulario
         $form = $this->createForm(ActividadType::class, $actividad, [
+            'tipo' => $tipo,
+            'view' => false,
+        ]);
+
+        //Seleccionar tipo de actividad y gestionar
+        switch ($tipo) {
+            case Actividad::TIPO_RELACIONAR_CONCEPTOS:
+                //Agregar a los detalles de POST los detalles de la DB      
+                $detallesdb = $this->formatearParejasDB($actividad);
+                $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb, $detalles));
+
+                return $this->gestionarRelacionarConceptos($form, $request, $detalles, $actividad, false, true);
+                break;
+
+            case Actividad::TIPO_CUESTIONARIO:
+                //Agregar a los detalles de POST los detalles de la DB      
+                $detallesdb = $this->formatearPreguntasDB($actividad);
+                $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb, $detalles));
+
+                return $this->gestionarCuestionario($form, $request, $detalles, $actividad, false, true);
+                break;
+        }
+
+        /*
+        //Crear formulario
+        $form = $this->createForm(ActividadType::class, $actividad, [
             'tipo' => $tipo
         ]);
         $form->handleRequest($request);
@@ -178,6 +204,7 @@ class ActividadController extends AbstractController
             'view' => false,
             'detalles_eliminar' => isset($detalles['eliminar']) ? $detalles['eliminar'] : '',
         ], $response);
+        */
     }
 
     #[Route('/actividad/ver/{id}', name: 'app_actividad_view')]
@@ -207,13 +234,13 @@ class ActividadController extends AbstractController
 
                 //Detalles de la base de datos      
                 $detalles = $this->formatearParejasDB($actividad);
-                return $this->gestionarNuevoRelacionarConceptos($form, null, $detalles, $actividad, true);
+                return $this->gestionarRelacionarConceptos($form, null, $detalles, $actividad, true);
                 break;
             case Actividad::TIPO_CUESTIONARIO:
 
                 //Detalles de la base de datos      
                 $detalles = $this->formatearPreguntasDB($actividad);
-                return $this->gestionarNuevoCuestionario($form, null, $detalles, $actividad, true);
+                return $this->gestionarCuestionario($form, null, $detalles, $actividad, true);
                 break;
         }
     }
@@ -292,30 +319,37 @@ class ActividadController extends AbstractController
         return $this->redirectToRoute('app_actividad');
     }
 
+    //////////////////////////////////////////////////
+    // 
+    // Gestionar formularios para cada tipo de actividad
+    //
+    //////////////////////////////////////////////////
+
     /**
      * Gestiona la creación de una nueva actividad cuando el tipo es Relacionar Conceptos
      *
      * @return Response respuesta
      */
-    private function gestionarNuevoRelacionarConceptos(
+    private function gestionarRelacionarConceptos(
         FormInterface $form,
         ?Request $request,
         ?array $detalles,
         Actividad $actividad,
-        bool $view = false
+        bool $view = false,
+        bool $modify = false
     ): Response {
         //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
         //Guardar la nueva actividad y terminar
 
         if (!$view) {
             $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
+
+            if ($form->isSubmitted() && $form->isValid() && ($form->get('guardar')->isClicked() || $modify)) {
 
                 $error = $this->guardarRelacionarConceptos($actividad, $detalles);
                 if ($error == '') {
-                    $this->addFlash('success', 'Se guardó la actividad correctamente.');
-                    //return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                    return $this->redirectToRoute('app_actividad');
+                    $this->addFlash('success', 'Se ' . ($modify ? 'modificó' : 'guardó') . ' la actividad correctamente.');
+                    return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
                 } else {
                     $this->addFlash('error', $error);
                 }
@@ -345,23 +379,24 @@ class ActividadController extends AbstractController
      *
      * @return Response respuesta
      */
-    private function gestionarNuevoCuestionario(
+    private function gestionarCuestionario(
         FormInterface $form,
         ?Request $request,
         ?array $detalles,
         Actividad $actividad,
-        bool $view = false
+        bool $view = false,
+        bool $modify = false
     ): Response {
         //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
         //Guardar la nueva actividad y terminar
         if (!$view) {
+
             $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid() && $form->get('guardar')->isClicked()) {
+            if ($form->isSubmitted() && $form->isValid() && ($form->get('guardar')->isClicked() && $modify)) {
                 $error = $this->guardarCuestionario($actividad, $detalles);
                 if ($error == '') {
-                    $this->addFlash('success', 'Se guardó la actividad correctamente.');
+                    $this->addFlash('success', 'Se ' . ($modify ? 'guardó' : 'modificó') . ' la actividad correctamente.');
                     return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-                    //return $this->redirectToRoute('app_actividad_new');
                 } else {
                     $this->addFlash('error', $error);
                 }
@@ -386,7 +421,37 @@ class ActividadController extends AbstractController
             'nocache' => !$view,
             'detalles_eliminar' => '',
         ], $response);
+
+
+
+
+
+        //Generar HTML de preguntas enviadas por Post y de la DB
+        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
+        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
+        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+
+        //Respuesta
+        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
+        return $this->render('actividad/edit.html.twig', [
+            'form' => $form->createView(),
+            'tipo' => $tipo,
+            'respuestatemplate' => $respuestatemplate,
+            'preguntatemplate' => $preguntatemplate,
+            'detalleshtml' => $detalleshtml,
+            'nuevo' => empty($detalleshtml) ? 1 : 0,
+            'nocache' => true,
+            'view' => false,
+            'detalles_eliminar' => isset($detalles['eliminar']) ? $detalles['eliminar'] : '',
+        ], $response);
     }
+
+
+    //////////////////////////////////////////////////
+    // 
+    // Generar HTML de form. de cada tipo de actividad
+    //
+    //////////////////////////////////////////////////
 
     /*
      * Genera el HTML del formulario de preguntas y respuestas en base a
@@ -468,6 +533,12 @@ class ActividadController extends AbstractController
         return $detalleshtml;
     }
 
+    //////////////////////////////////////////////////
+    // 
+    // Guardar datos de actividades en DB
+    //
+    //////////////////////////////////////////////////
+
     /**
      * Guarda en la DB la actividad y elimina parejas de ser necesario.
      * Recibe la actividad y el array $detalles
@@ -477,7 +548,6 @@ class ActividadController extends AbstractController
      */
     private function guardarRelacionarConceptos(Actividad $actividad, ?array $detalles)
     {
-        //TODO: Modificar para guardar conceptos (copiada de cuestionario)
         $error = '';
         $ids_guardados = [];
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
@@ -493,12 +563,8 @@ class ActividadController extends AbstractController
                 throw new \Exception();
             }
 
-
-
             //Parejas
             foreach ($detalles['parejas'] as $pid => $pareja) {
-
-                dump($pareja);
 
                 //Obtener texto e id de cada concepto de la pareja
                 $rid = null;
@@ -517,8 +583,6 @@ class ActividadController extends AbstractController
                     $error = 'Los conceptos no pueden estar vacíos.';
                     throw new \Exception();
                 }
-
-                //dump($pid, $ptext, $rid, $rtext);
 
                 //Si es nueva pareja
                 if ($pid < 0) {
@@ -550,12 +614,10 @@ class ActividadController extends AbstractController
                     //Agregar relación entre los dos
                     $detalle_concepto_a->setRelacion($detalle_concepto_b->getId());
                     $detalle_concepto_b->setRelacion($detalle_concepto_a->getId());
+
                     $this->em->flush();
                 } else {
                     //Si estamos modificando
-
-                    //TODO: esto funciona acá pero no en eliminar... tener cuidado
-                    //sino usar bucle y listo
 
                     //A
                     $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $pid));
@@ -577,8 +639,6 @@ class ActividadController extends AbstractController
                 $ids_guardados[] = $pid;
                 $ids_guardados[] = $rid;
             }
-
-            //dd($detalles);
 
             //Eliminar si hay algo para eliminar
             //Solo elimino preguntas / respuestas que no se pasaron por post
@@ -770,6 +830,12 @@ class ActividadController extends AbstractController
 
         return $error;
     }
+
+    //////////////////////////////////////////////////
+    // 
+    // Formatear datos de la base de datos
+    //
+    //////////////////////////////////////////////////
 
     /*
      * Toma los datos de la db y les dá el formato de Post para unificar
