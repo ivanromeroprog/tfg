@@ -16,35 +16,6 @@ export default class extends Controller {
         }
     }
 
-    /*
-    eliminarrespuestaclick(e) {
-        //console.log(e.params.pid, e.params.rid);
-        let pid = e.params.pid;
-        let rid = e.params.rid;
-
-        e.preventDefault();
-
-        window.parejarEliminar(
-            "¿Quiere eliminar esta respuesta?",
-            (result) => {
-                if (result.isConfirmed) {
-                    if (document.getElementById('pareja_div_' + pid).getElementsByClassName('respuesta_div').length <= 2) {
-                        window.Alertar(
-                            'Cada pareja debe tener al menos dos respuestas.',
-                            'No se puede eliminar'
-                        )
-                    }
-                    else {
-                        if(rid > 0){
-                            document.getElementById('detalle_eliminar').value += '|'+rid
-                        }
-                        document.getElementById('respuesta_div_' + pid + '_' + rid).parentElement.remove();
-                    }
-                }
-            }
-        )
-    }
-*/
     eliminarparejaclick(e) {
         //console.log(e.params.pid);
         let pid = e.params.pid;
@@ -62,10 +33,9 @@ export default class extends Controller {
                             'No se puede eliminar'
                         )
                     }
-                    else
-                    {
-                        if(pid > 0){
-                            document.getElementById('detalle_eliminar').value += '|'+pid+'|'+rid
+                    else {
+                        if (pid > 0) {
+                            document.getElementById('detalle_eliminar').value += '|' + pid + '|' + rid
                         }
                         document.getElementById('pareja_div_' + pid).parentElement.remove();
                     }
@@ -79,7 +49,7 @@ export default class extends Controller {
         let rid = null;
         for (let i = 1; i < 50; i++) {
             if (null === document.getElementById('detalle_parejas_-' + i)) {
-                pid =  i * -1;
+                pid = i * -1;
                 rid = pid - 1;
                 break;
             }
@@ -99,34 +69,33 @@ export default class extends Controller {
             document.getElementById('detalle_parejas_' + pid).scrollIntoView();;
         }
     }
-/*
-    agregarrespuestaclick(e) {
-        let pid = e.params.pid;
-        let rid = null;
-        for (let i = 1; i < 50; i++) {
-            if (null === document.getElementById('respuesta_div_' + pid + '_-' + i)) {
-                rid = i * -1;
-                break;
-            }
-        }
 
-        if (pid === null) {
-            alert('No puede agregar más parejas');
-        }
-        else {
-            this.agregarrespuesta(pid, rid);
-            let detalleresptext = document.getElementById('detalle_respuestas_' + pid + '_' + rid + '_texto');
-            detalleresptext.scrollIntoView();
-            detalleresptext.focus();
 
+    cambiartipo(e) {
+        //console.log(e.params.pid);
+        let id = e.params.id;
+        let val = e.target.value;
+
+        if (val == 0)
+        {
+            document.getElementById('contenedor_imagen_' + id).classList.add("d-none");
+            document.getElementById('contenedor_texto_' + id).classList.remove("d-none");
+            document.getElementById('detalle_imagenes_' + id).disabled = true;
+            document.getElementById('detalle_parejas_' + id).disabled = false;
+        }
+        else
+        {
+            document.getElementById('contenedor_imagen_' + id).classList.remove("d-none");
+            document.getElementById('contenedor_texto_' + id).classList.add("d-none");
+            document.getElementById('detalle_imagenes_' + id).disabled = false;
+            document.getElementById('detalle_parejas_' + id).disabled = true;
         }
     }
-*/
     //Helpers
     agregarpareja(pid, rid) {
-        
+
         //console.log('Agregar pareja '+ pid + " " + pnum);
-        
+
         let ph = document.createElement("div");
         let tmpl = this.parejaValue;
 
@@ -141,17 +110,5 @@ export default class extends Controller {
         //this.agregarrespuesta(pid, -1)
         //this.agregarrespuesta(pid, -2)
     }
-/*
-    agregarrespuesta(pid, rid) {
-        let ph = document.createElement("div");
-        let tmpl = this.respuestaValue;
-        tmpl = tmpl.replace(/%_pid_%/g, pid)
-        tmpl = tmpl.replace(/%_rid_%/g, rid)
-        tmpl = tmpl.replace(/%_rtext_%/g, '');
-        tmpl = tmpl.replace(/%_rcorr_%/g, '');
-        
-        ph.innerHTML = tmpl;
 
-        document.getElementById('pareja_div_' + pid).append(ph);
-    }*/
 }

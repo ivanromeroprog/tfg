@@ -475,14 +475,66 @@ class ActividadController extends AbstractController
                     if ($pid != $id) {
                         $rid = $id;
                         $rtext = $texto;
+                        $rtextdisabled = $detalles['tipo'][$pid][$rid] == 1 ? 'disabled' : '';
+                        $rimgdisabled  = $detalles['tipo'][$pid][$rid] == 0 ? 'disabled' : '';
+                        $rtextcheck    = $detalles['tipo'][$pid][$rid] == 0 ? 'checked' : '';
+                        $rimgcheck     = $detalles['tipo'][$pid][$rid] == 1 ? 'checked' : '';
+                        $rtexthidden = $detalles['tipo'][$pid][$rid] == 1 ? 'd-none' : '';
+                        $rimghidden  = $detalles['tipo'][$pid][$rid] == 0 ? 'd-none' : '';
                     } else {
                         $ptext = $texto;
+                        $ptextdisabled = $detalles['tipo'][$pid][$pid] == 1 ? 'disabled' : '';
+                        $pimgdisabled  = $detalles['tipo'][$pid][$pid] == 0 ? 'disabled' : '';
+                        $ptextcheck    = $detalles['tipo'][$pid][$rid] == 0 ? 'checked' : '';
+                        $pimgcheck     = $detalles['tipo'][$pid][$rid] == 1 ? 'checked' : '';
+                        $ptexthidden = $detalles['tipo'][$pid][$rid] == 1 ? 'd-none' : '';
+                        $pimghidden  = $detalles['tipo'][$pid][$rid] == 0 ? 'd-none' : '';
                     }
                 }
 
                 $parejahtml = str_replace(
-                    ['%_pid_%', '%_rid_%', '%_ptext_%', '%_rtext_%'],
-                    [$pid, $rid, htmlentities($ptext), htmlentities($rtext)],
+                    [
+                        '%_pid_%',
+                        '%_rid_%',
+                        '%_ptext_%',
+                        '%_rtext_%',
+
+                        '%_ptextdisabled_%',
+                        '%_pimgdisabled_%',
+                        '%_rtextdisabled_%',
+                        '%_rimgdisabled_%',
+
+                        '%_ptextcheck_%',
+                        '%_pimgcheck_%',
+                        '%_rtextcheck_%',
+                        '%_rimgcheck_%',
+
+                        '%_ptexthidden_%',
+                        '%_pimghidden_%',
+                        '%_rtexthidden_%',
+                        '%_rimghidden_%',
+                    ],
+                    [
+                        $pid,
+                        $rid,
+                        htmlentities($ptext),
+                        htmlentities($rtext),
+
+                        $ptextdisabled,
+                        $pimgdisabled,
+                        $rtextdisabled,
+                        $rimgdisabled,
+
+                        $ptextcheck,
+                        $pimgcheck,
+                        $rtextcheck,
+                        $rimgcheck,
+
+                        $ptexthidden,
+                        $pimghidden,
+                        $rtexthidden,
+                        $rimghidden,
+                    ],
                     '<div>' . $parejatemplate . '</div>'
                 );
                 $i++;
@@ -893,8 +945,10 @@ class ActividadController extends AbstractController
         foreach ($det as $d) {
             if ($d->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A) {
                 $ad['parejas'][$d->getId()][$d->getId()]  = $d->getDato();
+                $ad['tipo'][$d->getId()][$d->getId()]  = $d->isCorrecto() ? 1 : 0;
             } elseif ($d->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_B) {
                 $ad['parejas'][$d->getRelacion()][$d->getId()] = $d->getDato();
+                $ad['tipo'][$d->getRelacion()][$d->getId()]  = $d->isCorrecto() ? 1 : 0;
             }
         }
 
