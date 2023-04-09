@@ -170,6 +170,11 @@ textarea .falsedisabled {
     justify-content: center !important;
 }
 
+.thumb-relacionar{
+    max-width: 300px;
+    max-height: 300px;
+}
+
 #formcurso .ts-control .item {
     display: block !important;
     width: 100% !important;

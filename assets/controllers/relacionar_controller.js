@@ -70,6 +70,10 @@ export default class extends Controller {
         }
     }
 
+    cambiararchivo(e){
+        let id = e.params.id;
+        document.getElementById('detalle_parejas_img_' + id).value='';
+    }
 
     cambiartipo(e) {
         //console.log(e.params.pid);
@@ -81,6 +85,7 @@ export default class extends Controller {
             document.getElementById('contenedor_imagen_' + id).classList.add("d-none");
             document.getElementById('contenedor_texto_' + id).classList.remove("d-none");
             document.getElementById('detalle_imagenes_' + id).disabled = true;
+            document.getElementById('detalle_parejas_img_' + id).disabled = true;
             document.getElementById('detalle_parejas_' + id).disabled = false;
         }
         else
@@ -88,6 +93,7 @@ export default class extends Controller {
             document.getElementById('contenedor_imagen_' + id).classList.remove("d-none");
             document.getElementById('contenedor_texto_' + id).classList.add("d-none");
             document.getElementById('detalle_imagenes_' + id).disabled = false;
+            document.getElementById('detalle_parejas_img_' + id).disabled = false;
             document.getElementById('detalle_parejas_' + id).disabled = true;
         }
     }
@@ -99,10 +105,27 @@ export default class extends Controller {
         let ph = document.createElement("div");
         let tmpl = this.parejaValue;
 
+        //Ids and empty values
         tmpl = tmpl.replace(/%_pid_%/g, pid);
         tmpl = tmpl.replace(/%_rid_%/g, rid);
         tmpl = tmpl.replace(/%_rtext_%/g, '');
         tmpl = tmpl.replace(/%_ptext_%/g, '');
+        tmpl = tmpl.replace(/%_pfilename_%/g, '');
+        tmpl = tmpl.replace(/%_rfilename_%/g, '');
+
+        //Disable image by default
+        tmpl = tmpl.replace(/%_rtextdisabled_%/g, '');
+        tmpl = tmpl.replace(/%_ptextdisabled_%/g, '');
+        tmpl = tmpl.replace(/%_rimgdisabled_%/g, 'disabled');
+        tmpl = tmpl.replace(/%_pimgdisabled_%/g, 'disabled');
+        tmpl = tmpl.replace(/%_rtextcheck_%/g, 'checked');
+        tmpl = tmpl.replace(/%_ptextcheck_%/g, 'checked');
+        tmpl = tmpl.replace(/%_rimgcheck_%/g, '');
+        tmpl = tmpl.replace(/%_pimgcheck_%/g, '');
+        tmpl = tmpl.replace(/%_rtexthidden_%/g, '');
+        tmpl = tmpl.replace(/%_ptexthidden_%/g, '');       
+        tmpl = tmpl.replace(/%_rimghidden_%/g, 'd-none');
+        tmpl = tmpl.replace(/%_pimghidden_%/g, 'd-none');
 
         ph.innerHTML = tmpl;
         this.element.append(ph)

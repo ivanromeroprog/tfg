@@ -2,24 +2,27 @@
 
 namespace App\Controller;
 
+use function dump;
 use App\Entity\Actividad;
-use App\Entity\DetalleActividad;
-use App\Form\ActividadType;
-use App\Repository\ActividadRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
-use Doctrine\ORM\EntityManagerInterface;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Form\ActividadType;
+use App\Entity\DetalleActividad;
+use App\Repository\ActividadRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Criteria;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Symfony\Component\Form\FormInterface;
+use App\Services\ContainerParametersHelper;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use function dump;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[IsGranted('ROLE_DOCENTE')]
 class ActividadController extends AbstractController
@@ -72,7 +75,7 @@ class ActividadController extends AbstractController
     }
 
     #[Route('/actividad/nuevo', name: 'app_actividad_new')]
-    public function new(Request $request): Response
+    public function new(Request $request, ContainerParametersHelper $pathHelpers, SluggerInterface $slugger): Response
     {
 
         //Obtener datos de post por fuera del form, sino no se puede modificar los campos :(
@@ -100,10 +103,10 @@ class ActividadController extends AbstractController
         //Seleccionar tipo de actividad y gestionar
         switch ($tipo) {
             case Actividad::TIPO_RELACIONAR_CONCEPTOS:
-                return $this->gestionarRelacionarConceptos($form, $request, $detalles, $actividad);
+                return $this->gestionarRelacionarConceptos($form, $request, $detalles, $actividad, $pathHelpers, $slugger, 'new');
                 break;
             case Actividad::TIPO_CUESTIONARIO:
-                return $this->gestionarCuestionario($form, $request, $detalles, $actividad);
+                return $this->gestionarCuestionario($form, $request, $detalles, $actividad, 'new');
                 break;
             default:
                 //Respuesta si no hay tipo de dato definido
@@ -119,7 +122,7 @@ class ActividadController extends AbstractController
     }
 
     #[Route('/actividad/editar/{id}', name: 'app_actividad_edit')]
-    public function edit(int $id, Request $request): Response
+    public function edit(int $id, Request $request, ContainerParametersHelper $pathHelpers, SluggerInterface $slugger): Response
     {
         if ($id < 1)
             throw new AccessDeniedHttpException();
@@ -153,7 +156,7 @@ class ActividadController extends AbstractController
                 $detallesdb = $this->formatearParejasDB($actividad);
                 $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb, $detalles));
 
-                return $this->gestionarRelacionarConceptos($form, $request, $detalles, $actividad, false, true);
+                return $this->gestionarRelacionarConceptos($form, $request, $detalles, $actividad, $pathHelpers, $slugger, 'modify');
                 break;
 
             case Actividad::TIPO_CUESTIONARIO:
@@ -161,54 +164,13 @@ class ActividadController extends AbstractController
                 $detallesdb = $this->formatearPreguntasDB($actividad);
                 $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb, $detalles));
 
-                return $this->gestionarCuestionario($form, $request, $detalles, $actividad, false, true);
+                return $this->gestionarCuestionario($form, $request, $detalles, $actividad, 'modify');
                 break;
         }
-
-        /*
-        //Crear formulario
-        $form = $this->createForm(ActividadType::class, $actividad, [
-            'tipo' => $tipo
-        ]);
-        $form->handleRequest($request);
-
-        //Agregar a los detalles de POST los detalles de la DB      
-        $detallesdb = $this->formatearPreguntasDB($actividad);
-        $detalles = (is_null($detalles) ? $detallesdb : array_merge($detallesdb, $detalles));
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $error = $this->guardarCuestionario($actividad, $detalles);
-            if ($error == '') {
-                $this->addFlash('success', 'Se modificó la actividad correctamente.');
-                return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
-            } else {
-                $this->addFlash('error', $error);
-            }
-        }
-
-        //Generar HTML de preguntas enviadas por Post y de la DB
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
-        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
-
-        //Respuesta
-        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
-        return $this->render('actividad/edit.html.twig', [
-            'form' => $form->createView(),
-            'tipo' => $tipo,
-            'respuestatemplate' => $respuestatemplate,
-            'preguntatemplate' => $preguntatemplate,
-            'detalleshtml' => $detalleshtml,
-            'nuevo' => empty($detalleshtml) ? 1 : 0,
-            'nocache' => true,
-            'view' => false,
-            'detalles_eliminar' => isset($detalles['eliminar']) ? $detalles['eliminar'] : '',
-        ], $response);
-        */
     }
 
     #[Route('/actividad/ver/{id}', name: 'app_actividad_view')]
-    public function view(int $id): Response
+    public function view(int $id, ContainerParametersHelper $pathHelpers, SluggerInterface $slugger): Response
     {
         if ($id < 1)
             throw new AccessDeniedHttpException();
@@ -234,20 +196,21 @@ class ActividadController extends AbstractController
 
                 //Detalles de la base de datos      
                 $detalles = $this->formatearParejasDB($actividad);
-                return $this->gestionarRelacionarConceptos($form, null, $detalles, $actividad, true);
+                return $this->gestionarRelacionarConceptos($form, null, $detalles, $actividad, $pathHelpers, $slugger, 'view');
                 break;
             case Actividad::TIPO_CUESTIONARIO:
 
                 //Detalles de la base de datos      
                 $detalles = $this->formatearPreguntasDB($actividad);
-                return $this->gestionarCuestionario($form, null, $detalles, $actividad, true);
+                return $this->gestionarCuestionario($form, null, $detalles, $actividad, 'view');
                 break;
         }
     }
 
     #[Route('/actividad/eliminar/{id}', name: 'app_actividad_delete', methods: ['GET', 'HEAD'])]
-    public function delete(int $id): Response
+    public function delete(int $id, ContainerParametersHelper $pathHelpers, SluggerInterface $slugger): Response
     {
+
         if ($id < 1)
             throw new AccessDeniedHttpException();
 
@@ -265,25 +228,23 @@ class ActividadController extends AbstractController
             'view' => true,
         ]);
 
-        //Detalles de la base de datos      
-        $detalles = $this->formatearPreguntasDB($actividad);
 
-        //Generar HTML de preguntas enviadas por Post y de la DB
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => true]));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => true]));
-        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
+        //Seleccionar tipo de actividad y gestionar
+        switch ($tipo) {
+            case Actividad::TIPO_RELACIONAR_CONCEPTOS:
 
-        return $this->render('actividad/delete.html.twig', [
-            'form' => $form->createView(),
-            'tipo' => $tipo,
-            'respuestatemplate' => $respuestatemplate,
-            'preguntatemplate' => $preguntatemplate,
-            'detalleshtml' => $detalleshtml,
-            'nuevo' => 0,
-            'nocache' => true,
-            'detalles_eliminar' => '',
-            'view' => true
-        ]);
+                //Detalles de la base de datos      
+                $detalles = $this->formatearParejasDB($actividad);
+                return $this->gestionarRelacionarConceptos($form, null, $detalles, $actividad, $pathHelpers, $slugger, 'delete');
+                break;
+            case Actividad::TIPO_CUESTIONARIO:
+
+                //Detalles de la base de datos      
+                $detalles = $this->formatearPreguntasDB($actividad);
+                return $this->gestionarCuestionario($form, null, $detalles, $actividad, 'delete');
+                break;
+        }
+
     }
 
     #[Route('/actividad/eliminar', name: 'app_actividad_dodelete', methods: ['DELETE'])]
@@ -335,18 +296,32 @@ class ActividadController extends AbstractController
         ?Request $request,
         ?array $detalles,
         Actividad $actividad,
-        bool $view = false,
-        bool $modify = false
+        ContainerParametersHelper $pathHelpers,
+        SluggerInterface $slugger,
+        string $mode = 'new' //modify,view, delete
     ): Response {
-        //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
-        //Guardar la nueva actividad y terminar
+        $view = $modify = $delete = false;
+        switch ($mode) {
+            case 'view':
+                $view = true;
+                break;
+            case 'modify':
+                $modify = true;
+                break;
+            case 'delete':
+                $delete = true;
+                $view = true;
+                break;
+        }
+
 
         if (!$view) {
             $form->handleRequest($request);
+            //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
+            //Guardar la nueva actividad y terminar
 
             if ($form->isSubmitted() && $form->isValid() && ($form->get('guardar')->isClicked() || $modify)) {
-
-                $error = $this->guardarRelacionarConceptos($actividad, $detalles);
+                $error = $this->guardarRelacionarConceptos($actividad, $detalles, $request, $pathHelpers, $slugger);
                 if ($error == '') {
                     $this->addFlash('success', 'Se ' . ($modify ? 'modificó' : 'guardó') . ' la actividad correctamente.');
                     return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
@@ -356,13 +331,14 @@ class ActividadController extends AbstractController
             }
         }
 
+
         //Generar HTML de parejas enviadas por Post
         $parejatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/relacionar/pareja.html.twig', ['view' => $view]));
         $detalleshtml = $this->generarParejasHtml($detalles, $parejatemplate);
 
         //Respuesta
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
-        return $this->render('actividad/new.html.twig', [
+        return $this->render('actividad/' . ($delete ? 'delete' : 'new') . '.html.twig', [
             'form' => $form->createView(),
             'tipo' => Actividad::TIPO_RELACIONAR_CONCEPTOS,
             'view' => $view,
@@ -384,13 +360,26 @@ class ActividadController extends AbstractController
         ?Request $request,
         ?array $detalles,
         Actividad $actividad,
-        bool $view = false,
-        bool $modify = false
+        string $mode
     ): Response {
-        //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
-        //Guardar la nueva actividad y terminar
-        if (!$view) {
 
+        $view = $modify = $delete = false;
+        switch ($mode) {
+            case 'view':
+                $view = true;
+                break;
+            case 'modify':
+                $modify = true;
+                break;
+            case 'delete':
+                $delete = true;
+                $view = true;
+                break;
+        }
+
+        if (!$view) {
+            //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
+            //Guardar la nueva actividad y terminar
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid() && ($form->get('guardar')->isClicked() && $modify)) {
                 $error = $this->guardarCuestionario($actividad, $detalles);
@@ -410,7 +399,7 @@ class ActividadController extends AbstractController
 
         //Respuesta
         $response = new Response(null, $form->isSubmitted() ? 422 : 200);
-        return $this->render('actividad/new.html.twig', [
+        return $this->render('actividad/' . ($delete ? 'delete' : 'new') . '.html.twig', [
             'form' => $form->createView(),
             'tipo' => Actividad::TIPO_CUESTIONARIO,
             'view' => $view,
@@ -420,29 +409,6 @@ class ActividadController extends AbstractController
             'nuevo' => empty($detalleshtml) ? 1 : 0,
             'nocache' => !$view,
             'detalles_eliminar' => '',
-        ], $response);
-
-
-
-
-
-        //Generar HTML de preguntas enviadas por Post y de la DB
-        $preguntatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/pregunta.html.twig', ['view' => false]));
-        $respuestatemplate = str_replace(["\n", "\t", "\r"], '', $this->renderView('actividad/tipo/cuestionario/respuesta.html.twig', ['view' => false]));
-        $detalleshtml = $this->generarPreguntasHtml($detalles, $preguntatemplate, $respuestatemplate);
-
-        //Respuesta
-        $response = new Response(null, $form->isSubmitted() ? 422 : 200);
-        return $this->render('actividad/edit.html.twig', [
-            'form' => $form->createView(),
-            'tipo' => $tipo,
-            'respuestatemplate' => $respuestatemplate,
-            'preguntatemplate' => $preguntatemplate,
-            'detalleshtml' => $detalleshtml,
-            'nuevo' => empty($detalleshtml) ? 1 : 0,
-            'nocache' => true,
-            'view' => false,
-            'detalles_eliminar' => isset($detalles['eliminar']) ? $detalles['eliminar'] : '',
         ], $response);
     }
 
@@ -454,7 +420,7 @@ class ActividadController extends AbstractController
     //////////////////////////////////////////////////
 
     /*
-     * Genera el HTML del formulario de preguntas y respuestas en base a
+     * Genera el HTML del formulario de relacionar conceptos en base a
      * los datos del array $detalles y los templates
      */
 
@@ -479,16 +445,19 @@ class ActividadController extends AbstractController
                         $rimgdisabled  = $detalles['tipo'][$pid][$rid] == 0 ? 'disabled' : '';
                         $rtextcheck    = $detalles['tipo'][$pid][$rid] == 0 ? 'checked' : '';
                         $rimgcheck     = $detalles['tipo'][$pid][$rid] == 1 ? 'checked' : '';
-                        $rtexthidden = $detalles['tipo'][$pid][$rid] == 1 ? 'd-none' : '';
-                        $rimghidden  = $detalles['tipo'][$pid][$rid] == 0 ? 'd-none' : '';
+                        $rtexthidden   = $detalles['tipo'][$pid][$rid] == 1 ? 'd-none' : '';
+                        $rimghidden    = $detalles['tipo'][$pid][$rid] == 0 ? 'd-none' : '';
+                        $rfilename     = $detalles['tipo'][$pid][$rid] == 1 ? $texto : '';
+
                     } else {
                         $ptext = $texto;
                         $ptextdisabled = $detalles['tipo'][$pid][$pid] == 1 ? 'disabled' : '';
                         $pimgdisabled  = $detalles['tipo'][$pid][$pid] == 0 ? 'disabled' : '';
-                        $ptextcheck    = $detalles['tipo'][$pid][$rid] == 0 ? 'checked' : '';
-                        $pimgcheck     = $detalles['tipo'][$pid][$rid] == 1 ? 'checked' : '';
-                        $ptexthidden = $detalles['tipo'][$pid][$rid] == 1 ? 'd-none' : '';
-                        $pimghidden  = $detalles['tipo'][$pid][$rid] == 0 ? 'd-none' : '';
+                        $ptextcheck    = $detalles['tipo'][$pid][$pid] == 0 ? 'checked' : '';
+                        $pimgcheck     = $detalles['tipo'][$pid][$pid] == 1 ? 'checked' : '';
+                        $ptexthidden   = $detalles['tipo'][$pid][$pid] == 1 ? 'd-none' : '';
+                        $pimghidden    = $detalles['tipo'][$pid][$pid] == 0 ? 'd-none' : '';
+                        $pfilename     = $detalles['tipo'][$pid][$pid] == 1 ? $texto : '';
                     }
                 }
 
@@ -513,6 +482,10 @@ class ActividadController extends AbstractController
                         '%_pimghidden_%',
                         '%_rtexthidden_%',
                         '%_rimghidden_%',
+
+                        '%_pfilename_%',
+                        '%_rfilename_%'
+
                     ],
                     [
                         $pid,
@@ -534,6 +507,9 @@ class ActividadController extends AbstractController
                         $pimghidden,
                         $rtexthidden,
                         $rimghidden,
+
+                        $pfilename,
+                        $rfilename
                     ],
                     '<div>' . $parejatemplate . '</div>'
                 );
@@ -598,8 +574,9 @@ class ActividadController extends AbstractController
      * @param  mixed $detalles
      * @return void
      */
-    private function guardarRelacionarConceptos(Actividad $actividad, ?array $detalles)
+    private function guardarRelacionarConceptos(Actividad $actividad, ?array $detalles, Request $request, ContainerParametersHelper $pathHelpers, SluggerInterface $slugger)
     {
+
         $error = '';
         $ids_guardados = [];
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
@@ -609,6 +586,8 @@ class ActividadController extends AbstractController
             //$actividad->setUsuario($this->getUser());
             $this->em->persist($actividad);
             $this->em->flush();
+            
+            // dd($detalles,$request->files->all());
 
             if (!$detalles || !isset($detalles['parejas']) || count($detalles['parejas']) < 1) {
                 $error = 'No se recibieron parejas para guardar.';
@@ -620,19 +599,71 @@ class ActividadController extends AbstractController
 
                 //Obtener texto e id de cada concepto de la pareja
                 $rid = null;
-                $rtext = '';
                 $ptext = '';
+                $rtext = '';
+                $ptype = '';
+                $rtype = '';
                 foreach ($pareja as $id => $texto) {
                     if ($pid != $id) {
                         $rid = $id;
                         $rtext = $texto;
+                        $rtype = $detalles['tipo'][$pid][$rid];
                     } else {
                         $ptext = $texto;
+                        $ptype = $detalles['tipo'][$pid][$pid];
                     }
                 }
 
+                //Guardar imagenes
+                //TODO: no repetir
+                if($ptype == 1){
+                    $pimg = $request->files->all()['detalle']['imagenes'][$pid][$pid] ?? $request->files->all()['detalle']['imagenes'][$pid][$pid];
+                    if ($pimg) {
+                        $originalFilename = pathinfo($pimg->getClientOriginalName(), PATHINFO_FILENAME);
+                        // this is needed to safely include the file name as part of the URL
+                        $safeFilename = $slugger->slug($originalFilename);
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$pimg->guessExtension();
+
+                        // Move the file to the directory
+                        try {
+                            $pimg->move(
+                                $pathHelpers->getPublicPath().'/uploads/relacionar',
+                                $newFilename
+                            );
+
+                            $ptext = $newFilename;
+                        } catch (FileException $e) {
+                            $error = 'Error al subir archivo.';
+                            throw new \Exception();     
+                        }
+                    }     
+                }
+                if($rtype == 1){
+                    $rimg = $request->files->all()['detalle']['imagenes'][$pid][$rid] ?? $request->files->all()['detalle']['imagenes'][$pid][$rid];
+                    if ($rimg) {
+                        $originalFilename = pathinfo($rimg->getClientOriginalName(), PATHINFO_FILENAME);
+                        // this is needed to safely include the file name as part of the URL
+                        $safeFilename = $slugger->slug($originalFilename);
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$rimg->guessExtension();
+
+                        // Move the file to the directory
+                        try {
+                            $rimg->move(
+                                $pathHelpers->getPublicPath().'/uploads/relacionar',
+                                $newFilename
+                            );
+
+                            $rtext = $newFilename;
+                        } catch (FileException $e) {
+                            $error = 'Error al subir archivo.';
+                            throw new \Exception();
+                        }
+                    }
+                }
+
+                //Validar conceptos y archivos (el nombre esta vacío si no se subio)
                 if (strlen($ptext) < 1 || strlen($rtext) < 1) {
-                    $error = 'Los conceptos no pueden estar vacíos.';
+                    $error = 'Los conceptos no pueden estar vacíos.'.$ptext.'-'.$rtext;
                     throw new \Exception();
                 }
 
@@ -645,7 +676,7 @@ class ActividadController extends AbstractController
                         $ptext,
                         DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A,
                         null,
-                        null,
+                        $ptype,
                         $actividad
                     );
                     $this->em->persist($detalle_concepto_a);
@@ -657,7 +688,7 @@ class ActividadController extends AbstractController
                         $rtext,
                         DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_B,
                         null,
-                        null,
+                        $rtype,
                         $actividad
                     );
                     $this->em->persist($detalle_concepto_b);
@@ -675,15 +706,15 @@ class ActividadController extends AbstractController
                     $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $pid));
                     $cp = $da->matching($criteria);
                     $detalle_concepto = $cp->first();
-                    //Solo modifico el texto
                     $detalle_concepto->setDato($ptext);
+                    $detalle_concepto->setCorrecto($ptype);
 
                     //B
                     $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $rid));
                     $cp = $da->matching($criteria);
                     $detalle_concepto = $cp->first();
-                    //Solo modifico el texto
                     $detalle_concepto->setDato($rtext);
+                    $detalle_concepto->setCorrecto($rtype);
 
                     $this->em->flush();
                 }
