@@ -175,6 +175,13 @@ textarea .falsedisabled {
     max-height: 300px;
 }
 
+.tooltip .thumb-relacionar{
+    display: block;
+    max-width: 150px;
+    max-height: 150px;
+    clear: both;
+}
+
 #formcurso .ts-control .item {
     display: block !important;
     width: 100% !important;

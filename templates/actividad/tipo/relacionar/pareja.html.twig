@@ -15,7 +15,7 @@
 				<label class="form-label mt-2 ms-1" for="detalle_imagenes_%_pid_%">Imagen</label>
 				<input %_pimgdisabled_% accept="image/*" class="form-control" type="file" name="detalle[imagenes][%_pid_%][%_pid_%]" id="detalle_imagenes_%_pid_%" data-action="change->relacionar#cambiararchivo" data-relacionar-id-param="%_pid_%">
 				<img class="img-thumbnail thumb-relacionar" src="/uploads/relacionar/%_pfilename_%" alt="%_ptext_%" onerror="this.style.display='none'">
-				<input type="text" value="%_pfilename_%" %_pimgdisabled_% name="detalle[parejas][%_pid_%][%_pid_%]" id="detalle_parejas_img_%_pid_%"{% if view %} disabled="disabled" {% endif %}>
+				<input type="hidden" value="%_pfilename_%" %_pimgdisabled_% name="detalle[parejas][%_pid_%][%_pid_%]" id="detalle_parejas_img_%_pid_%"{% if view %} disabled="disabled" {% endif %}>
 			</div>
 		</div>
 		<div class="col">
@@ -28,7 +28,7 @@
 				<label class="form-label mt-2 ms-1" for="detalle_imagenes_%_rid_%">Imagen Relacionada</label>
 				<input %_rimgdisabled_% accept="image/*" class="form-control" type="file" name="detalle[imagenes][%_pid_%][%_rid_%]" id="detalle_imagenes_%_rid_%" data-action="change->relacionar#cambiararchivo" data-relacionar-id-param="%_rid_%">
 				<img class="img-thumbnail thumb-relacionar" src="/uploads/relacionar/%_rfilename_%" alt="Imagen" onerror="this.style.display='none'">
-				<input type="text" value="%_rfilename_%" %_rimgdisabled_% name="detalle[parejas][%_pid_%][%_rid_%]" id="detalle_parejas_img_%_rid_%"{% if view %} disabled="disabled" {% endif %}>
+				<input type="hidden" value="%_rfilename_%" %_rimgdisabled_% name="detalle[parejas][%_pid_%][%_rid_%]" id="detalle_parejas_img_%_rid_%"{% if view %} disabled="disabled" {% endif %}>
 			</div>
 		</div>
 	</div>

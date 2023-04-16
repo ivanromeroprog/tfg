@@ -695,7 +695,7 @@ class ActividadController extends AbstractController
                     $this->em->flush();
 
                     //Agregar relación entre los dos
-                    $detalle_concepto_a->setRelacion($detalle_concepto_b->getId());
+                    $detalle_concepto_a->setRelacion($detalle_concepto_a->getId());
                     $detalle_concepto_b->setRelacion($detalle_concepto_a->getId());
 
                     $this->em->flush();

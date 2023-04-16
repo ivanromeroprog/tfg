@@ -184,6 +184,52 @@ class PresentacionActividadController extends AbstractController
                 }
             }
         }
+        if ($presentacion_actividad->getTipo() == Actividad::TIPO_RELACIONAR_CONCEPTOS) {
+            foreach ($lista_detalles_actividad as $detalle) {
+                //Si el concepto es tipo imagen, debo mostrar el HTML de la imagen
+                //Sino debo limpiar el texto usando htmlentities
+                if($detalle->isCorrecto())
+                {
+                    $detalle->setDato(
+                        "<img class='img-thumbnail thumb-relacionar' src='/uploads/relacionar/".
+                         $detalle->getDato() 
+                         ."' alt='Imagen'>"
+                    );
+                }
+                else
+                {
+                    $detalle->setDato(htmlentities($detalle->getDato()));
+                }
+
+                if ($detalle->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A) {
+                    //Si ya esta guardado el concepto B, recupero el texto o imagen y lo concateno
+                    //Luego lo sobreeescribo en el array a mostrar
+                    if(isset($lista_detalles_actividad_mostrar[$detalle->getRelacion()]))
+                    {
+                        $detalle->setDato(
+                            $detalle->getDato() . ' &rarr; ' . 
+                            $lista_detalles_actividad_mostrar[$detalle->getRelacion()]->getDato()
+                        );
+                    }
+                    $lista_detalles_actividad_mostrar[$detalle->getRelacion()] = $detalle;
+                }
+                else if($detalle->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_B){
+                    //Si ya esta guardado el cancepto A, concateno el texto o imagen del b al dato exitente
+                    //Sino guardo el concepto B para que haga este trabajo cuando le toque el turno al concepto A
+                    if(isset($lista_detalles_actividad_mostrar[$detalle->getRelacion()])){
+                        $lista_detalles_actividad_mostrar[$detalle->getRelacion()]->setDato(
+                            $lista_detalles_actividad_mostrar[$detalle->getRelacion()]->getDato() . ' &rarr; ' . 
+                            $detalle->getDato()
+                        );
+                    }
+                    else
+                    {
+                        $lista_detalles_actividad_mostrar[$detalle->getRelacion()] = $detalle;
+                    }
+
+                }
+            }
+        }
         unset($lista_detalles_actividad);
 
         //Lista de alumnos, la tomo de la lista de interacciones para asi registrar alumnos que fueron eliminados del curso

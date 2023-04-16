@@ -70,7 +70,7 @@
 				<th>Apellido y Nombre</th>
 				{% for pregunta in lista_detalles_actividad_mostrar %}
 					<th>
-						<span style="cursor: help;" data-bs-toggle="tooltip" title="{{ pregunta.dato }}">.{{ loop.index }}</span>
+						<span style="cursor: help;" data-bs-toggle="tooltip" data-bs-html="true" title="{{ pregunta.dato | raw }}">.{{ loop.index }}</span>
 					</th>
 				{% endfor %}
 			</tr>
