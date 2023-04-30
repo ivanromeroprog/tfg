@@ -151,7 +151,7 @@ textarea .falsedisabled {
     background-color: #e9ecef;
 }
 
-/* Clases */
+/* Clases and Ids */
 .dataTables_length {
     display: none;
 }
@@ -171,8 +171,10 @@ textarea .falsedisabled {
 }
 
 .thumb-relacionar{
-    max-width: 300px;
-    max-height: 300px;
+    max-width: 200px;
+    max-height: 200px;
+    width: 100%;
+    display: block;
 }
 
 .tooltip .thumb-relacionar{
@@ -184,10 +186,40 @@ textarea .falsedisabled {
 
 .label-relacionar{
     display: block;
-    height: 300px;
-    overflow: auto;
+    height: 210px;
+    /* overflow: auto; */
+    padding: 5px;
+    margin: 2px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
+.label-relacionar-container{
+    /* border: 1px solid red; */
+    height: 210px;
+    position: relative;
+}
+
+.label-relacionar .btn-close{
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    pointer-events: none;
+    font-size: 10px;
+}
+
+.relacionado{
+    position: absolute;
+    top: 0px;
+    left: 50px;
+    height: auto;
+}
+
+.relacionado .btn-close{
+    display: block;
+}
 #formcurso .ts-control .item {
     display: block !important;
     width: 100% !important;

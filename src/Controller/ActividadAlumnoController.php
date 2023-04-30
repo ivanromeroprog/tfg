@@ -377,6 +377,25 @@ class ActividadAlumnoController extends AbstractController
             ArraysHelper::shuffle($lista_conceptos['B'], 458796);
             unset($detalles);
 
+            /*
+             * FORMULARIO ENVIADO
+             */
+            $allData = $request->request->all();
+            if (isset($allData['presentacion_actividad'])) {
+
+                //Validar csrf token
+                $submittedToken = $request->request->get('_token');
+                if (!$this->isCsrfTokenValid('guardarcosa', $submittedToken)) {
+                    throw new AccessDeniedHttpException();
+                }
+
+                dump($allData);
+
+                //TODO: Determinar si son correctas y persistir los datos de la/s interaccion/es enviada/s para el concepto A.
+                //TODO: Agregar un campo relacion a tabla interacciones ya que actualmente no se podría registrar que relaciono el alumno, solo si es correcto
+
+            }
+
             // //Si el indice de pregunta pasado no se encuentra, error
             // if ($pregunta < 0) {
             //     throw new AccessDeniedHttpException();
@@ -398,7 +417,8 @@ class ActividadAlumnoController extends AbstractController
             /*
              * INTERACCIONES DEL ALUMNO
              */
-            //Si existen, Buscar las respuestas correspondientes a la pregunta actual
+            // TODO: Si existen, Buscar las respuestas correspondientes a la actividad actual.
+            // TODO: Debo guardar en lista_conceptos si un concepto A tiene un Concepto B relacionado y vicebersa
             // $interacciones_respuestas = [];
             // $tmp = $this->ir->findByPregunta($alumno, $preguntadetalle_actual, DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA);
             // foreach ($tmp as $interaccion) {
@@ -462,12 +482,6 @@ class ActividadAlumnoController extends AbstractController
 
             // $form = $builder->getForm();
             // $form->handleRequest($request);
-
-            /*
-             * FORMULARIO ENVIADO
-             */
-            // if ($form->isSubmitted() && $form->isValid()) {
-            //     //dump($form->getData());
 
             //     $this->em->getConnection()->beginTransaction(); // suspend auto-commit
             //     $error = '';
@@ -595,8 +609,8 @@ class ActividadAlumnoController extends AbstractController
             // }
         }
 
-        //TODO: definir el status en base a si debo volver a mostrar el form o no
-        $response = new Response(null, false ? 422 : 200);
+        //TODO: Mandar el html con los conceptos ya relacionados en su lugar
+        $response = new Response(null, isset($allData['presentacion_actividad']) ? 422 : 200);
         return $this->render('actividad_alumno/index.html.twig', [
             'presentacionactividad' => $presentacionactividad,
             'lista_conceptos' => $lista_conceptos,

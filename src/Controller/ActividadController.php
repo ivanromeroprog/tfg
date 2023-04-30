@@ -615,7 +615,6 @@ class ActividadController extends AbstractController
                 }
 
                 //Guardar imagenes
-                //TODO: no repetir
                 if($ptype == 1){
                     $pimg = $request->files->all()['detalle']['imagenes'][$pid][$pid] ?? $request->files->all()['detalle']['imagenes'][$pid][$pid];
                     if ($pimg) {
@@ -733,7 +732,6 @@ class ActividadController extends AbstractController
                     $eldi = intval($elid);
                     if (!in_array($elid, $ids_guardados)) {
 
-                        //TODO: No funciona matching en este punto? porque?
                         foreach ($da as $det) {
                             if ($det->getId() == $elid) {
                                 $actividad->removeDetallesactividad($det);
@@ -808,8 +806,6 @@ class ActividadController extends AbstractController
                     //Si estamos modificando
                     //$da = new ArrayCollection();
 
-                    //TODO: esto funciona acá pero no en eliminar... tener cuidado
-                    //sino usar bucle y listo
                     $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('id', $k));
                     $cp = $da->matching($criteria);
                     $detalle_concepto = $cp->first();
@@ -891,7 +887,6 @@ class ActividadController extends AbstractController
                     $eldi = intval($elid);
                     if (!in_array($elid, $ids_guardados)) {
 
-                        //TODO: No funciona matching en este punto? porque?
                         foreach ($da as $det) {
                             if ($det->getId() == $elid || $det->getRelacion() == $elid) {
                                 $actividad->removeDetallesactividad($det);

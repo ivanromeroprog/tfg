@@ -1,0 +1,8 @@
+						<div id="presentacion_actividad_concepto_{{ concepto.id }}" class="label-relacionar concepto-a" data-relacionaralumno-ida-param="{{ concepto.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Haz clic o arrastra." data-action="
+							                    click->relacionaralumno#conceptoaclick
+							                    dragstart->relacionaralumno#conceptoadragstart
+							                    dragend->relacionaralumno#conceptoadragend
+							                    " draggable="true">
+							<button type="button" class="btn-close" aria-label="Close"></button>
+							{{ concepto.dato | raw }}
+						</div>
