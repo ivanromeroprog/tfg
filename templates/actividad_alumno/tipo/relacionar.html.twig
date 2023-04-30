@@ -1,1 +1,28 @@
-{{ include('noimp.html.twig', with_context = true) }}
+<div class="mt-4 border-top pt-1">
+	{{ include('alert.html.twig', with_context = true) }}
+
+        <div data-controller="relacionaralumno">
+            <form action="{{ path('app_actividad_alumno_relacionar', {'code': code}) }}" method="POST">
+                <div class="row">
+                <div class="col-6">
+                {% for concepto in lista_conceptos.A %}
+                    <div for="presentacion_actividad_{{ concepto.id }}" class="label-relacionar" data-relacionaralumno-ida-value="{{ concepto.id }}"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Haz clic para seleccionar este elemento. Luego haz clic en el elemento relacionado."
+                    >{{ concepto.dato | raw }}</div>
+                    <input type="text" id="presentacion_actividad_{{ concepto.id }}" name="presentacion_actividad[{{ concepto.id }}]" value="">
+                {% endfor %}
+                </div>
+                <div class="col-6">
+                {% for concepto in lista_conceptos.B %}
+                    <div for="presentacion_actividad_{{ concepto.id }}" class="label-relacionar" data-relacionaralumno-idb-value="{{ concepto.id }}">{{ concepto.dato | raw }}</div>
+                {% endfor %}
+                </div>
+                </div>
+
+                <input type="hidden" name="_token" value="{{ csrf_token('guardarcosa') }}"/>
+                <input type="submit" value="Finalizar" class="btn btn-primary" style="float: right; margin-top: 40px"/>
+            </form>
+        </div>
+
+<div style="height: 75px"></div>
+</div>

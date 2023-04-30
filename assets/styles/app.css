@@ -182,6 +182,12 @@ textarea .falsedisabled {
     clear: both;
 }
 
+.label-relacionar{
+    display: block;
+    height: 300px;
+    overflow: auto;
+}
+
 #formcurso .ts-control .item {
     display: block !important;
     width: 100% !important;
