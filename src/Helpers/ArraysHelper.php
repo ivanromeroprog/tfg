@@ -8,11 +8,13 @@ class ArraysHelper
         mt_srand($semilla);
         $keys = array_keys($array);
         shuffle($keys);
+        
         $result = array();
         foreach ($keys as $key) {
             $result[$key] = $array[$key];
         }
-        array_multisort($result);
+        // dump($result);
+        // array_multisort($result);
         $array = $result;
     }
 }

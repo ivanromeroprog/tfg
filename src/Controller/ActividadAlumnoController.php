@@ -10,6 +10,7 @@ use App\Entity\Interaccion;
 use App\Helpers\ArraysHelper;
 use Doctrine\ORM\EntityManager;
 use App\Entity\DetalleActividad;
+use App\Entity\DetallePresentacionActividad;
 use Symfony\Component\Form\Form;
 use App\Repository\AlumnoRepository;
 use App\Entity\PresentacionActividad;
@@ -367,20 +368,20 @@ class ActividadAlumnoController extends AbstractController
 
                 if ($detalle->getTipo() == DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A) {
                     $i++;
-                    $lista_conceptos['A'][$detalle->getRelacion()] = $detalle;
+                    $lista_conceptos['A'][$detalle->getId()] = ['detalle'=>$detalle,'relacion'=>null];
                 } else {
-                    $lista_conceptos['B'][$detalle->getRelacion()] = $detalle;
+                    $lista_conceptos['B'][$detalle->getId()] = ['detalle'=>$detalle,'relacion'=>null];
                 }
             }
             //Mezclar los conceptos
-            ArraysHelper::shuffle($lista_conceptos['A'], 458796);
-            ArraysHelper::shuffle($lista_conceptos['B'], 458796);
-            unset($detalles);
+            ArraysHelper::shuffle($lista_conceptos['A'], 114785621 + intval(date('d')));
+            ArraysHelper::shuffle($lista_conceptos['B'], 665458784 + intval(date('d')));
 
             /*
              * FORMULARIO ENVIADO
              */
             $allData = $request->request->all();
+            // dd($allData);
             if (isset($allData['presentacion_actividad'])) {
 
                 //Validar csrf token
@@ -389,43 +390,103 @@ class ActividadAlumnoController extends AbstractController
                     throw new AccessDeniedHttpException();
                 }
 
-                dump($allData);
+                if(isset($allData['modificado']))
+                {
+                    $idmodificadoA = $allData['modificado'];
+                    $idmodificadoB = $allData['presentacion_actividad'][$allData['modificado']];
 
-                //TODO: Determinar si son correctas y persistir los datos de la/s interaccion/es enviada/s para el concepto A.
-                //TODO: Agregar un campo relacion a tabla interacciones ya que actualmente no se podría registrar que relaciono el alumno, solo si es correcto
+                    // dd($idmodificadoA,$idmodificadoB);
 
+                    $detalleConceptoA = $detalles->filter(function(DetallePresentacionActividad $detalle) use ($idmodificadoA){
+                        return $detalle->getId() == $idmodificadoA;
+                    })->first();
+                    $detalleConceptoB = $detalles->filter(function(DetallePresentacionActividad $detalle) use ($idmodificadoB){
+                        return $detalle->getId() == $idmodificadoB;
+                    })->first();
+
+                    if($detalleConceptoA){
+
+                        $interaccion = $this->ir->findBy(
+                            [
+                                'detallePresentacionActividad' => $detalleConceptoA,
+                                'alumno' => $alumno
+                                ]
+                        );
+
+                        //Crear o actualizar interacción
+                        if(!$interaccion)
+                        {
+                            $interaccion = new Interaccion(
+                                null,
+                                $alumno,
+                                $detalleConceptoA,
+                                $detalleConceptoB ? $detalleConceptoA->getRelacion() == $detalleConceptoB->getRelacion() : null,
+                                $detalleConceptoB ? $detalleConceptoB->getId() : null
+                            );
+                            $this->em->persist($interaccion);
+                        }else{
+                            $interaccion = $interaccion[0];
+                            $interaccion->setCorrecto(
+                                $detalleConceptoB ? $detalleConceptoA->getRelacion() == $detalleConceptoB->getRelacion() : null,
+                            );
+                            $interaccion->setRelacion(
+                                $detalleConceptoB ? $detalleConceptoB->getId() : null
+                            );
+                        }
+
+                        $update = new Update(
+                            'actividad/' . $presentacionactividad->getId(),
+                            json_encode([
+                                'idpregunta' => $detalleConceptoA->getId(),
+                                'idalumno' => $alumno->getId(),
+                                'correcto' => $interaccion->isCorrecto()
+                            ]),
+                            true
+                        );
+    
+                        $hub->publish($update);
+
+                        //Solo sincronizar esta entidad ya que hago cambios temporales al detalle actividad
+                        $this->em->flush($interaccion);
+                    }
+                }
             }
-
-            // //Si el indice de pregunta pasado no se encuentra, error
-            // if ($pregunta < 0) {
-            //     throw new AccessDeniedHttpException();
-            // }
-
-            // if ($pregunta > count($lista_destalles['preguntas']) - 1) {
-            //     return $this->redirectToRoute('app_actividad_alumno_fin', [
-            //         'url' => urlencode(base64_encode(
-            //             $this->generateUrl('app_actividad_alumno_relacionar', ['code' => $code, 'pregunta' => $pregunta - 1])
-            //         ))
-            //     ]);
-            // }
-
-            // //Detalle Presentacion de la Pregunta Actual
-            // $preguntadetalle_actual = $lista_destalles['preguntas'][$pregunta];
-            // //Detalles Presentacion de las respuestas a la Pregunta Actual
-            // $respuestasdetalle_actual = $lista_destalles['respuestas'][$pregunta];
+            unset($detalles);
 
             /*
              * INTERACCIONES DEL ALUMNO
              */
-            // TODO: Si existen, Buscar las respuestas correspondientes a la actividad actual.
-            // TODO: Debo guardar en lista_conceptos si un concepto A tiene un Concepto B relacionado y vicebersa
+
+            $interacciones = $this->ir->findByActividad($alumno, $presentacionactividad);
+            // dd($interacciones);
+
+            foreach($interacciones as $interaccion)
+            {
+                //La interaccion solo guarda conceptos A, recorro la lista de detalles de conceptos A y busco un match por id_detalle_presentacion_actividad
+                foreach($lista_conceptos['A'] as $id_detalle_presentacion_actividad => $conceptoA){
+                    if($interaccion->getDetallePresentacionActividad()->getId() == $conceptoA['detalle']->getId()){
+                        //En los conceptos A guardo el Id del concepto B relacioando
+                        $lista_conceptos['A'][$id_detalle_presentacion_actividad]['relacion'] = $interaccion->getRelacion();
+                        //En los conceptos B guardo los datos del concepto A para mostrarlo en la vista
+                        if($interaccion->getRelacion()){
+                            $lista_conceptos['B'][$interaccion->getRelacion()]['relacion'] = 
+                            [
+                                'detalle' => $interaccion->getDetallePresentacionActividad(),
+                                'relacion' => $interaccion->getDetallePresentacionActividad()->getId()
+                            ];
+                        }
+                        break;
+                    }
+                }
+            }
+
             // $interacciones_respuestas = [];
             // $tmp = $this->ir->findByPregunta($alumno, $preguntadetalle_actual, DetalleActividad::TIPO_CUESTIONARIO_RESPUESTA);
             // foreach ($tmp as $interaccion) {
             //     $interacciones_respuestas[$interaccion->getDetallePresentacionActividad()->getId()] = $interaccion;
             // }
             // unset($tmp);
-
+            // dump($lista_conceptos);
 
             /*
              * FORM
@@ -574,17 +635,7 @@ class ActividadAlumnoController extends AbstractController
             //         */
             //         //Seguro
 
-            //         $update = new Update(
-            //             'actividad/' . $presentacionactividad->getId(),
-            //             json_encode([
-            //                 'idpregunta' => $preguntadetalle_actual->getId(),
-            //                 'idalumno' => $alumno->getId(),
-            //                 'correcto' => $interaccion_pregunta->isCorrecto()
-            //             ]),
-            //             true
-            //         );
 
-            //         $hub->publish($update);
 
             //         // dump('actividad/' . $presentacionactividad->getId(), json_encode([
             //         //     'id' => $interaccion_pregunta->getId(),
@@ -609,14 +660,19 @@ class ActividadAlumnoController extends AbstractController
             // }
         }
 
-        //TODO: Mandar el html con los conceptos ya relacionados en su lugar
-        $response = new Response(null, isset($allData['presentacion_actividad']) ? 422 : 200);
+        $fin = $this->generateUrl('app_actividad_alumno_fin', [
+            'url' => urlencode(base64_encode(
+                $this->generateUrl('app_actividad_alumno_relacionar', ['code' => $code])
+            ))
+        ]);
+
+        $response = new Response(null,isset($allData['presentacion_actividad'])  ? 422 : 200);//isset($allData['presentacion_actividad'])
         return $this->render('actividad_alumno/index.html.twig', [
             'presentacionactividad' => $presentacionactividad,
             'lista_conceptos' => $lista_conceptos,
             // 'form' => $form->createView(),
             'code' => $code,
-            //'fin' => $fin,
+            'fin' => $fin,
             // 'preguntaanterior' => $pregunta - 1
         ], $response);
     }

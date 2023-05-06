@@ -31,6 +31,12 @@ export default class extends Controller {
         {
             conceptoarel.value = '';
             this.conceptoareset(conceptoarel);
+            document.getElementById('modificado').value=e.params.ida;
+            setTimeout(
+                ()=>{
+                    this.element.requestSubmit();
+                },100
+            );
             return;
         }
 
@@ -98,12 +104,12 @@ export default class extends Controller {
         conceptoa.classList.remove('relacionado');
         conceptoacontainer.append(conceptoa);
 
-        let concepto_tooltip = bootstrap.Tooltip.getInstance(conceptoa);
-        setTimeout(
-            ()=>{
-                if(concepto_tooltip) concepto_tooltip.hide();
-            },10
-        )
+        // let concepto_tooltip = bootstrap.Tooltip.getInstance(conceptoa);
+        // setTimeout(
+        //     ()=>{
+        //         if(concepto_tooltip) concepto_tooltip.hide();
+        //     },10
+        // )
         
     }
     conceptosaclear(){
@@ -134,5 +140,32 @@ export default class extends Controller {
         conceptob.parentNode.append(this.dragElement);
         this.dragElement.style.visibility = 'visible';
         this.dragElement.classList.add('relacionado');
+    }
+
+    finclick(e){
+
+      let campos = document.querySelectorAll('.concepto-a-rel-b');
+      let vacio = false;
+
+      console.log(campos);
+
+      campos.forEach(campo => {
+        if (campo.value == "") {
+          vacio = true;
+        }
+      });
+
+      if (vacio) {
+        window.PreguntarSiNo('Hay conceptos sin relacionar\n¿Deséa continuar de todas formas?', (result) => {
+          if(result.isConfirmed){
+            console.log(result);
+            window.location = e.params.url;
+          }
+        })
+      }
+      else
+      {
+          window.location = e.params.url;
+      }
     }
 }

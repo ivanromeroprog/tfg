@@ -3,12 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Alumno;
-use App\Entity\DetallePresentacionActividad;
 use App\Entity\Interaccion;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr\Join;
+use App\Entity\PresentacionActividad;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\DetallePresentacionActividad;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Interaccion>
@@ -65,6 +66,33 @@ class InteraccionRepository extends ServiceEntityRepository {
         return $querry->getResult();
     }
 
+    public function findByActividad(Alumno $alumno, PresentacionActividad $presentacionActividad, string $tipo = null) {
+        $builder = $this->createQueryBuilder('i');
+        $builder
+                ->setParameter('alumno', $alumno)
+                ->setParameter('presentacionActividad', $presentacionActividad)
+                // ->addSelect('d')
+                ->leftJoin('i.detallePresentacionActividad', 'd')
+                ->where('i.alumno = :alumno')
+                ->andWhere('d.presentacionActividad = :presentacionActividad');
+        
+        if (!is_null($tipo)) {
+            $builder
+                    ->setParameter('tipo', $tipo)
+                    ->andWhere('d.tipo = :tipo')
+            ;
+        }
+
+       
+        
+        $querry = $builder->getQuery();
+        $querry->setFetchMode(DetallePresentacionActividad::class, "detallePresentacionActividad", ClassMetadata::FETCH_EAGER);
+        // dd($querry->getSQL());
+        // $querry->setFetchMode(DetallePresentacionActividad::class, "detallesPresentacionActividad", ClassMetadata::FETCH_EXTRA_LAZY);
+        // dd($querry->getArrayResult());
+
+        return $querry->getResult();
+    }
 //    /**
 //     * @return Interaccion[] Returns an array of Interaccion objects
 //     */

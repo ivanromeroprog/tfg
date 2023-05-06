@@ -27,14 +27,19 @@ window.Swal = require('sweetalert2');
 
 
 //Eventos
-document.addEventListener('turbo:load', function () {
+const loadTooltips = (e) => {
+  document.querySelectorAll('[role="tooltip"]').forEach((tooltip)=>{
+    tooltip.remove();
+  });
+
   let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
   let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl, {boundary: document.body});
-    
   })
-  //console.log(tooltipList);
-});
+}
+
+document.addEventListener('turbo:load', loadTooltips);
+document.addEventListener('turbo:frame-load', loadTooltips);
 
 
 //Funciones globales

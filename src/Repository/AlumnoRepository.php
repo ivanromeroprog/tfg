@@ -89,7 +89,7 @@ class AlumnoRepository extends ServiceEntityRepository
         
         WHERE presentacion_actividad.curso_id = ?
         AND presentacion_actividad.estado <> ?
-        AND detalle_presentacion_actividad.tipo = ?
+        AND (detalle_presentacion_actividad.tipo = ? OR detalle_presentacion_actividad.tipo = ?)
         
         $optsql
         
@@ -101,8 +101,18 @@ class AlumnoRepository extends ServiceEntityRepository
         $statement->bindValue(1, $curso->getId());
         $statement->bindValue(2, PresentacionActividad::ESTADO_ANULADO);
         $statement->bindValue(3, DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA);
+        $statement->bindValue(4, DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A);
         if (!is_null($alumno))
-            $statement->bindValue(4, $alumno->getId());
+            $statement->bindValue(5, $alumno->getId());
+
+            
+        dump(
+            $sql,
+            $curso->getId(),
+            PresentacionActividad::ESTADO_ANULADO,
+            DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
+            DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A
+        );
 
         return $statement->executeQuery()->fetchAllAssociative();
     }

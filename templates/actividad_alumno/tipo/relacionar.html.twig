@@ -1,38 +1,53 @@
-<div class="mt-4 border-top pt-1">
+<turbo-frame id="formulario">
+	<div class="mt-4 border-top pt-1">
 	{{ include('alert.html.twig', with_context = true) }}
-    <turbo-frame id="formulario">
 	<form action="{{ path('app_actividad_alumno_relacionar', {'code': code}) }}" method="POST" data-controller="relacionaralumno" data-turbo-frame="formulario">
 		<div class="row">
 			<div class="col-6">
 
 				{% for concepto in lista_conceptos.A %}
 					<div class="label-relacionar-container">
-                        {# TODO: Si viene una relación no rednderizar el concepto A aqui #}
-                        {{ include('actividad_alumno/tipo/relacionar/conceptoa.html.twig', with_context = true) }}
-						<input type="text" data-ida="{{ concepto.id }}" class="concepto-a-rel-b" id="presentacion_actividad_{{ concepto.id }}" name="presentacion_actividad[{{ concepto.id }}]" value="">
+						{# {{ concepto.detalle.id }} #}
+						{% if concepto.relacion is null %}
+							{{ include('actividad_alumno/tipo/relacionar/conceptoa.html.twig', with_context = true) }}
+						{% endif %}
+
+						<input type="hidden" style="position: absolute; z-index: 85" data-ida="{{ concepto.detalle.id }}"
+						class="concepto-a-rel-b" id="presentacion_actividad_{{ concepto.detalle.id }}"
+						name="presentacion_actividad[{{ concepto.detalle.id }}]"
+						value="{{ concepto.relacion }}">
 					</div>
 				{% endfor %}
 			</div>
 			<div class="col-6">
 				{% for concepto in lista_conceptos.B %}
 					<div class="label-relacionar-container">
-						<div id="presentacion_actividad_concepto_{{ concepto.id }}" class="label-relacionar concepto-b" data-relacionaralumno-idb-param="{{ concepto.id }}" data-action="
+						{# {{ concepto.detalle.id }} #}
+						<div id="presentacion_actividad_concepto_{{ concepto.detalle.id }}" class="label-relacionar concepto-b" data-relacionaralumno-idb-param="{{ concepto.detalle.id }}" data-action="
 							                    dragover->relacionaralumno#conceptobdragover
 							                    dragenter->relacionaralumno#conceptobdragenter
 							                    dragleave->relacionaralumno#conceptobdragleave
 							                    drop->relacionaralumno#conceptobdrop
 							                    click->relacionaralumno#conceptobdrop
-							                    ">{{ concepto.dato | raw }}
+							                    ">{{ concepto.detalle.dato | raw }}
 						</div>
-                        {# TODO: Si viene una relación rednderizar el concepto A aqui #}
+						{% if concepto.relacion is not null %}
+							{% set concepto = concepto.relacion %}
+							{{ include('actividad_alumno/tipo/relacionar/conceptoa.html.twig', with_context = true) }}
+						{% endif %}
 					</div>
 				{% endfor %}
 			</div>
 		</div>
         <input type="hidden" name="modificado" id="modificado" value=""/>
 		<input type="hidden" name="_token" value="{{ csrf_token('guardarcosa') }}"/>
-		<input type="submit" value="Finalizar" class="btn btn-primary" style="float: right; margin-top: 40px"/>
+		<input type="button" value="Finalizar"
+		class="btn btn-primary"
+		data-action="click->relacionaralumno#finclick"
+		style="float: right; margin-top: 40px"
+		data-relacionaralumno-url-param="{{ fin }}"
+		/>
 	</form>
-    </turbo-frame>
 	<div style="height: 75px"></div>
-</div>
+	</div>
+</turbo-frame>

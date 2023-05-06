@@ -115,6 +115,8 @@ turbo-frame[busy] .frame-loading-show {
 
 turbo-frame[busy] {
     opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
 }
 
 /* Numeric Up Down */

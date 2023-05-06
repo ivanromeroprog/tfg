@@ -276,7 +276,7 @@ class PresentacionActividadController extends AbstractController
             if ($estado != '') {
                 $presentacion_actividad->setEstado($estado);
                 $this->em->persist($presentacion_actividad);
-                $this->em->flush();
+                $this->em->flush($presentacion_actividad);
 
                 $this->addFlash('success', 'Se ' .
                     ($estado == PresentacionActividad::ESTADO_ANULADO ? 'Anuló' : ($estado == PresentacionActividad::ESTADO_INICIADO ? 'Inició' : ($estado == PresentacionActividad::ESTADO_FINALIZADO ? 'Finalizó' :

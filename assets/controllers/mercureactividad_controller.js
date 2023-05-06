@@ -18,9 +18,9 @@ export default class extends Controller {
             console.log(JSON.parse(event.data));
             let data = JSON.parse(event.data);
             let name = 'respuesta_' + data.idpregunta + '_' + data.idalumno;
-            //console.log(name);
+            console.log(name);
             let td = document.getElementById(name);
-            //console.log(td);
+            console.log(td);
 
             if(!td){
                 audiof.volume = 0.2
@@ -36,8 +36,11 @@ export default class extends Controller {
             }
 
             let span = td.getElementsByTagName('span')[0];
-
-            if (data.correcto) {
+            console.log(data.correcto);
+            if(data.correcto === null){
+                span.innerHTML = '⚪';
+                span.setAttribute('title', 'No completado');
+            }else if (data.correcto) {
                 span.innerHTML = '✔️';
                 span.setAttribute('title', 'Correcto');
             }

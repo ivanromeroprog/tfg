@@ -7,7 +7,10 @@
 {% endblock %}
 
 {% block body %}
+	{# <turbo-frame id="presentacion-actividad"> #}
 	{{ include('alert.html.twig', with_context = true) }}
+
+	{#  #}
 
 	{% if presentacion_actividad.Estado == 'Iniciado' %}
 		<!-- Button trigger modal -->
@@ -147,6 +150,8 @@
 
 
 	{{ form_end(form) }}
+
+	{# </turbo-frame> #}
 
 	{# inseguro #}
 	{# <div data-controller="mercureactividad" data-mercureactividad-audio-value="{{ asset('audio/not.wav') }}" data-mercureactividad-source-value="{{ mercure([ ('actividad/' ~ presentacion_actividad.id) ]) }}"></div> #}

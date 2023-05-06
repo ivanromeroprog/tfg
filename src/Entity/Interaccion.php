@@ -24,16 +24,21 @@ class Interaccion
     #[ORM\Column(nullable: true)]
     private ?bool $correcto = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $relacion = null;
+
     public function __construct(
         ?int $id = null,
         ?Alumno $alumno = null,
         ?DetallePresentacionActividad $detallePresentacionActividad = null,
-        ?bool $correcto = null
+        ?bool $correcto = null,
+        ?int $relacion = null
     ) {
         $this->id = $id;
         $this->alumno = $alumno;
         $this->detallePresentacionActividad = $detallePresentacionActividad;
         $this->correcto = $correcto;
+        $this->relacion = $relacion;
     }
 
     public function getId(): ?int
@@ -73,6 +78,18 @@ class Interaccion
     public function setCorrecto(?bool $correcto): self
     {
         $this->correcto = $correcto;
+
+        return $this;
+    }
+
+    public function getRelacion(): ?int
+    {
+        return $this->relacion;
+    }
+
+    public function setRelacion(?int $relacion): self
+    {
+        $this->relacion = $relacion;
 
         return $this;
     }
