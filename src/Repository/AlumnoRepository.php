@@ -106,13 +106,13 @@ class AlumnoRepository extends ServiceEntityRepository
             $statement->bindValue(5, $alumno->getId());
 
             
-        dump(
-            $sql,
-            $curso->getId(),
-            PresentacionActividad::ESTADO_ANULADO,
-            DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
-            DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A
-        );
+        // dump(
+        //     $sql,
+        //     $curso->getId(),
+        //     PresentacionActividad::ESTADO_ANULADO,
+        //     DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
+        //     DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A
+        // );
 
         return $statement->executeQuery()->fetchAllAssociative();
     }
@@ -171,13 +171,13 @@ class AlumnoRepository extends ServiceEntityRepository
         if(!is_null($curso)) $statement->bindValue(4, $curso->getId());
 
             
-        dump(
-            $sql,
-            $curso,
-            PresentacionActividad::ESTADO_ANULADO,
-            DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
-            DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A
-        );
+        // dump(
+        //     $sql,
+        //     $curso,
+        //     PresentacionActividad::ESTADO_ANULADO,
+        //     DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
+        //     DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A
+        // );
 
         return $statement->executeQuery()->fetchAllAssociative();
     }
