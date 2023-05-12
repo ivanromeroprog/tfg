@@ -1,0 +1,30 @@
+{% extends 'base_users.html.twig' %}
+{% form_theme form 'bootstrap_5_horizontal_layout.html.twig' %}
+
+{% block title %}Edu-track - Reportes
+{% endblock %}
+{% block bodytitle %}Reporte de Rendimiento promedio por Curso
+{% endblock %}
+
+{% block body %}
+	{{ form_start(form,{'attr': {'data-controller': 'chartform'}}) }}
+	{{ form_errors(form) }}
+
+	<div class="row">
+		<div class="col-md">{{ form_row(form.id_curso) }}</div>
+		{# <div class="col-md">{{ form_row(form.id_alumno) }}</div> #}
+	</div>
+
+
+	{{ form_end(form) }}
+
+	{{ render_chart(chart,{'data-controller': 'graficoalumno'}) }}
+
+	<div class="alert alert-info mt-3">
+		<h4 class="alert-heading">Referencias</h5>
+		<ul>
+			<li>Eje vertical: porcentaje promedio de aciertos en cada actividad.</li>
+			<li>Eje horizontal: actividades realizadas.</li>
+		</ul>
+	</div>
+{% endblock %}

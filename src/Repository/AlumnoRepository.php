@@ -117,6 +117,70 @@ class AlumnoRepository extends ServiceEntityRepository
         return $statement->executeQuery()->fetchAllAssociative();
     }
 
+    public function getDatosReporteCurso(Curso $curso = null)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $optsql = '';
+        if(!is_null($curso)){
+            $optsql = 'AND presentacion_actividad.curso_id = ?';
+        }
+
+        $sql = "SELECT
+
+        s.id_presentacion_actividad,
+        s.titulo,
+        s.fecha,
+        AVG(porcentaje) AS promedio_porcentaje
+        
+        FROM 
+        
+        (SELECT
+        
+        alumno.id AS id_alumno, alumno.nombre, alumno.apellido,
+        presentacion_actividad.id AS id_presentacion_actividad, presentacion_actividad.titulo,
+        presentacion_actividad.fecha,
+        SUM(interaccion.correcto) AS correctos,
+        COUNT(interaccion.id) AS cantidad,
+        SUM(interaccion.correcto) / COUNT(interaccion.id) * 100 AS  porcentaje
+        
+        FROM presentacion_actividad
+        
+        LEFT JOIN detalle_presentacion_actividad ON presentacion_actividad.id = detalle_presentacion_actividad.presentacion_actividad_id
+        LEFT JOIN interaccion ON interaccion.detalle_presentacion_actividad_id = detalle_presentacion_actividad.id
+        LEFT JOIN alumno ON alumno.id = interaccion.alumno_id
+        
+        WHERE
+        
+        presentacion_actividad.estado <> ?
+        AND (detalle_presentacion_actividad.tipo = ? OR detalle_presentacion_actividad.tipo = ?)
+        $optsql
+        
+        GROUP BY presentacion_actividad.id, alumno.id
+        ORDER BY presentacion_actividad.fecha ASC, alumno.apellido ASC) AS s
+
+        GROUP BY s.id_presentacion_actividad
+        ORDER BY fecha ASC;
+        ";
+
+        $statement = $conn->prepare($sql);
+
+        
+        $statement->bindValue(1, PresentacionActividad::ESTADO_ANULADO);
+        $statement->bindValue(2, DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA);
+        $statement->bindValue(3, DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A);
+        if(!is_null($curso)) $statement->bindValue(4, $curso->getId());
+
+            
+        dump(
+            $sql,
+            $curso,
+            PresentacionActividad::ESTADO_ANULADO,
+            DetalleActividad::TIPO_CUESTIONARIO_PREGUNTA,
+            DetalleActividad::TIPO_RELACIONAR_CONCEPTOS_A
+        );
+
+        return $statement->executeQuery()->fetchAllAssociative();
+    }
     //    /**
     //     * @return Alumno[] Returns an array of Alumno objects
     //     */

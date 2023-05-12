@@ -1,4 +1,19 @@
 {
     "intelephense.environment.phpVersion": "8.2.0",
-    "phpAddProperty.property.types": true
+    "phpAddProperty.property.types": true,
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "local",
+            "database": "tfg",
+            "username": "root",
+            "password": ""
+        }
+    ]
 }
