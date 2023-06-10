@@ -177,6 +177,7 @@ textarea .falsedisabled {
     max-height: 200px;
     width: 100%;
     display: block;
+    margin: 0 auto;
 }
 
 .tooltip .thumb-relacionar{
@@ -194,6 +195,7 @@ textarea .falsedisabled {
     margin: 2px;
     border-radius: 5px;
     cursor: pointer;
+    text-align: center;
 }
 
 .label-relacionar-container{

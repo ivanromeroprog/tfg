@@ -13,6 +13,8 @@ export default class extends Controller {
         if (this.nuevoValue) {
             //console.log('Nuevo registro, agregar pareja.')
             this.agregarpareja(-1, -2);
+            this.agregarpareja(-3, -4);
+
         }
     }
 
@@ -27,9 +29,9 @@ export default class extends Controller {
             "¿Quiere eliminar esta pareja?",
             (result) => {
                 if (result.isConfirmed) {
-                    if (this.element.getElementsByClassName('pareja_div').length < 2) {
+                    if (this.element.getElementsByClassName('pareja_div').length < 3) {
                         window.Alertar(
-                            'La actividad debe tener por lo menos una pareja.',
+                            'La actividad debe tener por lo menos dos parejas.',
                             'No se puede eliminar'
                         )
                     }
