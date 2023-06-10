@@ -378,6 +378,8 @@ class ActividadController extends AbstractController
         }
 
 
+
+
         if (!$view) {
             //Si se enviaron los datos correctos al form y se hizo clic en Guardar...
             //Guardar la nueva actividad y terminar
@@ -385,7 +387,7 @@ class ActividadController extends AbstractController
             if ($form->isSubmitted() && $form->isValid() && ($form->get('guardar')->isClicked() || $modify)) {
                 $error = $this->guardarCuestionario($actividad, $detalles);
                 if ($error == '') {
-                    $this->addFlash('success', 'Se ' . ($modify ? 'guardó' : 'modificó') . ' la actividad correctamente.');
+                    $this->addFlash('success', 'Se ' . ($modify ? 'modificó' : 'guardó') . ' la actividad correctamente.');
                     return $this->redirectToRoute('app_actividad_edit', ['id' => $actividad->getId()]);
                 } else {
                     $this->addFlash('error', $error);
