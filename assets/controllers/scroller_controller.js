@@ -4,6 +4,6 @@ export default class extends Controller {
     connect() {
       setTimeout(() =>{
         this.element.scrollIntoView()
-      },250);
+      },750);
   }
 }
