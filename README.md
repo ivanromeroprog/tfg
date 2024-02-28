@@ -52,7 +52,7 @@ $env:MERCURE_SUBSCRIBER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!';
 .\mercure.exe run -config Caddyfile.dev
 
 ### Instalación
-
+- Descargar el proyecto con sus dependencias desde el siguiente link: https://drive.google.com/file/d/1rmEkND-t9EBURZEAtdI03bn7cCHE_BiJ/view?usp=drive_link
 - Copiar el contenido de la carpeta “tfg” a la raíz del servidor web apache.
 - Importar la base de datos desde el archivo “BASE_DE_DATOS_tfg.sql” al servidor MySQL/MariaDB.
 - Configurar la versión del servidor y datos de acceso a la base de datos en el archivo “.env.local”.
