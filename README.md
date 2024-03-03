@@ -3,7 +3,14 @@
 ## Utilización de la aplicación
 
 Puede acceder a un demo online de la aplicación en la URL:
-~~[https://edutrack.ivanyromero.com.ar/](https://edutrack.ivanyromero.com.ar/).~~ OFFLINE
+
+---
+### Importante: 
+_La funcionalidad de actualización en tiempo real del estado de las actividades se encuentra offline, ya que el servicio usado fue dado de baja, puede generar algunos errores._
+
+---
+
+[https://edutrack.ivanyromero.com.ar/](https://edutrack.ivanyromero.com.ar/)
 
 Los datos de acceso para un usuario docente, con datos de prueba ya cargados, son los siguientes:
 
